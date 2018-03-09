@@ -1,3 +1,5 @@
+open Regex_internal
+
 (* 
 module TestSplice1 = {
   module DNA = {
@@ -10,10 +12,8 @@ module TestSplice1 = struct
   module DNA = struct
     let any_base = 
       raise (RegexNotation.RelitInternalDefn_regex.Call 
-        { err_msg = "Forgot ppx..."; 
-          body = "A|T|G|C" } )
+        ("Forgot ppx...",  "A|T|G|C"))
   end
-  let bisA = raise RegexNotation.RelitInternalDefn_regex.Call
-    { err_msg = "Forgot ppx..."; 
-      body = "A|T|G|C" }
+  let bisA = raise (RegexNotation.RelitInternalDefn_regex.Call
+    ("Forgot ppx...", "A|T|G|C"))
 end
