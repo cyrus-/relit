@@ -16,6 +16,8 @@ module RegexNotation = {
   };
 };
 *)
+
+
 module RegexNotation = struct
   module RelitInternalDefn_regex = struct
     type t = Regex.t
@@ -36,13 +38,14 @@ module Test1 = {
   };
 };
 *)
+
 module Test1 = struct
   open RegexNotation
-  module DNA = struct 
-    let any_base = 
-      raise (RelitInternalDefn_regex.Call 
+  module DNA = struct
+    module RelitInternalDefn = RelitInternalDefn_regex
+    let any_base =
+      raise (RelitInternalDefn.Call
         ("Forgot ppx...",
         "A|T|G|C"))
   end
 end
-

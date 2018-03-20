@@ -1,0 +1,7 @@
+(library
+  ((name        ppx_relit)
+   ; (public_name ppx_relit)
+   (kind ppx_rewriter)
+   (libraries (typpx ppx_core ppx_driver))
+   (ppx_runtime_libraries ())
+   (preprocess (pps ()))))

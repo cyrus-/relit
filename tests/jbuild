@@ -1,0 +1,7 @@
+(jbuild_version 1)
+
+(executable
+  ((name regex_internal)
+   (modules (regex_internal))
+   (preprocess (pps (ppx_relit)))
+   ))
