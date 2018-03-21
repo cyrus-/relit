@@ -18,18 +18,19 @@ module To_current = Convert(OCaml_404)(OCaml_current)
 module TypedMap = TypedtreeMap.MakeMap(struct
     include TypedtreeMap.DefaultMapArgument
     let enter_module_expr module_expr =
-      let mod_desc = match module_expr.mod_desc with
+      (match module_expr.mod_desc with
         | Tmod_ident (path, _loc)
           when
             (Path.last path
             |> String.split_on_char '_'
             |> List.hd) = "RelitInternalDefn"
           ->
-          prerr_endline (Path.name path);
-          module_expr.mod_desc
-        | e -> e
-      in
-      { module_expr with mod_desc }
+          let mod_decl = Env.find_module path module_expr.mod_env in
+          Printtyp.modtype
+            Format.err_formatter
+            mod_decl.md_type
+        | e -> ());
+      module_expr
   end)
 
 let ppx_mapper _config _cookies =
