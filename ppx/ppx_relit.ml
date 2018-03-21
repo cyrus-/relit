@@ -17,20 +17,25 @@ module To_current = Convert(OCaml_404)(OCaml_current)
 
 module TypedMap = TypedtreeMap.MakeMap(struct
     include TypedtreeMap.DefaultMapArgument
-    let enter_module_expr module_expr =
-      (match module_expr.mod_desc with
-        | Tmod_ident (path, _loc)
-          when
-            (Path.last path
-            |> String.split_on_char '_'
-            |> List.hd) = "RelitInternalDefn"
-          ->
-          let mod_decl = Env.find_module path module_expr.mod_env in
-          Printtyp.modtype
-            Format.err_formatter
-            mod_decl.md_type
+    let enter_expression expr =
+      (match expr.exp_desc with
+       | Texp_letmodule (
+           ident,
+           _loc,
+           { mod_desc = Tmod_ident (path, _loc'); mod_env; _ },
+           { exp_desc = Texp_apply (_raise_expr, [(_lbl, Some (
+                 { exp_desc = Texp_construct (_loc'', _desc, _err_info::{
+                       exp_desc = Texp_constant Const_string (source, _other_part ); _
+                     }::_); _ }
+               ))]); _ }
+         ) when Ident.name ident = "RelitInternalDefn" ->
+         prerr_endline source;
+         let mod_decl = Env.find_module path mod_env in
+         Printtyp.modtype
+           Format.err_formatter
+           mod_decl.md_type
         | e -> ());
-      module_expr
+      expr
   end)
 
 let ppx_mapper _config _cookies =
@@ -38,7 +43,6 @@ let ppx_mapper _config _cookies =
 
     (* enable this to run against any ast version if it can *)
     let current_structure = To_current.copy_structure structure in
-
     (* useful definitions for the remaining part *)
     let loc = (List.hd structure).pstr_loc in
     let fname = loc.Location.loc_start.Lexing.pos_fname in
@@ -57,6 +61,7 @@ let ppx_mapper _config _cookies =
 
     (* run our mapper against the typed tree *)
     let mapped_typed = TypedMap.map_structure (fst typed) in
+
     (* Printtyped.implementation Format.err_formatter mapped_typed; *)
 
     structure
