@@ -8,11 +8,13 @@ module RegexParser = struct end
 
 (* 
 module RegexNotation = {
-  notation $regex at Regex.t {
-    lexer RegexLexer;
+  notation $regex { 
+        at Regex.t;
+     lexer RegexLexer;
     parser RegexParser;
-    expansions require
-      module Regex as Regex;
+    expansions require {
+      module Regex = Regex;
+    }
   };
 };
 *)
