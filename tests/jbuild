@@ -2,6 +2,6 @@
 
 (executable
   ((name regex_internal)
-   (modules (regex_internal))
+   (modules (regex regex_internal))
    (preprocess (pps (ppx_relit)))
    ))

@@ -31,10 +31,10 @@ module TypedMap = TypedtreeMap.MakeMap(struct
                    }::_); _ }
              ))]); _ } as top_expression)
         ) when Ident.name ident = "RelitInternalDefn" ->
-        prerr_endline source;
+        print_endline source;
         let mod_type = (Env.find_module path mod_env).md_type in
         Printtyp.modtype
-          Format.err_formatter
+          Format.std_formatter
           mod_type;
         { expr with exp_desc = Texp_letmodule (
               ident,
@@ -44,7 +44,7 @@ module TypedMap = TypedtreeMap.MakeMap(struct
       | e -> expr
   end)
 
-let ppx_mapper _config _cookies =
+let ppx_mapper config _cookies =
   let structure_mapper _x structure =
 
     (* useful definitions for the remaining part *)
@@ -52,9 +52,10 @@ let ppx_mapper _config _cookies =
     let without_extension = Filename.remove_extension fname in
 
     (* initialize the typechecking environment *)
-    Compmisc.init_path false;
+    Compmisc.init_path ~dir:"." true;
     let module_name = Compenv.module_of_filename
-      Format.err_formatter fname without_extension in
+        Format.std_formatter fname without_extension in
+
     Env.set_unit_name module_name;
     let initial_env = Compmisc.initial_env () in
 
@@ -63,7 +64,7 @@ let ppx_mapper _config _cookies =
     |> To_current.copy_structure
     |> Typemod.type_implementation fname without_extension module_name initial_env
     |> fst |> TypedMap.map_structure
-    |> fun x -> Printtyped.implementation Format.err_formatter x ; x
+    (* |> fun x -> Printtyped.implementation Format.std_formatter x ; x *)
     |> Untypeast.untype_structure
     |> From_current.copy_structure
   in

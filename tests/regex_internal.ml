@@ -1,6 +1,3 @@
-module Regex = struct 
-  type t = AnyChar | Str of string | Seq of t * t | Or of t * t | Star of t
-end
 
 (* TODO separate into menhir files *)
 module RegexLexer = struct end
@@ -47,3 +44,6 @@ module Test1 = struct
       raise (RelitInternalDefn.Call ("Forgot ppx...", "A|T|G|C"))
   end
 end
+
+let () =
+  print_int Test1.DNA.any_base
