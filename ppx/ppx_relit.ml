@@ -5,16 +5,11 @@
 
 let ppx_name = "relit"
 
-open Migrate_parsetree
-open OCaml_404.Ast
 open Ast_mapper
 open Parsetree
 
 open Typedtree
 open Asttypes
-
-module To_current = Convert(OCaml_404)(OCaml_current)
-module From_current = Convert(OCaml_current)(OCaml_404)
 
 module TypedMap = TypedtreeMap.MakeMap(struct
 
@@ -44,7 +39,7 @@ module TypedMap = TypedtreeMap.MakeMap(struct
       | e -> expr
   end)
 
-let ppx_mapper config _cookies =
+let ppx_mapper _cookies =
   let structure_mapper _x structure =
 
     (* useful definitions for the remaining part *)
@@ -52,7 +47,7 @@ let ppx_mapper config _cookies =
     let without_extension = Filename.remove_extension fname in
 
     (* initialize the typechecking environment *)
-    Compmisc.init_path ~dir:"." true;
+    Compmisc.init_path true;
     let module_name = Compenv.module_of_filename
         Format.std_formatter fname without_extension in
 
@@ -61,14 +56,12 @@ let ppx_mapper config _cookies =
 
     (* map to current ast; typecheck; map typed tree; map back to known version *)
     structure
-    |> To_current.copy_structure
     |> Typemod.type_implementation fname without_extension module_name initial_env
     |> fst |> TypedMap.map_structure
     (* |> fun x -> Printtyped.implementation Format.std_formatter x ; x *)
     |> Untypeast.untype_structure
-    |> From_current.copy_structure
   in
   { default_mapper with structure = structure_mapper }
 
 let () =
-  Driver.register ~name:ppx_name (module OCaml_404) ppx_mapper
+  register ppx_name ppx_mapper
