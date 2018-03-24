@@ -15,27 +15,37 @@ module TypedMap = TypedtreeMap.MakeMap(struct
 
     include TypedtreeMap.DefaultMapArgument
     let enter_expression expr =
+      let open Path in
       match expr.exp_desc with
-      | Texp_letmodule (
-          ident,
+      | Texp_apply (
+          (* match against the "raise" *)
+          { exp_desc = Texp_ident (Pdot (Pident { name = "Pervasives" ; _ }, "raise", _), _, _) ; _ },
+          [(_label, Some ({ exp_desc = Texp_construct (
           loc,
-          ({ mod_desc = Tmod_ident (path, _loc); mod_env; _ } as module_expr),
-          ({ exp_desc = Texp_apply (_raise_expr, [(_lbl, Some (
-               { exp_desc = Texp_construct (_loc', _desc, _err_info::{
-                     exp_desc = Texp_constant Const_string (source, _other_part ); _
-                   }::_); _ }
-             ))]); _ } as top_expression)
-        ) when Ident.name ident = "RelitInternalDefn" ->
+
+          (* extract the module name and the remaining path of the module it's from *)
+          { cstr_tag = Cstr_extension (Pdot (Pdot (path, name, _), "Call", _), _some_bool);
+            _ },
+          _err_info::{
+            exp_desc = Texp_constant Const_string (source, _other_part );
+            exp_env;
+          }::_ ); _ }))])
+
+        when
+          (* Make sure that it looks like a relit call *)
+          (name |> String.split_on_char '_' |> List.hd) = "RelitInternalDefn"
+        ->
+
         print_endline source;
-        let mod_type = (Env.find_module path mod_env).md_type in
+
+        (* Look up and print the module's type *)
+        let mod_type = (Env.find_module path exp_env).md_type in
         Printtyp.modtype
           Format.std_formatter
           mod_type;
-        { expr with exp_desc = Texp_letmodule (
-              ident,
-              loc,
-              module_expr,
-              { top_expression with exp_desc = Texp_constant (Const_int 3)} ) }
+
+        (* return the desired new expression *)
+        { expr with exp_desc = Texp_constant (Const_int 3) }
       | e -> expr
   end)
 

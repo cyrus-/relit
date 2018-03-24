@@ -1,4 +1,0 @@
-B ../_build/default/tests/.regex_internal.eobjs
-FLG -ppx '/home/charles/code/relit/_build/default/.ppx/ppx_relit@/ppx.exe --as-ppx'
-FLG -w -40
-S .

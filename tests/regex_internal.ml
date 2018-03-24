@@ -40,8 +40,7 @@ module Test1 = struct
   open RegexNotation
   module DNA = struct
     let any_base =
-      let module RelitInternalDefn = RelitInternalDefn_regex in
-      raise (RelitInternalDefn.Call ("Forgot ppx...", "A|T|G|C"))
+      raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "A|T|G|C"))
   end
 end
 
