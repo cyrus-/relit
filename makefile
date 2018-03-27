@@ -3,10 +3,10 @@ run: build
 	./regex_internal.native
 
 build: build_ppx
-	ocamlbuild -cflags "-ppx `pwd`/ppx_relit" tests/regex_internal.native
+	ocamlbuild -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" tests/regex_internal.native
 
 build_ppx:
-	ocamlfind ocamlopt -package compiler-libs ocamlcommon.cmxa ppx/ppx_relit.ml -o ppx_relit
+	jbuilder build ppx/ppx_relit.exe
 
 clean:
 	rm -rf _build
