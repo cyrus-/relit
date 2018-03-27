@@ -20,8 +20,9 @@ module TypedMap = TypedtreeMap.MakeMap(struct
       | Texp_apply (
           (* match against the "raise" *)
           { exp_desc = Texp_ident (Pdot (Pident { name = "Pervasives" ; _ }, "raise", _), _, _) ; _ },
-          [(_label, Some ({ exp_desc = Texp_construct (
+          [(_label, Some ({exp_attributes = [({txt = "relit"; _}, _)]; exp_desc = Texp_construct (
           loc,
+
 
           (* extract the module name and the remaining path of the module it's from *)
           { cstr_tag = Cstr_extension (Pdot (Pdot (path, name, _), "Call", _), _some_bool);
