@@ -45,4 +45,4 @@ module Test1 = struct
 end
 
 let () =
-  print_int Test1.DNA.any_base
+  print_endline Test1.DNA.any_base

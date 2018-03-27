@@ -1,5 +1,8 @@
 (executable
   ((name        ppx_relit)
    ; (public_name ppx_relit)
-   (libraries (ocaml-migrate-parsetree))
-   (preprocess (pps ()))))
+   (libraries (ocaml-migrate-parsetree
+               yojson
+               ppx_deriving_yojson.runtime
+               ppx_deriving_yojson))
+   (preprocess (pps (ppx_deriving_yojson)))))
