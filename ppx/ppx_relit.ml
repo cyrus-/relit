@@ -126,6 +126,9 @@ let ppx_mapper _cookies =
     |> fst |> TypedMap.map_structure
     (* |> fun x -> Printtyped.implementation Format.std_formatter x ; x *)
     |> Untypeast.untype_structure
+    |> Convert.From_current.copy_structure
+         (* TODO: do the mapping and generate call to lexer here *)
+    |> Convert.To_current.copy_structure
   in
   { default_mapper with structure = structure_mapper }
 
