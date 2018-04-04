@@ -31,7 +31,7 @@ let loc_to_relit_call : relit_call LocMap.t ref = ref LocMap.empty
 
 let load_file filename =
   if not (Topdirs.load_file Format.std_formatter filename) then
-  raise (Failure ("Failed to load file at compile time: " ^ filename))
+    raise (Failure ("Failed to load file at compile time: " ^ filename))
 
 let objfilename_of_module modulename =
   (* Since we're already using the toploop, it's got to be bytecode.
@@ -80,12 +80,24 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
 
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
 
-        let parse = parse_fn_from_module relit_call.lexer exp_env in
-        print_endline (parse "star")
       | _ -> ()
   end)
 
-let ppx_mapper _cookies =
+
+let purely_parsing_mapper =
+  let open Migrate_parsetree.OCaml_404.Ast in
+  let open Parsetree in
+  let expr_mapper mapper expr =
+    (match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
+    | Some call ->
+        let parse = parse_fn_from_module call.lexer call.env in
+        print_endline (parse "star")
+    | None -> ());
+    expr
+  in { Ast_mapper.default_mapper with
+       expr = expr_mapper }
+
+let typing_mapper _cookies =
   let structure_mapper _x structure =
 
     (* useful definitions for the remaining part *)
@@ -110,9 +122,10 @@ let ppx_mapper _cookies =
      * and generate call to lexer *)
     structure
     |> Convert.From_current.copy_structure
+    |> purely_parsing_mapper.structure purely_parsing_mapper
     |> Convert.To_current.copy_structure
   in
   { default_mapper with structure = structure_mapper }
 
 let () =
-  register ppx_name ppx_mapper
+  register ppx_name typing_mapper
