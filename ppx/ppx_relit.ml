@@ -7,9 +7,10 @@ let ppx_name = "relit"
 
 open Ast_mapper
 open Parsetree
-
 open Typedtree
 open Asttypes
+
+open Relit_call
 
 (* TODO: move to its own file *)
 module Convert = struct
@@ -19,44 +20,6 @@ module Convert = struct
   module From_current = Convert(OCaml_current)(OCaml_404)
 end
 
-(* TODO: move to its own file *)
-module Relit_call = struct
-
-  type relit_call = {
-    (* name: string; *)
-    source: string;
-    lexer: string;
-    (* parser: string; *)
-    (* Not sure if these should be strings or what yet.
-     * dependencies: string;
-     * type': string; *)
-  } [@@deriving yojson]
-
-  let signature_of_outer_modtype = function
-    | Types.Mty_signature [Sig_module (_name, {
-        md_type =  Mty_signature signature ; _
-      }, _)] -> signature
-    | _ -> raise (Failure "Expected a signature modtype for relit")
-
-  let relit_call_of_modtype modtype source : relit_call =
-    let unwrap = function
-      | Some o -> o
-      | None -> raise (Failure "Unwrap: Malformed relit call site")
-    and lexer = ref None in
-
-    let signature = signature_of_outer_modtype modtype in
-    List.iter (function
-        | Types.Sig_module ({ name = "Lexer" ; _},
-                            { md_type = Mty_alias (_alias_presence, path); _ }, _) ->
-          lexer := Some (Path.name path)
-        | _ -> ()
-      )
-      signature ;
-
-    { lexer = unwrap !lexer ; source = source }
-end
-
-open Relit_call
 
 module LocMap = Map.Make(struct
     type t = Location.t
@@ -113,10 +76,7 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                      exp_env;
                    }::_ ); _ }))]) ->
 
-        print_endline source;
-        (* Look up and print the module's type *)
-        let modtype = (Env.find_module path exp_env).md_type in
-        let relit_call = relit_call_of_modtype modtype source in
+        let relit_call = relit_call_of_modtype exp_env path source in
 
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
 
