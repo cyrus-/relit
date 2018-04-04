@@ -3,7 +3,8 @@ run: build
 	./regex_internal.native
 
 build: build_ppx
-	ocamlbuild -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" tests/regex_internal.native
+	ocamlbuild -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" \
+		tests/regex_internal.native
 
 build_ppx:
 	jbuilder build ppx/ppx_relit.exe

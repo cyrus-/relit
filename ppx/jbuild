@@ -1,8 +1,10 @@
 (executable
   ((name        ppx_relit)
    ; (public_name ppx_relit)
-   (libraries (ocaml-migrate-parsetree
-               yojson
-               ppx_deriving_yojson.runtime
-               ppx_deriving_yojson))
-   (preprocess (pps (ppx_deriving_yojson)))))
+   (libraries (compiler-libs.toplevel
+               compiler-libs.common
+               ocaml-migrate-parsetree))
+   ; In order to use compiler-libs.toplevel,
+   ; we must compile only to bytecode
+   (modes (byte))
+   (preprocess (pps ()))))

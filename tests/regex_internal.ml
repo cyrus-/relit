@@ -1,7 +1,7 @@
 
 (* TODO separate into menhir files *)
-module RegexLexer = struct end
-module RegexParser = struct end 
+(* module Regex_lexer = Regex_lexer *)
+module Regex_parser = struct end
 
 (* 
 module RegexNotation = {
@@ -18,8 +18,8 @@ module RegexNotation = {
 module RegexNotation = struct
   module RelitInternalDefn_regex = struct
     type t = Regex.t
-    module Lexer = RegexLexer
-    module Parser = RegexParser (* assume starting non-terminal is called start *)
+    module Lexer = Regex_lexer
+    module Parser = Regex_parser (* assume starting non-terminal is called start *)
     module Dependencies = struct
       module Regex = Regex
     end
@@ -27,7 +27,7 @@ module RegexNotation = struct
   end
 end
 
-(* 
+(*
 module Test1 = {
   open RegexNotation;
   module DNA = {
