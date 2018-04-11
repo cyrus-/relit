@@ -2,7 +2,8 @@
 type relit_call = {
   (* name: string; *)
   source: string;
-  lexer: string;
+  lexer: Path.t;
+  parser_: Path.t;
   env: Env.t;
   (* parser: string; *)
   (* Not sure if these should be strings or what yet.
@@ -19,18 +20,24 @@ let signature_of_outer_modtype = function
 let relit_call_of_modtype env path source : relit_call =
   let unwrap = function
     | Some o -> o
-    | None -> raise (Failure "Unwrap: Malformed relit call site")
-  and lexer = ref None in
-
+    | None -> raise (Failure "Unwrap: Malformed relit call site") in
+  let lexer = ref None in
+  let parser_ = ref None in
   let modtype = (Env.find_module path env).md_type in
-
   let signature = signature_of_outer_modtype modtype in
+
   List.iter (function
       | Types.Sig_module ({ name = "Lexer" ; _},
                           { md_type = Mty_alias (_alias_presence, path); _ }, _) ->
-        lexer := Some (Path.name path)
+        lexer := Some path
+      | Types.Sig_module ({ name = "Parser" ; _},
+                          { md_type = Mty_alias (_alias_presence, path); _ }, _) ->
+        parser_ := Some path
       | _ -> ()
     )
     signature ;
 
-  { lexer = unwrap !lexer ; source = source ; env = env}
+  { lexer = unwrap !lexer ;
+    parser_ = unwrap !parser_;
+    source = source ;
+    env = env}

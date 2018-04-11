@@ -1,8 +1,4 @@
 
-(* TODO separate into menhir files *)
-(* module Regex_lexer = Regex_lexer *)
-module Regex_parser = struct end
-
 (* 
 module RegexNotation = {
   notation $regex at Regex.t {
@@ -18,8 +14,8 @@ module RegexNotation = {
 module RegexNotation = struct
   module RelitInternalDefn_regex = struct
     type t = Regex.t
-    module Lexer = Regex_lexer
-    module Parser = Regex_parser (* assume starting non-terminal is called start *)
+    module Lexer = Regex_notation.Lexer
+    module Parser = Regex_notation.Parser (* assume starting non-terminal is called start *)
     module Dependencies = struct
       module Regex = Regex
     end

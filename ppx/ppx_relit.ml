@@ -24,27 +24,33 @@ end
 module LocMap = Map.Make(struct
     type t = Location.t
     let compare a b = let open Location in
-      compare (a.loc_start, a.loc_end, a.loc_ghost) (b.loc_start, b.loc_end, b.loc_ghost)
+      compare
+        (a.loc_start, a.loc_end, a.loc_ghost)
+        (b.loc_start, b.loc_end, b.loc_ghost)
   end)
 
 let loc_to_relit_call : relit_call LocMap.t ref = ref LocMap.empty
 
-let load_file filename =
-  if not (Topdirs.load_file Format.std_formatter filename) then
-    raise (Failure ("Failed to load file at compile time: " ^ filename))
+let load_top_module path =
+  let toplevel_module = Ident.name (Path.head path) in
+  let filename = String.lowercase_ascii toplevel_module ^ ".cma" in
+  (* The boolean returned is just whether or not it was
+   * already loaded *)
+  Topdirs.load_file Format.std_formatter filename |> ignore
 
-let objfilename_of_module modulename =
-  (* Since we're already using the toploop, it's got to be bytecode.
-   * We could consider trying to use nattoplevel also but it seems experimental. *)
-  String.lowercase_ascii modulename ^ ".cmo"
+let parse_fn_from_module lexer_path parser_path env =
+  Toploop.initialize_toplevel_env ();
+  load_top_module lexer_path;
+  load_top_module parser_path;
 
-let parse_fn_from_module modulename env : (string -> string) =
-  load_file (objfilename_of_module modulename);
-  let lexer_path = Env.lookup_module
-      ~load:true (Longident.Lident modulename) env in
-  let parse_path = Path.Pdot (lexer_path, "parse", 0) in
-  let o = Toploop.eval_path !Toploop.toplevel_env parse_path in
-  Obj.magic o
+  ("let value : Lexing.lexbuf -> Migrate_parsetree.Ast_404.Parsetree.expression = "
+  ^ Path.name parser_path  ^ ".literal "
+  ^ Path.name lexer_path  ^ ".read;;")
+    |> Lexing.from_string
+    |> Parse.toplevel_phrase
+    |> Toploop.execute_phrase false Format.std_formatter
+    |> fun x -> if not x then raise (Failure "while trying to execute phrase");
+  (Obj.magic (Toploop.getvalue "value") : (Lexing.lexbuf -> Migrate_parsetree.Ast_404.Parsetree.expression))
 
 module Iter_and_extract = TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
@@ -78,6 +84,7 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
 
         let relit_call = relit_call_of_modtype exp_env path source in
 
+
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
 
       | _ -> ()
@@ -88,12 +95,11 @@ let purely_parsing_mapper =
   let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let expr_mapper mapper expr =
-    (match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
-    | Some call ->
-        let parse = parse_fn_from_module call.lexer call.env in
-        print_endline (parse "star")
-    | None -> ());
-    expr
+    match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
+    | Some call (* the relit_call struct *) ->
+      let parse = parse_fn_from_module call.lexer call.parser_ call.env in
+      parse (Lexing.from_string call.source)
+    | None -> expr
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
