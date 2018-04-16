@@ -1,6 +1,12 @@
 %{
   open Migrate_parsetree.Ast_404
-  open Ast_helper
+  module E = Ast_helper.Exp
+  module C = Ast_helper.Const
+  open Longident
+
+  let loc txt : Ast_helper.lid = {loc = !Ast_helper.default_loc; txt}
+
+
 %}
 %token <string> STR
 %token DOT
@@ -12,12 +18,19 @@
 %token CLOSE_PAREN
 %token EOF
 
+%left BAR
+
 %start <Migrate_parsetree.Ast_404.Parsetree.expression> literal
 %%
 
-(* THE NEXT STEP IS TO FINISH THIS PARSER. *)
-
 literal:
-  | EOF       { Exp.constant (Const.string "hi there") }
-  | BAR       { Exp.constant (Const.string "hi there") }
-  | s = STR p = literal { Exp.constant (Const.string "hi there, you") }
+  | r = regex EOF { r }
+  | EOF { E.ident (loc (Ldot (Lident "Regex", "Empty"))) }
+
+regex:
+  | DOT
+    { E.construct (loc (Ldot (Lident "Regex", "AnyChar"))) None}
+  | s = STR
+    { E.construct (loc (Ldot (Lident "Regex", "Str"))) (Some (E.constant (C.string s))) }
+  | a = regex BAR b = regex
+    { E.construct (loc (Ldot (Lident "Regex", "Or"))) (Some (E.tuple [a; b])) }

@@ -19,7 +19,6 @@ module Convert = struct
   module From_current = Convert(OCaml_current)(OCaml_404)
 end
 
-
 module LocMap = Map.Make(struct
     type t = Location.t
     let compare a b = let open Location in
@@ -65,7 +64,17 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
       | _ -> ()
   end)
 
-let purely_parsing_mapper =
+let parsetree_mapper =
+
+  (* Used for error handling in parsing *)
+  let print_position outx lexbuf =
+    let open Lexing in
+    let pos = lexbuf.lex_curr_p in
+    Format.fprintf outx "%d:%d"
+      pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+  in
+
+
   let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let expr_mapper mapper expr =
@@ -73,7 +82,11 @@ let purely_parsing_mapper =
     match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
     | Some call (* the relit_call struct *) ->
       let parse = Loading.menhir_from_module call.lexer call.parser call.env in
-      parse (Lexing.from_string call.source)
+      let lexbuf = Lexing.from_string call.source in
+      (try parse lexbuf
+      with e ->
+        Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
+        raise e)
     | None -> expr
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
@@ -102,7 +115,7 @@ let typing_mapper _cookies =
     (* map over ast and generate call to lexer *)
     structure
     |> Convert.From_current.copy_structure
-    |> purely_parsing_mapper.structure purely_parsing_mapper
+    |> parsetree_mapper.structure parsetree_mapper
     |> Convert.To_current.copy_structure
   in
   { default_mapper with structure = structure_mapper }

@@ -1,6 +1,6 @@
 
 (* 
-module RegexNotation = {
+module RegexTLM = {
   notation $regex at Regex.t {
     lexer RegexLexer;
     parser RegexParser;
@@ -11,7 +11,7 @@ module RegexNotation = {
 *)
 
 
-module RegexNotation = struct
+module RegexTLM = struct
   module RelitInternalDefn_regex = struct
     type t = Regex.t
     module Lexer = Regex_notation.Lexer
@@ -25,7 +25,7 @@ end
 
 (*
 module Test1 = {
-  open RegexNotation;
+  open RegexTLM;
   module DNA = {
     let any_base = $regex `(A|T|G|C)`
   };
@@ -33,12 +33,23 @@ module Test1 = {
 *)
 
 module Test1 = struct
-  open RegexNotation
+  open RegexTLM
   module DNA = struct
     let any_base =
-      raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "A|T|G|C") [@relit])
+      raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
   end
+
+  let () =
+    assert (Regex.to_string DNA.any_base = "((a|b)|c)")
+
 end
 
-let () =
-  print_endline Test1.DNA.any_base
+module Test2 = struct
+
+  open RegexTLM
+
+  let () =
+    let any_base = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Regex.to_string any_base = "(a|b)")
+
+end
