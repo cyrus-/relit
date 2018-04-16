@@ -32,6 +32,18 @@ module Test1 = {
 };
 *)
 
+module Check = struct
+  let expect actual expected =
+    let success = actual = expected in
+    if success
+    then print_string "\027[1;36m►\027[0m "
+    else print_string "\027[1;31m►\027[0m ";
+    print_endline (actual ^ ", " ^ expected);
+    success
+
+  let regex r = expect (Regex.to_string r)
+end
+
 module Test1 = struct
   open RegexTLM
   module DNA = struct
@@ -39,8 +51,8 @@ module Test1 = struct
       raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
   end
 
-  let () =
-    assert (Regex.to_string DNA.any_base = "((a|b)|c)")
+  
+  let () = assert (Check.regex DNA.any_base "((a|b)|c)")
 
 end
 
@@ -49,7 +61,11 @@ module Test2 = struct
   open RegexTLM
 
   let () =
-    let any_base = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Regex.to_string any_base = "(a|b)")
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex "(a|b)")
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a.b|c") [@relit]) in
+    assert (Check.regex regex "(a<AnyChar>b|c)")
 
 end

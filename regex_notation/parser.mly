@@ -13,12 +13,12 @@
 %token BAR
 %token QUESTION
 %token STAR
-%token PLUS
 %token OPEN_PAREN
 %token CLOSE_PAREN
 %token EOF
 
 %left BAR
+%left SEQ
 
 %start <Migrate_parsetree.Ast_404.Parsetree.expression> literal
 %%
@@ -28,9 +28,11 @@ literal:
   | EOF { E.ident (loc (Ldot (Lident "Regex", "Empty"))) }
 
 regex:
-  | DOT
-    { E.construct (loc (Ldot (Lident "Regex", "AnyChar"))) None}
-  | s = STR
-    { E.construct (loc (Ldot (Lident "Regex", "Str"))) (Some (E.constant (C.string s))) }
   | a = regex BAR b = regex
     { E.construct (loc (Ldot (Lident "Regex", "Or"))) (Some (E.tuple [a; b])) }
+  | a = regex b = regex %prec SEQ
+    { E.construct (loc (Ldot (Lident "Regex", "Seq"))) (Some (E.tuple [a; b])) }
+  | s = STR
+    { E.construct (loc (Ldot (Lident "Regex", "Str"))) (Some (E.constant (C.string s))) }
+  | DOT
+    { E.construct (loc (Ldot (Lident "Regex", "AnyChar"))) None}

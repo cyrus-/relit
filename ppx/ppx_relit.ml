@@ -74,10 +74,10 @@ let parsetree_mapper =
       pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
   in
 
-
   let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let expr_mapper mapper expr =
+
     (* If we've matched and typed this location in the previous run, replace it *)
     match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
     | Some call (* the relit_call struct *) ->
@@ -87,7 +87,7 @@ let parsetree_mapper =
       with e ->
         Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
         raise e)
-    | None -> expr
+    | None -> Ast_mapper.default_mapper.expr mapper expr (* continue down that expression *)
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
