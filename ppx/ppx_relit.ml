@@ -12,7 +12,6 @@ open Asttypes
 
 open Relit_call
 
-(* TODO: move to its own file *)
 module Convert = struct
   open Migrate_parsetree
 
@@ -20,31 +19,15 @@ module Convert = struct
   module From_current = Convert(OCaml_current)(OCaml_404)
 end
 
-
 module LocMap = Map.Make(struct
     type t = Location.t
     let compare a b = let open Location in
-      compare (a.loc_start, a.loc_end, a.loc_ghost) (b.loc_start, b.loc_end, b.loc_ghost)
+      compare
+        (a.loc_start, a.loc_end, a.loc_ghost)
+        (b.loc_start, b.loc_end, b.loc_ghost)
   end)
 
 let loc_to_relit_call : relit_call LocMap.t ref = ref LocMap.empty
-
-let load_file filename =
-  if not (Topdirs.load_file Format.std_formatter filename) then
-    raise (Failure ("Failed to load file at compile time: " ^ filename))
-
-let objfilename_of_module modulename =
-  (* Since we're already using the toploop, it's got to be bytecode.
-   * We could consider trying to use nattoplevel also but it seems experimental. *)
-  String.lowercase_ascii modulename ^ ".cmo"
-
-let parse_fn_from_module modulename env : (string -> string) =
-  load_file (objfilename_of_module modulename);
-  let lexer_path = Env.lookup_module
-      ~load:true (Longident.Lident modulename) env in
-  let parse_path = Path.Pdot (lexer_path, "parse", 0) in
-  let o = Toploop.eval_path !Toploop.toplevel_env parse_path in
-  Obj.magic o
 
 module Iter_and_extract = TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
@@ -77,23 +60,34 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                    }::_ ); _ }))]) ->
 
         let relit_call = relit_call_of_modtype exp_env path source in
-
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
-
       | _ -> ()
   end)
 
+let parsetree_mapper =
 
-let purely_parsing_mapper =
+  (* Used for error handling in parsing *)
+  let print_position outx lexbuf =
+    let open Lexing in
+    let pos = lexbuf.lex_curr_p in
+    Format.fprintf outx "%d:%d"
+      pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
+  in
+
   let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let expr_mapper mapper expr =
-    (match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
-    | Some call ->
-        let parse = parse_fn_from_module call.lexer call.env in
-        print_endline (parse "star")
-    | None -> ());
-    expr
+
+    (* If we've matched and typed this location in the previous run, replace it *)
+    match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
+    | Some call (* the relit_call struct *) ->
+      let parse = Loading.menhir_from_module call.lexer call.parser call.env in
+      let lexbuf = Lexing.from_string call.source in
+      (try parse lexbuf
+      with e ->
+        Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
+        raise e)
+    | None -> Ast_mapper.default_mapper.expr mapper expr (* continue down that expression *)
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
@@ -118,11 +112,10 @@ let typing_mapper _cookies =
       fname without_extension module_name initial_env
     |> fst |> Iter_and_extract.iter_structure;
 
-    (* TODO: with ocaml-migrate-parsetree, map over ast
-     * and generate call to lexer *)
+    (* map over ast and generate call to lexer *)
     structure
     |> Convert.From_current.copy_structure
-    |> purely_parsing_mapper.structure purely_parsing_mapper
+    |> parsetree_mapper.structure parsetree_mapper
     |> Convert.To_current.copy_structure
   in
   { default_mapper with structure = structure_mapper }

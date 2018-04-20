@@ -1,0 +1,11 @@
+(library
+  ((name regex_notation)
+   (public_name regex_notation)
+   (preprocess (pps ()))
+   (libraries (ocaml-migrate-parsetree))))
+
+(ocamllex (lexer))
+
+(menhir
+ ((modules (parser))))
+
