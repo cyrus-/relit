@@ -69,3 +69,76 @@ module Test2 = struct
     assert (Check.regex regex "(a<AnyChar>b|c)")
 
 end
+
+module Test3 = struct
+
+  module Alias = RegexTLM
+  open Alias
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex "(a|b)")
+
+end
+
+module Test4 = struct
+
+  module Funct(A : sig val x : int end) = struct
+    module NotationAlias = RegexTLM
+  end
+
+  module Alias = Funct(struct let x = 0 end)
+  open Alias.NotationAlias
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex "(a|b)")
+
+end
+
+module Test5 (* Hard Test *) = struct
+
+  module Obscure(A : sig val x : int end) = struct
+    module NotationAlias = struct
+      (* module Test = struct let y = A.x end *)
+      include RegexTLM
+    end
+  end
+
+  module Alias1 = Obscure(struct let x = 2 end)
+  module Alias2 = Alias1
+  module Alias3 = Alias2
+  module Alias4 = Alias3
+
+
+  open Alias4.NotationAlias
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex "(a|b)")
+
+end
+
+module Test6 (* Unfortunate Test *) = struct
+
+
+  module Obscure(A : sig val x : int end) = struct
+    module Notation = struct
+      module Alias = struct
+        include RegexTLM
+      end
+
+      module Test = struct let y = A.x end
+    end
+  end
+
+  module Ob = Obscure(struct let x = 2 end)
+  open Ob.Notation.Alias
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex "(a|b)")
+
+
+
+end

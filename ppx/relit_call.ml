@@ -15,11 +15,21 @@ type relit_call = {
     * type': string; *)
 }
 
-let signature_of_outer_modtype = function
+let rec signature_of_module env path =
+  signature_of_md_type env (Env.find_module path env).md_type
+and signature_of_md_type env = function
   | Types.Mty_signature [Sig_module (_name, {
       md_type =  Mty_signature signature ; _
     }, _)] -> signature
-  | _ -> raise (Failure "Expected a signature modtype for relit")
+  | Types.Mty_signature [Sig_module (_name, {
+      md_type ; _
+    }, _)] -> signature_of_md_type env md_type
+  | Types.Mty_signature signature -> signature
+  | Types.Mty_alias (_, path) -> signature_of_module env path
+  | Types.Mty_ident path -> signature_of_module env path
+  | modtype ->
+    Printtyp.modtype Format.std_formatter modtype;
+    raise (Failure "Bug: I haven't seen this come up before.")
 
 let extract_dependencies signature : (string * Path.t) list =
   List.map (function
@@ -30,26 +40,30 @@ let extract_dependencies signature : (string * Path.t) list =
       )
     signature
 
+type ('a, 'b) either = Left of 'a | Right of 'b
+
 let relit_call_of_modtype env path source : relit_call =
   let unwrap = function
-    | Some o -> o
-    | None -> raise (Failure "Unwrap: Malformed relit definition") in
-  let lexer = ref None in
-  let parser = ref None in
-  let dependencies = ref None in
-  let modtype = (Env.find_module path env).md_type in
-  let signature = signature_of_outer_modtype modtype in
+    | Left o -> o
+    | Right name -> raise
+        (Failure ("Unwrap: Malformed relit definition no " ^
+                  name ^ " field"))
+  in
+  let lexer = ref (Right "lexer") in
+  let parser = ref (Right "parser") in
+  let dependencies = ref (Right "dependencies") in
+  let signature = signature_of_module env path in
 
   List.iter (function
       | Types.Sig_module ({ name = "Lexer" ; _},
                           { md_type = Mty_alias (_, path); _ }, _) ->
-        lexer := Some path
+        lexer := Left path
       | Types.Sig_module ({ name = "Parser" ; _},
                           { md_type = Mty_alias (_, path); _ }, _) ->
-        parser := Some path
+        parser := Left path
       | Types.Sig_module ({ name = "Dependencies" ; _},
                           { md_type = Mty_signature signature; _ }, _) ->
-        dependencies := Some (extract_dependencies signature)
+        dependencies := Left (extract_dependencies signature)
       | _ -> ()
     )
     signature ;
