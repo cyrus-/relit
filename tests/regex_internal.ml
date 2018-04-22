@@ -1,5 +1,5 @@
 
-(* 
+(*
 module RegexTLM = {
   notation $regex at Regex.t {
     lexer RegexLexer;
@@ -49,7 +49,7 @@ module Test1 = struct
       raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
   end
 
-  
+
   let () = assert (Check.regex DNA.any_base (Regex.Or (Regex.Or (Regex.Str "a", Regex.Str "b"), Regex.Str "c")))
 
 end

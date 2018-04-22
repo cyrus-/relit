@@ -49,9 +49,7 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                    (* extract the module name and the
                     * remaining path of the module it's from *)
                    { cstr_tag = Cstr_extension (Pdot
-                                                  (Pdot
-                                                     (path, name, _),
-                                                   "Call", _),
+                                                   (path, "Call", _),
                                                 _some_bool); _ },
                    _err_info::{
                      exp_desc = Texp_constant

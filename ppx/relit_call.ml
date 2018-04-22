@@ -15,21 +15,17 @@ type relit_call = {
     * type': string; *)
 }
 
-let rec signature_of_module env path =
-  signature_of_md_type env (Env.find_module path env).md_type
-and signature_of_md_type env = function
-  | Types.Mty_signature [Sig_module (_name, {
-      md_type =  Mty_signature signature ; _
-    }, _)] -> signature
-  | Types.Mty_signature [Sig_module (_name, {
-      md_type ; _
-    }, _)] -> signature_of_md_type env md_type
+let rec signature_of_md_type env =  function
   | Types.Mty_signature signature -> signature
-  | Types.Mty_alias (_, path) -> signature_of_module env path
-  | Types.Mty_ident path -> signature_of_module env path
+  | Types.Mty_alias (_, path) -> signature_of_path env path
+  | Types.Mty_ident path -> signature_of_path env path
   | modtype ->
     Printtyp.modtype Format.std_formatter modtype;
     raise (Failure "Bug: I haven't seen this come up before.")
+and signature_of_path env path =
+  (Env.find_module path env).md_type
+  |> Mtype.scrape env
+  |> signature_of_md_type env
 
 let extract_dependencies signature : (string * Path.t) list =
   List.map (function
@@ -52,7 +48,8 @@ let relit_call_of_modtype env path source : relit_call =
   let lexer = ref (Right "lexer") in
   let parser = ref (Right "parser") in
   let dependencies = ref (Right "dependencies") in
-  let signature = signature_of_module env path in
+  let signature = signature_of_path env path in
+
 
   List.iter (function
       | Types.Sig_module ({ name = "Lexer" ; _},
