@@ -1,8 +1,8 @@
 
-run: build
+test: build_tests
 	./regex_internal.native
 
-build: build_ppx install_regex_notation
+build_tests: build_ppx install_regex_notation
 	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" \
 		-pkg regex_notation \
 		tests/regex_internal.native

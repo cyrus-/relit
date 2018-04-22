@@ -1,9 +1,10 @@
 type t = Empty | AnyChar | Str of string | Seq of t * t | Or of t * t | Star of t
 
-let rec to_string r = match r with
-  | Empty -> "<Empty>"
-  | AnyChar -> "<AnyChar>"
-  | Str s -> s
-  | Or (a, b) -> "(" ^ to_string a ^ "|" ^ to_string b ^ ")"
-  | Seq (a, b) -> to_string a ^ to_string b
-  | Star a -> to_string a ^ "*"
+let rec eq a b = match (a, b) with
+  | (Empty, Empty) -> true
+  | (AnyChar, AnyChar) -> true
+  | (Str s, Str r) -> s = r
+  | (Or (a, b), Or (c, d)) -> (eq a c) && (eq b d)
+  | (Seq (a, b), Seq (c, d)) -> (eq a c) && (eq b d)
+  | (Star a, Star b) -> eq a b
+  | _ -> false
