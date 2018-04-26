@@ -9,7 +9,6 @@ type relit_call = {
   source: string;
   lexer: Path.t;
   parser: Path.t;
-  env: Env.t;
   dependencies: (string * Path.t) list;
   (* Not sure if this should be a string or what yet.
     * type': string; *)
@@ -68,5 +67,4 @@ let relit_call_of_modtype env path source : relit_call =
   { lexer = unwrap !lexer ;
     parser = unwrap !parser;
     dependencies = unwrap !dependencies;
-    source = source ;
-    env = env}
+    source = source }

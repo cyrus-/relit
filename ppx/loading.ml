@@ -9,7 +9,7 @@ let load_top_module path =
    * already loaded *)
   Topdirs.load_file Format.std_formatter filename |> ignore
 
-let menhir_from_module lexer_path parser_path env =
+let menhir_from_module lexer_path parser_path =
   Toploop.initialize_toplevel_env ();
   load_top_module lexer_path;
   load_top_module parser_path;
