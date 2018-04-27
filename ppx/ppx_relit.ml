@@ -42,16 +42,14 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                        "raise", _), _, _) ; _ },
           [(_label,
             Some (
-              {exp_attributes = [({txt = "relit"; _}, payload)];
+              {exp_attributes = [({txt = "relit"; _}, _)];
                exp_desc = Texp_construct (
                    loc,
 
-                   (* extract the module name and the
-                    * remaining path of the module it's from *)
-                   { cstr_tag = Cstr_extension (Pdot
-                                                  (Pdot
-                                                     (path, name, _),
-                                                   "Call", _),
+                   (* extract the path of our TLM definition
+                    * and the relit source of this call. *)
+                   { cstr_tag =
+                       Cstr_extension (Pdot (path, "Call", _),
                                                 _some_bool); _ },
                    _err_info::{
                      exp_desc = Texp_constant
@@ -63,6 +61,30 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
       | _ -> ()
   end)
+
+let module_expr_of_expr expr =
+  let open Parsetree in
+  let open Longident in
+  let loc = !Ast_helper.default_loc in
+  Ast_helper.Mod.structure [{pstr_desc =
+     Pstr_value (Nonrecursive,
+                 [{pvb_pat = {ppat_desc = Ppat_any;
+                              ppat_loc = loc;
+                              ppat_attributes = []};
+                   pvb_expr = expr;
+                   pvb_loc = loc;
+                   pvb_attributes = [];
+                  }]);
+    pstr_loc = loc}]
+
+let dependency_check expr =
+  let env = Env.empty in
+  expr
+      (* we've got to use the current tree to run the typechecker *)
+    |> Convert.To_current.copy_expression
+    |> module_expr_of_expr
+    |> Typemod.type_module env;
+  expr
 
 let parsetree_mapper =
 
@@ -81,9 +103,9 @@ let parsetree_mapper =
     (* If we've matched and typed this location in the previous run, replace it *)
     match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
     | Some call (* the relit_call struct *) ->
-      let parse = Loading.menhir_from_module call.lexer call.parser call.env in
+      let parse = Loading.menhir_from_module call.lexer call.parser in
       let lexbuf = Lexing.from_string call.source in
-      (try parse lexbuf
+      (try let expr = parse lexbuf in dependency_check expr; expr
       with e ->
         Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
         raise e)

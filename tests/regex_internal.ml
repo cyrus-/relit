@@ -1,5 +1,5 @@
 
-(* 
+(*
 module RegexTLM = {
   notation $regex at Regex.t {
     lexer RegexLexer;
@@ -33,15 +33,13 @@ module Test1 = {
 *)
 
 module Check = struct
-  let expect actual expected =
-    let success = actual = expected in
+  let expect eq a b =
+    let success = eq a b in
     if success
     then print_string "\027[1;36m►\027[0m "
     else print_string "\027[1;31m►\027[0m ";
-    print_endline (actual ^ ", " ^ expected);
     success
-
-  let regex r = expect (Regex.to_string r)
+  let regex = expect Regex.eq
 end
 
 module Test1 = struct
@@ -51,8 +49,8 @@ module Test1 = struct
       raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
   end
 
-  
-  let () = assert (Check.regex DNA.any_base "((a|b)|c)")
+
+  let () = assert (Check.regex DNA.any_base (Regex.Or (Regex.Or (Regex.Str "a", Regex.Str "b"), Regex.Str "c")))
 
 end
 
@@ -62,11 +60,11 @@ module Test2 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex "(a|b)")
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
   let () =
-    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a.b|c") [@relit]) in
-    assert (Check.regex regex "(a<AnyChar>b|c)")
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", ".b|c") [@relit]) in
+    assert (Check.regex regex (Regex.Or (Regex.Seq (Regex.AnyChar, Regex.Str "b"), Regex.Str "c")))
 
 end
 
@@ -77,7 +75,7 @@ module Test3 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex "(a|b)")
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 end
 
@@ -92,7 +90,7 @@ module Test4 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex "(a|b)")
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 end
 
@@ -115,7 +113,7 @@ module Test5 (* Hard Test *) = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex "(a|b)")
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 end
 
@@ -124,11 +122,10 @@ module Test6 (* Unfortunate Test *) = struct
 
   module Obscure(A : sig val x : int end) = struct
     module Notation = struct
+      module Test = struct let y = A.x end
       module Alias = struct
         include RegexTLM
       end
-
-      module Test = struct let y = A.x end
     end
   end
 
@@ -137,8 +134,52 @@ module Test6 (* Unfortunate Test *) = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex "(a|b)")
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 
+
+end
+
+module Test7 = struct
+
+  module Funct(A : sig module B = RegexTLM.RelitInternalDefn_regex end) = struct
+    module RelitInternalDefn_regex = A.B
+  end
+
+  module X = Funct(struct module B = RegexTLM.RelitInternalDefn_regex end)
+  open X
+
+  let () =
+    let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+
+end
+
+module Test8 = struct
+
+  module Funct(A : sig val x : int end) = struct
+    module NotationAlias = RegexTLM.RelitInternalDefn_regex
+  end
+
+  module Alias = Funct(struct let x = 0 end)
+  open Alias
+
+  let () =
+    let regex = raise (NotationAlias.Call ("Forgot ppx...", "a|b") [@relit]) in
+    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+
+end
+
+module Test9 = struct
+
+  module Funct(A : sig module B = RegexTLM.RelitInternalDefn_regex end) = struct
+    let parsed = raise (A.B.Call ("Forgot ppx...", "a|b") [@relit])
+  end
+
+  module X = Funct(struct module B = RegexTLM.RelitInternalDefn_regex end)
+  open X
+
+  let () =
+    assert (Check.regex parsed (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 end
