@@ -29,6 +29,7 @@ literal:
 
 regex:
   | a = regex BAR b = regex
+      (* { E.ident (loc (Ldot (Lident "Regex", "Empty"))) } *)
     { E.construct (loc (Ldot (Lident "Regex", "Or"))) (Some (E.tuple [a; b])) }
   | a = regex b = regex %prec SEQ
     { E.construct (loc (Ldot (Lident "Regex", "Seq"))) (Some (E.tuple [a; b])) }

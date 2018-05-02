@@ -1,12 +1,13 @@
 
-(* a relit_call is stored for each tlm call in the ocaml source
+(* a relit call is stored for each tlm call in the ocaml source
  * after the typing ppx phase, and then is used in the parsetree
  * mapper to actaully call the tlm. This file is concerned with
  * the building of a relit_call from the definitions. *)
 
-type relit_call = {
+type t = {
   (* name: string; *)
   source: string;
+  definition_path: Path.t;
   lexer: Path.t;
   parser: Path.t;
   dependencies: (string * Path.t) list;
@@ -37,7 +38,7 @@ let extract_dependencies signature : (string * Path.t) list =
 
 type ('a, 'b) either = Left of 'a | Right of 'b
 
-let relit_call_of_modtype env path source : relit_call =
+let of_modtype env path source : t =
   let unwrap = function
     | Left o -> o
     | Right name -> raise
@@ -66,5 +67,6 @@ let relit_call_of_modtype env path source : relit_call =
 
   { lexer = unwrap !lexer ;
     parser = unwrap !parser;
+    definition_path = path;
     dependencies = unwrap !dependencies;
     source = source }

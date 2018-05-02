@@ -183,3 +183,17 @@ module Test9 = struct
     assert (Check.regex parsed (Regex.Or (Regex.Str "a", Regex.Str "b")))
 
 end
+
+module Test10 = struct
+
+  module Middle = struct
+    module Regex = struct
+      let x = 2
+    end
+    let parsed = raise (RegexTLM.RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit])
+  end
+
+  let () =
+    assert (Check.regex Middle.parsed (Regex.Or (Regex.Str "a", Regex.Str "b")))
+
+end
