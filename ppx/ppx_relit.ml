@@ -70,10 +70,14 @@ let parsetree_mapper =
     (* If we've matched and typed this location in the previous run, replace it *)
     match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
     | Some call (* the relit_call struct *) ->
+
+      (* load the lexer and parser *)
       let parse = Loading.menhir_from_module call.lexer call.parser in
       let lexbuf = Lexing.from_string call.source in
+
+      (* call the parser on the source & ensure dependencies are respected *)
       (try let expr = parse lexbuf
-           in Check_dependencies.check_expr call.definition_path expr
+           in Check_dependencies.check_expr call.dependencies call.definition_path expr
       with e ->
         Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
         raise e)
