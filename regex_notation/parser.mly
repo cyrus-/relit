@@ -4,8 +4,7 @@
   module C = Ast_helper.Const
   open Longident
 
-  let loc txt : Ast_helper.lid = {loc = !Ast_helper.default_loc; txt}
-
+  let loc = !Ast_helper.default_loc
 
 %}
 %token <string> STR
@@ -13,6 +12,7 @@
 %token BAR
 %token QUESTION
 %token STAR
+%token MISC
 %token OPEN_PAREN
 %token CLOSE_PAREN
 %token EOF
@@ -25,15 +25,23 @@
 
 literal:
   | r = regex EOF { r }
-  | EOF { E.ident (loc (Ldot (Lident "Regex", "Empty"))) }
+  | EOF { [%expr Regex.Empty ] }
 
 regex:
   | a = regex BAR b = regex
-    (* { E.ident (loc (Ldot (Lident "String", "blit"))) } *)
-    { E.construct (loc (Ldot (Lident "Regex", "Or"))) (Some (E.tuple [a; b])) }
+      (* { [%expr let x = Regex.Empty in x ] } *)
+      (* { [%expr let open Regex in Empty ] } *)
+      (* { [%expr String.blit ] } *)
+      (* { [%expr let open String in blit ] } *)
+      (* { [%expr let module X = struct let x = () end in X.x ] } *)
+      (* { [%expr 2 + 2 ] } *)
+
+      { [%expr Regex.Or ([%e a], [%e b]) ] }
+  | a = regex MISC b = regex
+      { [%expr Regex.Empty ] }
   | a = regex b = regex %prec SEQ
-    { E.construct (loc (Ldot (Lident "Regex", "Seq"))) (Some (E.tuple [a; b])) }
+      { [%expr Regex.Seq ([%e a], [%e b]) ] }
   | s = STR
-    { E.construct (loc (Ldot (Lident "Regex", "Str"))) (Some (E.constant (C.string s))) }
+      { [%expr Regex.Str [%e (E.constant (C.string s))] ] }
   | DOT
-    { E.construct (loc (Ldot (Lident "Regex", "AnyChar"))) None}
+      { [%expr Regex.AnyChar ] }

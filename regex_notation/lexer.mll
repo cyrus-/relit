@@ -27,6 +27,7 @@ rule read =
   | "|"    { BAR }
   | "*"    { STAR }
   | "?"    { QUESTION }
+  | "<>"   { MISC }
   | "|"    { BAR }
   | '('      { OPEN_PAREN }
   | ')'      { CLOSE_PAREN }

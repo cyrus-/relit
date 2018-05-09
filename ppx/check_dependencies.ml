@@ -1,7 +1,53 @@
 
 (* check_dependencies.ml is the file for checking
  * the dependencies of a given piece of generated
- * code are valid *)
+ * code is valid. We do this through typechecking
+ * the generated code, and then a manual checking
+ * of all the modules that can be accessed there.
+ * *)
+
+module StringSet = Set.Make(String)
+
+module Check_mapper (A : sig val disallowed : StringSet.t end) = TypedtreeIter.MakeIterator(struct
+    include TypedtreeIter.DefaultIteratorArgument
+
+    let enter_expression e =
+      let open Typedtree in
+      let env = e.exp_env in
+
+      let check_path loc p =
+        if StringSet.mem (Ident.name (Path.head p)) A.disallowed then begin
+          Location.print_error Format.std_formatter loc ;
+          raise (Failure "This TLM used a dependency it should not have here.")
+        end
+      in
+
+      let check_ident loc_ident =
+        let open Location in
+        let ident_path, _ = Env.lookup_value loc_ident.txt env in
+        check_path loc_ident.loc ident_path
+      in
+
+      let check_construct i = match Env.lookup_constructor Location.(i.txt) env with
+        | Types.{cstr_res = {desc = Tconstr (p, _, _); _}} -> check_path i.loc p
+        | _ -> raise (Failure "Bug: how does looking up a constructor not return a constructor?")
+      in
+
+      match e.exp_desc with
+      | Texp_ident (p, i, _) ->
+        check_path e.exp_loc p;
+        check_ident i
+      | Texp_new (p, i, _) ->
+        check_path e.exp_loc p;
+        check_ident i
+      | Texp_construct (i, _, _) ->
+        check_construct i
+      | Texp_instvar (p1, p2, _) -> check_path e.exp_loc p1; check_path e.exp_loc p2
+      | Texp_override (p, ps) ->
+        check_path e.exp_loc p;
+        List.iter (fun (p, _, _) -> check_path e.exp_loc p) ps
+      | _ -> ()
+  end)
 
 let rec lident_of_path path =
   let open Path in
@@ -15,20 +61,8 @@ let module_expr_of_expr expr =
   let open Parsetree in
   let open Longident in
   let loc = !Ast_helper.default_loc in
-
-  Ast_helper.Mod.structure [{pstr_desc =
-     (* like saying `let _ = $expr`, since
-      * there doesn't seem to be a way to
-      * type an expression that's not in a module *)
-     Pstr_value (Nonrecursive,
-                 [{pvb_pat = {ppat_desc = Ppat_any;
-                              ppat_loc = loc;
-                              ppat_attributes = []};
-                   pvb_expr = expr;
-                   pvb_loc = loc;
-                   pvb_attributes = [];
-                  }]);
-    pstr_loc = loc}]
+  Ast_helper.Mod.structure
+    [%str let _ = [%e expr ] ]
 
 let open_dependencies_for def_path expr =
   let open Migrate_parsetree.OCaml_404.Ast in
@@ -42,75 +76,37 @@ let open_dependencies_for def_path expr =
    pexp_loc = loc;
    pexp_attributes = []}
 
-let rec path_starts_with path  prefix =
-  (Path.head path).name = prefix
-
-module Check_mapper (A : sig val dependencies : Relit_call.dependency list end) = TypedtreeIter.MakeIterator(struct
-    include TypedtreeIter.DefaultIteratorArgument
-
-    let check_path loc p =
-      if Ident.name (Path.head p) = "Pervasives" then () else
-
-        (* Does this path start with any of the dependencies *)
-      if A.dependencies
-         |> List.map (fun Relit_call.{name; _} -> name.name)
-         |> List.map (path_starts_with p)
-         |> List.mem true
-      then () (* then no problem! *)
-      else begin (* otherwise, we do have a problem *)
-        Location.print_error Format.std_formatter loc ;
-        raise (Failure "This TLM used a dependency it should not have here.")
-      end
-
-    let check_ident loc_ident env =
-      let open Location in
-      let ident_path, _ = Env.lookup_value loc_ident.txt env in
-      check_path loc_ident.loc ident_path
-
-    let check_construct i e = match Env.lookup_constructor Location.(i.txt) e with
-      | Types.{cstr_res = {desc = Tconstr (p, _, _); _}} -> check_path i.loc p
-      | _ -> raise (Failure "Bug: how does looking up a constructor not return a constructor?")
-
-    let enter_expression e =
-      let open Typedtree in
-      match e.exp_desc with
-      | Texp_ident (p, i, _) ->
-        check_path e.exp_loc p;
-        check_ident i e.exp_env
-      | Texp_new (p, i, _) ->
-        check_path e.exp_loc p;
-        check_ident i e.exp_env
-      | Texp_construct (i, _, _) ->
-        check_construct i e.exp_env
-      | Texp_instvar (p1, p2, _) -> check_path e.exp_loc p1; check_path e.exp_loc p2
-      | Texp_override (p, ps) ->
-        check_path e.exp_loc p;
-        List.iter (fun (p, _, _) -> check_path e.exp_loc p) ps
-      | _ -> ()
-  end)
-
-let check_all_paths dependencies mod_tree =
+let check_all_paths disallowed mod_tree =
   (* we want to run this check against the typed tree instead
    * of the parsetree because it has semantic paths rather
-   * than syntactic identifiers *)
+   * than syntactic identifiers. Also we've got to typecheck
+   * anyways as part of context independence. *)
+
   match mod_tree with
-    (* extract the expression *)
-  | Typedtree.{mod_desc = Tmod_structure {str_items = [{str_desc =
-      Tstr_value (_, [{vb_expr = expr; _}]) ; _}]; _}; _} ->
-    let module M = Check_mapper (struct let dependencies = dependencies end) in
+  | Typedtree.{ mod_desc = Tmod_structure
+          {str_items = [{str_desc = Tstr_value (_, [{vb_expr = expr; _}])}]} } ->
+    let module M = Check_mapper (struct let disallowed = disallowed end) in
+    (* Printtyped.implementation Format.std_formatter structure; *)
     M.iter_expression expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
 let check_expr (dependencies : Relit_call.dependency list) def_path expr =
-  let env = ref Env.empty in
+  let env = ref (Compmisc.initial_env ()) in
+
   List.iter (fun Relit_call.{name; module_declaration; _} ->
       env := Env.add_module_declaration ~check:true name module_declaration !env
     ) dependencies;
 
-  (* we've got to use the current tree to run the typechecker *)
+  let importable = StringSet.of_list (Env.imports () |> List.map fst) in
+  let allowed = dependencies
+                |> List.map (fun Relit_call.{name; _} -> Ident.name name)
+                |> StringSet.of_list in
+
+  let disallowed = StringSet.diff importable allowed in
+  let disallowed = StringSet.remove "Pervasives" disallowed in
+
   expr |> Convert.To_current.copy_expression
-       (* |> (fun e -> ensure_context_indenpendence e) *)
        |> module_expr_of_expr
        |> Typemod.type_module !env
-       |> check_all_paths dependencies;
+       |> check_all_paths disallowed;
   open_dependencies_for def_path expr
