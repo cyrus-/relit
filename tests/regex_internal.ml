@@ -10,14 +10,16 @@ module RegexTLM = {
 };
 *)
 
+module R = Regex_notation.Regex
+
 
 module RegexTLM = struct
   module RelitInternalDefn_regex = struct
-    type t = Regex.t
+    type t = Regex_notation.Regex.t
     module Lexer = Regex_notation.Lexer
     module Parser = Regex_notation.Parser (* assume starting non-terminal is called start *)
     module Dependencies = struct
-      module Regex = Regex
+      module Regex = Regex_notation.Regex
     end
     exception Call of (* error message *) string * (* body *) string
   end
@@ -39,7 +41,7 @@ module Check = struct
     then print_string "\027[1;36m►\027[0m "
     else print_string "\027[1;31m►\027[0m ";
     success
-  let regex = expect Regex.eq
+  let regex = expect R.eq
 end
 
 module Test1 = struct
@@ -50,7 +52,7 @@ module Test1 = struct
   end
 
 
-  let () = assert (Check.regex DNA.any_base (Regex.Or (Regex.Or (Regex.Str "a", Regex.Str "b"), Regex.Str "c")))
+  let () = assert (Check.regex DNA.any_base (R.Or (R.Or (R.Str "a", R.Str "b"), R.Str "c")))
 
 end
 
@@ -60,11 +62,11 @@ module Test2 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", ".b|c") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Seq (Regex.AnyChar, Regex.Str "b"), Regex.Str "c")))
+    assert (Check.regex regex (R.Or (R.Seq (R.AnyChar, R.Str "b"), R.Str "c")))
 
 end
 
@@ -75,7 +77,7 @@ module Test3 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 end
 
@@ -90,7 +92,7 @@ module Test4 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 end
 
@@ -113,11 +115,11 @@ module Test5 (* Hard Test *) = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 end
 
-module Test6 (* Unfortunate Test *) = struct
+module Test6 = struct
 
 
   module Obscure(A : sig val x : int end) = struct
@@ -134,7 +136,7 @@ module Test6 (* Unfortunate Test *) = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 
 
@@ -151,7 +153,7 @@ module Test7 = struct
 
   let () =
     let regex = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 end
 
@@ -166,7 +168,7 @@ module Test8 = struct
 
   let () =
     let regex = raise (NotationAlias.Call ("Forgot ppx...", "a|b") [@relit]) in
-    assert (Check.regex regex (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex regex (R.Or (R.Str "a", R.Str "b")))
 
 end
 
@@ -180,7 +182,7 @@ module Test9 = struct
   open X
 
   let () =
-    assert (Check.regex parsed (Regex.Or (Regex.Str "a", Regex.Str "b")))
+    assert (Check.regex parsed (R.Or (R.Str "a", R.Str "b")))
 
 end
 
@@ -194,6 +196,6 @@ module Test10 = struct
   end
 
   let () =
-    assert (Check.regex Middle.parsed (Regex.Empty))
+    assert (Check.regex Middle.parsed (R.Empty))
 
 end

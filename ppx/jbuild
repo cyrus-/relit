@@ -1,6 +1,6 @@
 (executable
   ((name        ppx_relit)
-   ; (public_name ppx_relit)
+   (public_name ppx_relit)
    (libraries (compiler-libs.toplevel
                compiler-libs.common
                ocaml-migrate-parsetree
