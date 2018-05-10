@@ -9,10 +9,10 @@ build_ppx:
 	jbuilder build ppx/ppx_relit.exe
 
 install_regex_notation: build_install
-	jbuilder install regex_notation 2>/dev/null
+	jbuilder install regex_notation >/dev/null
 
 install_ppx_relit: build_install
-	jbuilder install ppx_relit 2>/dev/null
+	jbuilder install ppx_relit >/dev/null
 
 build_install:
 	jbuilder build @install

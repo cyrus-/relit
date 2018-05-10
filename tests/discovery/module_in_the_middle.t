@@ -1,4 +1,4 @@
-  $ . $ORIGINAL_DIR/tests/setup_regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
 
 Can we do the parse in another module?
 

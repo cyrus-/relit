@@ -1,4 +1,4 @@
-  $ . $ORIGINAL_DIR/tests/setup_regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
 
 Can we include the TLM inside a module inside a functor
 and then open an instance of that functor?

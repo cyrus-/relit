@@ -1,4 +1,4 @@
-  $ . $ORIGINAL_DIR/tests/setup_regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
 
 Can we pass the TLM definition as an argument to
 a functor directly, changing what the call will look like?

@@ -4,7 +4,7 @@ Everything not indented is a comment.
 
 This includes some ocaml-specific testing utilities:
 
-  $ . $ORIGINAL_DIR/tests/setup_regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
 
 Verify we can test OCaml.
 

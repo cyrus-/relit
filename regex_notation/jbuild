@@ -6,7 +6,8 @@
                ppxlib.metaquot))))
 
 (ocamllex (lexer))
+(ocamllex (absurd_lexer))
 
 (menhir
- ((modules (parser))))
+ ((modules (parser absurd_parser))))
 

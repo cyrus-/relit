@@ -1,6 +1,16 @@
 lib: [
   "_build/install/default/lib/regex_notation/META" {"META"}
   "_build/install/default/lib/regex_notation/opam" {"opam"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmi" {"regex_notation__Absurd_lexer.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmx" {"regex_notation__Absurd_lexer.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmt" {"regex_notation__Absurd_lexer.cmt"}
+  "_build/install/default/lib/regex_notation/absurd_lexer.ml" {"absurd_lexer.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmi" {"regex_notation__Absurd_parser.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmx" {"regex_notation__Absurd_parser.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmt" {"regex_notation__Absurd_parser.cmt"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmti" {"regex_notation__Absurd_parser.cmti"}
+  "_build/install/default/lib/regex_notation/absurd_parser.mli" {"absurd_parser.mli"}
+  "_build/install/default/lib/regex_notation/absurd_parser.ml" {"absurd_parser.ml"}
   "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmi" {"regex_notation__Lexer.cmi"}
   "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmx" {"regex_notation__Lexer.cmx"}
   "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmt" {"regex_notation__Lexer.cmt"}
