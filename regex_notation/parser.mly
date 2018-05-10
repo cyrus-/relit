@@ -10,11 +10,8 @@
 %token <string> STR
 %token DOT
 %token BAR
-%token QUESTION
 %token STAR
 %token MISC
-%token OPEN_PAREN
-%token CLOSE_PAREN
 %token EOF
 
 %left BAR

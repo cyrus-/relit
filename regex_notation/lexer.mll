@@ -25,12 +25,8 @@ rule read =
   parse
   | "."    { DOT }
   | "|"    { BAR }
-  | "*"    { STAR }
-  | "?"    { QUESTION }
   | "<>"   { MISC }
   | "|"    { BAR }
-  | '('      { OPEN_PAREN }
-  | ')'      { CLOSE_PAREN }
   | escape as s { STR(unescape(s)) }
   | "\n"  { next_line lexbuf; read lexbuf }
   | ident    { STR (Lexing.lexeme lexbuf) }
