@@ -10,15 +10,6 @@ open Parsetree
 open Typedtree
 open Asttypes
 
-open Relit_call
-
-module Convert = struct
-  open Migrate_parsetree
-
-  module To_current = Convert(OCaml_404)(OCaml_current)
-  module From_current = Convert(OCaml_current)(OCaml_404)
-end
-
 module LocMap = Map.Make(struct
     type t = Location.t
     let compare a b = let open Location in
@@ -27,7 +18,7 @@ module LocMap = Map.Make(struct
         (b.loc_start, b.loc_end, b.loc_ghost)
   end)
 
-let loc_to_relit_call : relit_call LocMap.t ref = ref LocMap.empty
+let loc_to_relit_call : Relit_call.t LocMap.t ref = ref LocMap.empty
 
 module Iter_and_extract = TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
@@ -57,34 +48,10 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                      exp_env;
                    }::_ ); _ }))]) ->
 
-        let relit_call = relit_call_of_modtype exp_env path source in
+        let relit_call = Relit_call.of_modtype exp_env path source in
         loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
       | _ -> ()
   end)
-
-let module_expr_of_expr expr =
-  let open Parsetree in
-  let open Longident in
-  let loc = !Ast_helper.default_loc in
-  Ast_helper.Mod.structure [{pstr_desc =
-     Pstr_value (Nonrecursive,
-                 [{pvb_pat = {ppat_desc = Ppat_any;
-                              ppat_loc = loc;
-                              ppat_attributes = []};
-                   pvb_expr = expr;
-                   pvb_loc = loc;
-                   pvb_attributes = [];
-                  }]);
-    pstr_loc = loc}]
-
-let dependency_check expr =
-  let env = Env.empty in
-  expr
-      (* we've got to use the current tree to run the typechecker *)
-    |> Convert.To_current.copy_expression
-    |> module_expr_of_expr
-    |> Typemod.type_module env;
-  expr
 
 let parsetree_mapper =
 
@@ -103,9 +70,14 @@ let parsetree_mapper =
     (* If we've matched and typed this location in the previous run, replace it *)
     match LocMap.find_opt expr.pexp_loc !loc_to_relit_call with
     | Some call (* the relit_call struct *) ->
+
+      (* load the lexer and parser *)
       let parse = Loading.menhir_from_module call.lexer call.parser in
       let lexbuf = Lexing.from_string call.source in
-      (try let expr = parse lexbuf in dependency_check expr; expr
+
+      (* call the parser on the source & ensure dependencies are respected *)
+      (try let expr = parse lexbuf
+           in Check_dependencies.check_expr call.dependencies call.definition_path expr
       with e ->
         Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
         raise e)

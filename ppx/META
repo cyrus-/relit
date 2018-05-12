@@ -1,0 +1,3 @@
+name="ppx_relit"
+description="The ppx that makes Relit work"
+version="0.1"
