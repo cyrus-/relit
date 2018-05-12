@@ -11,5 +11,4 @@ Can we access variables from generated code?
   > let () = print_endline out;
   > END
   1:2: tlm syntax error
-  File "_none_", line 1:
   Error: Unbound value x
