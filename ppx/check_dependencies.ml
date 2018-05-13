@@ -93,13 +93,18 @@ let check_all_paths disallowed mod_tree =
 let check_expr (dependencies : Relit_call.dependency list) def_path expr =
   let env = ref (Compmisc.initial_env ()) in
 
-  List.iter (fun Relit_call.{name; module_declaration; _} ->
+  List.iter (function
+    | Relit_call.Module (name, module_declaration) ->
       env := Env.add_module_declaration ~check:true name module_declaration !env
+    | Relit_call.Type (name, type_declaration) ->
+      env := Env.add_type ~check:true name type_declaration !env
     ) dependencies;
 
   let importable = StringSet.of_list (Env.imports () |> List.map fst) in
   let allowed = dependencies
-                |> List.map (fun Relit_call.{name; _} -> Ident.name name)
+                |> List.filter (function Relit_call.Module _ -> true | _ -> false)
+                |> List.map (function (Relit_call.Module (name, _)) -> Ident.name name
+                                      | _ -> raise (Failure "impossible, just filtered them"))
                 |> StringSet.of_list in
 
   let disallowed = StringSet.diff importable allowed in

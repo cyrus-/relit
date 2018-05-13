@@ -4,10 +4,8 @@
  * mapper to actaully call the tlm. This file is concerned with
  * the building of a relit_call from the definitions. *)
 
-type dependency = {
-  name: Ident.t;
-  module_declaration: Types.module_declaration;
-}
+type dependency = Module of Ident.t * Types.module_declaration
+                | Type of Ident.t * Types.type_declaration
 
 type t = {
   source: string;
@@ -31,10 +29,11 @@ and signature_of_path env path =
 
 let extract_dependencies env signature : dependency list =
   List.map (function
-        Types.Sig_module ({ name ; _ },
-                        { md_type = Mty_alias (_, path) ; _ }, _) ->
-        {name = Ident.create name;
-         module_declaration = Env.find_module path env}
+        Types.Sig_module (name,
+                          { md_type = Mty_alias (_, path) ; _ }, _) ->
+          Module (name, (Env.find_module path env))
+      | Types.Sig_type (name, type_declaration, _) ->
+          Type (name, type_declaration)
       | _ -> raise (Failure "Dependencies: expected only aliases in relit definition")
       )
     signature

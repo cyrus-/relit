@@ -20,6 +20,8 @@ literal:
       | "number" -> [%expr 0]
       | "x" -> [%expr x]
       | "module" -> [%expr String.blit]
+      | "typed_fn" -> [%expr fun (a : new_type) -> a * a ]
+      | "badly_typed_fn" -> [%expr fun (a : fake_type) -> a * a ]
       | _ -> raise (Failure "no parse defined")
     }
   | EOF { [%expr 0 ] }
