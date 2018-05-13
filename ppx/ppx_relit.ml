@@ -77,7 +77,7 @@ let parsetree_mapper =
 
       (* call the parser on the source & ensure dependencies are respected *)
       (try let expr = parse lexbuf
-           in Check_dependencies.check_expr call.dependencies call.definition_path expr
+           in Hygiene.check_expr call.dependencies call.definition_path expr
       with e ->
         Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
         raise e)
