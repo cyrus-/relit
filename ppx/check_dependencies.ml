@@ -57,21 +57,20 @@ let rec lident_of_path path =
   | Pdot (rest, name, _) -> Ldot (lident_of_path rest, name)
   | Papply (a, b) -> Lapply (lident_of_path a, lident_of_path b)
 
-let module_expr_of_expr expr =
+let module_expr_of_expr lident expr =
   let open Parsetree in
   let open Longident in
   let loc = !Ast_helper.default_loc in
   Ast_helper.Mod.structure
     [%str let _ = [%e expr ] ]
 
-let open_dependencies_for def_path expr =
+let let_open_in lident expr =
   let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
        Fresh,
-       {txt = Ldot (lident_of_path def_path,
-                    "Dependencies"); loc },
+       {txt = lident; loc },
        expr);
    pexp_loc = loc;
    pexp_attributes = []}
@@ -90,23 +89,28 @@ let check_all_paths disallowed mod_tree =
     M.iter_expression expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
-let check_expr (dependencies : Relit_call.dependency list) def_path expr =
-  let env = ref (Compmisc.initial_env ()) in
+let check_expr call expr =
+  let open Relit_call in
+  let env = Compmisc.initial_env () in
 
-  List.iter (fun Relit_call.{name; module_declaration; _} ->
-      env := Env.add_module_declaration ~check:true name module_declaration !env
-    ) dependencies;
+  let env = Env.add_module_declaration ~check:true
+    (Ident.create "Dependencies")
+    call.dependencies_decl env in
 
   let importable = StringSet.of_list (Env.imports () |> List.map fst) in
-  let allowed = dependencies
+  let allowed = call.dependencies
                 |> List.map (fun Relit_call.{name; _} -> Ident.name name)
                 |> StringSet.of_list in
 
   let disallowed = StringSet.diff importable allowed in
   let disallowed = StringSet.remove "Pervasives" disallowed in
 
-  expr |> Convert.To_current.copy_expression
-       |> module_expr_of_expr
-       |> Typemod.type_module !env
-       |> check_all_paths disallowed;
-  open_dependencies_for def_path expr
+  expr
+    |> let_open_in (Longident.Lident "Dependencies")
+    |> Convert.To_current.copy_expression
+    |> module_expr_of_expr
+    |> Typemod.type_module env
+    |> check_all_paths disallowed;
+
+  let_open_in (Longident.Ldot (lident_of_path call.definition_path,
+    "Dependencies")) expr

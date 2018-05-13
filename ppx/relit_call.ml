@@ -14,7 +14,8 @@ type t = {
   definition_path: Path.t;
   lexer: Path.t;
   parser: Path.t;
-  dependencies: dependency list
+  dependencies: dependency list;
+  dependencies_decl: Types.module_declaration
 }
 
 let rec signature_of_md_type env =  function
@@ -51,6 +52,7 @@ let of_modtype env path source : t =
   let lexer = ref (Right "lexer") in
   let parser = ref (Right "parser") in
   let dependencies = ref (Right "dependencies") in
+  let dependencies_decl = ref (Right "dependencies decl") in
   let signature = signature_of_path env path in
 
 
@@ -62,8 +64,9 @@ let of_modtype env path source : t =
                           { md_type = Mty_alias (_, path); _ }, _) ->
         parser := Left path
       | Types.Sig_module ({ name = "Dependencies" ; _},
-                          { md_type = Mty_signature signature; _ }, _) ->
-        dependencies := Left (extract_dependencies env signature)
+                          ({ md_type = Mty_signature signature; _ } as md_type), _) ->
+        dependencies := Left (extract_dependencies env signature);
+        dependencies_decl := Left md_type
       | _ -> ()
     )
     signature ;
@@ -72,4 +75,5 @@ let of_modtype env path source : t =
     parser = unwrap !parser;
     definition_path = path;
     dependencies = unwrap !dependencies;
+    dependencies_decl = unwrap !dependencies_decl;
     source = source }

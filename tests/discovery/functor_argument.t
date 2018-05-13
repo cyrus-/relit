@@ -14,4 +14,3 @@ Can we pass our TLM to a functor and still use it?
   > let () = print_endline (Regex.show regex)
   > END
   (Or (Or (String a) (String b)) (String c))
-
