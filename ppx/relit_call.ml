@@ -10,8 +10,10 @@ type dependency = Module of Ident.t * Types.module_declaration
 type t = {
   source: string;
   definition_path: Path.t;
+  type_expr: Types.type_expr;
   lexer: Path.t;
   parser: Path.t;
+  env: Env.t;
   dependencies: dependency list
 }
 
@@ -48,10 +50,10 @@ let of_modtype env path source : t =
                   name ^ " field"))
   in
   let lexer = ref (Right "lexer") in
+  let type_expr = ref (Right "type_expr") in
   let parser = ref (Right "parser") in
   let dependencies = ref (Right "dependencies") in
   let signature = signature_of_path env path in
-
 
   List.iter (function
       | Types.Sig_module ({ name = "Lexer" ; _},
@@ -63,6 +65,8 @@ let of_modtype env path source : t =
       | Types.Sig_module ({ name = "Dependencies" ; _},
                           { md_type = Mty_signature signature; _ }, _) ->
         dependencies := Left (extract_dependencies env signature)
+      | Types.Sig_type ({ name = "t" ; _}, {type_manifest = Some type_expr'}, _) ->
+        type_expr := Left type_expr'
       | _ -> ()
     )
     signature ;
@@ -71,4 +75,6 @@ let of_modtype env path source : t =
     parser = unwrap !parser;
     definition_path = path;
     dependencies = unwrap !dependencies;
+    type_expr = unwrap !type_expr;
+    env = env;
     source = source }

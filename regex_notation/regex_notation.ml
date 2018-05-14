@@ -1,7 +1,8 @@
+
 module Regex = Regex
 module Lexer = Lexer
-module Parser = Parser
 module Absurd_lexer = Absurd_lexer
+module Parser = Parser
 module Absurd_parser = Absurd_parser
 
 module RegexTLM = struct
@@ -47,4 +48,3 @@ module AbsurdTLM = struct
     exception Call of (* error message *) string * (* body *) string
   end
 end
-

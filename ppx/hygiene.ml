@@ -76,29 +76,37 @@ let open_dependencies_for def_path expr =
    pexp_loc = loc;
    pexp_attributes = []}
 
-let check_all_paths disallowed mod_tree =
-  (* we want to run this check against the typed tree instead
-   * of the parsetree because it has semantic paths rather
-   * than syntactic identifiers. Also we've got to typecheck
-   * anyways as part of context independence. *)
-
-  match mod_tree with
+let tyexpr_of_module = function
   | Typedtree.{ mod_desc = Tmod_structure
           {str_items = [{str_desc = Tstr_value (_, [{vb_expr = expr; _}])}]} } ->
-    let module M = Check_mapper (struct let disallowed = disallowed end) in
-    (* Printtyped.implementation Format.std_formatter structure; *)
-    M.iter_expression expr
+            expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
-let map_expr (dependencies : Relit_call.dependency list) def_path expr =
-  let env = ref (Compmisc.initial_env ()) in
+let typecheck_expression env expr =
+  (* To typecheck an expression:
+   * 1. make a module 2. typecheck it 3. extract expr from module *)
+  let mod_expr = module_expr_of_expr expr in
+  let typed_mod = Typemod.type_module env mod_expr in
+  tyexpr_of_module typed_mod
 
+let run_dependency_checker disallowed expr =
+  let module M = Check_mapper (struct let disallowed = disallowed end) in
+  (* Printtyped.implementation Format.std_formatter structure; *)
+  M.iter_expression expr
+
+let add_dependencies_to env dependencies =
+  let env = ref env in
   List.iter (function
     | Relit_call.Module (name, module_declaration) ->
       env := Env.add_module_declaration ~check:true name module_declaration !env
     | Relit_call.Type (name, type_declaration) ->
       env := Env.add_type ~check:true name type_declaration !env
     ) dependencies;
+  !env
+
+let map_expr (dependencies : Relit_call.dependency list) def_path expr =
+  let env = Compmisc.initial_env () in
+  let env = add_dependencies_to env dependencies in
 
   let importable = StringSet.of_list (Env.imports () |> List.map fst) in
   let allowed = dependencies
@@ -110,8 +118,9 @@ let map_expr (dependencies : Relit_call.dependency list) def_path expr =
   let disallowed = StringSet.diff importable allowed in
   let disallowed = StringSet.remove "Pervasives" disallowed in
 
-  expr |> Convert.To_current.copy_expression
-       |> module_expr_of_expr
-       |> Typemod.type_module !env
-       |> check_all_paths disallowed;
-  open_dependencies_for def_path expr
+  let tyexpr = expr |> Convert.To_current.copy_expression
+                    |> typecheck_expression env in
+
+  run_dependency_checker disallowed tyexpr;
+
+  (open_dependencies_for def_path expr, tyexpr.exp_type)

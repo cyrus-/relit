@@ -5,6 +5,9 @@
 test: build_ppx install_regex_notation install_ppx_relit
 	find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
 
+test_i: build_ppx install_regex_notation install_ppx_relit
+	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.t' | xargs echo`
+
 build_ppx:
 	jbuilder build ppx/ppx_relit.exe
 

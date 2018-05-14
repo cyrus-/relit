@@ -14,7 +14,9 @@ module TestTLM = struct
     exception Call of string * string
   end
 end
+open TestTLM
 
 let out = 
-  raise (RelitInternalDefn_test.Call ("Forgot ppx...", "number") [@relit])
+  raise (RelitInternalDefn_test.Call ("Forgot ppx...", "number") [@relit]);
+  print_endline "Failed"
   

@@ -76,11 +76,18 @@ let parsetree_mapper =
       let lexbuf = Lexing.from_string call.source in
 
       (* call the parser on the source & ensure dependencies are respected *)
-      (try let expr = parse lexbuf
-           in Hygiene.map_expr call.dependencies call.definition_path expr
+      begin try
+        let expr = parse lexbuf in
+        let (expr, ty) = Hygiene.map_expr call.dependencies call.definition_path expr in
+
+        let env = Hygiene.add_dependencies_to call.env call.dependencies in
+
+        if not (Ctype.matches env call.type_expr ty) then raise (Failure "parser returned wrong type");
+        expr
       with e ->
-        Format.fprintf Format.std_formatter "%a: tlm syntax error\n" print_position lexbuf;
-        raise e)
+        Format.fprintf Format.std_formatter "%a: tlm error\n" print_position lexbuf;
+        raise e
+      end
     | exception Not_found -> Ast_mapper.default_mapper.expr mapper expr (* continue down that expression *)
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
