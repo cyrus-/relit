@@ -90,7 +90,7 @@ let check_all_paths disallowed mod_tree =
     M.iter_expression expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
-let check_expr (dependencies : Relit_call.dependency list) def_path expr =
+let map_expr (dependencies : Relit_call.dependency list) def_path expr =
   let env = ref (Compmisc.initial_env ()) in
 
   List.iter (function
