@@ -2,6 +2,6 @@
 
 Can we access variables from generated code?
 
-  $ cat $ORIGINAL_DIR/tests/hygiene/local_variable.ml | caml
+  $ cat $TESTDIR/local_variable.ml | caml
   1:2: tlm syntax error
   Error: Unbound value x

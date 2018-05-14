@@ -2,5 +2,5 @@
 
 A simple call to a Relit TLM
 
-  $ cat $ORIGINAL_DIR/tests/most_basic_call.ml | caml
+  $ cat $TESTDIR/most_basic_call.ml | caml
   (Or (Or (String a) (String b)) (String c))

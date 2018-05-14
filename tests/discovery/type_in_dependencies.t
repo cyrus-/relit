@@ -3,7 +3,6 @@
 This parser returns an integer on input "number",
 which is expected to be a string in this context.
 
-  $ cat $ORIGINAL_DIR/tests/discovery/type_in_dependencies.ml | caml
-  File "{cram test file}", line 7, characters 27-28:
+  $ cat $TESTDIR/type_in_dependencies.ml | caml
   Warning 20: this argument will not be used by the function.
   25 (no-eol)
