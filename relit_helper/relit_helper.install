@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/relit_helper/META" {"META"}
+  "_build/install/default/lib/relit_helper/opam" {"opam"}
+]
+doc: [
+  "_build/install/default/doc/relit_helper/README.md"
+  "_build/install/default/doc/relit_helper/LICENSE"
+]
