@@ -1,13 +1,6 @@
-  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Can we store the definition in an alias before opening it?
 
-  $ caml << END
-  > $prefix
-  > module Alias = RegexTLM
-  > open Alias
-  > let regex =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
-  > let () = print_endline (Regex.show regex)
-  > END
+  $ cat $ORIGINAL_DIR/tests/discovery/alias.ml | caml
   (Or (Or (String a) (String b)) (String c))

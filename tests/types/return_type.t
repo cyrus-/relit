@@ -1,16 +1,9 @@
-  $ . $ORIGINAL_DIR/tests/helpers/absurd_prefix.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 This parser returns an integer on input "number",
 which is expected to be a string in this context.
 
-  $ caml << END
-  > $prefix
-  > open TLM
-  > let x = "hi there"
-  > let out =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "number") [@relit])
-  > let () = print_endline out;
-  > END
-  File "{cram test file}", line 18, characters 23-26:
+  $ cat $ORIGINAL_DIR/tests/types/return_type.ml | caml
+  File "{cram test file}", line 7, characters 23-26:
   Error: This expression has type int but an expression was expected of type
            string

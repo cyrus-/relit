@@ -1,15 +1,8 @@
-  $ . $ORIGINAL_DIR/tests/helpers/absurd_prefix.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Can we access variables from generated code?
 
-  $ caml << END
-  > $prefix
-  > open TLM
-  > let x = "hi there"
-  > let out =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "module") [@relit])
-  > let () = print_endline out;
-  > END
+  $ cat $ORIGINAL_DIR/tests/hygiene/module_not_in_dependencies.ml | caml
   (Failure "This TLM used a dependency it should not have here.")
   Error:1:7: tlm syntax error
   File "{cram test file}", line 1:

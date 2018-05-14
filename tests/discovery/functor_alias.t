@@ -1,17 +1,8 @@
-  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Can we put our definition in a functor and access it
 after we instatiate the functor?
 
-  $ caml << END
-  > $prefix
-  > module Funct(A : sig val x : int end) = struct
-  >   module NotationAlias = RegexTLM
-  > end
-  > module Alias = Funct(struct let x = 0 end)
-  > open Alias.NotationAlias
-  > let regex =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
-  > let () = print_endline (Regex.show regex)
-  > END
+  $ cat $ORIGINAL_DIR/tests/discovery/functor_alias.ml | caml
   (Or (Or (String a) (String b)) (String c))
+

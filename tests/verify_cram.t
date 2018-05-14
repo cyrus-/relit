@@ -4,7 +4,7 @@ Everything not indented is a comment.
 
 This includes some ocaml-specific testing utilities:
 
-  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Verify we can test OCaml.
 
@@ -13,12 +13,3 @@ Verify we can test OCaml.
   > END
   Hello world
 
-Basic test to verify that $prefix imports
-the regex notation.
-
-  $ caml << END
-  > $prefix
-  > type t = RegexTLM.RelitInternalDefn_regex.t
-  > let () = print_int 5
-  > END
-  5 (no-eol)

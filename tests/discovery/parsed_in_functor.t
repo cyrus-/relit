@@ -1,15 +1,7 @@
-  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Can we pass the TLM definition as an argument to
 a functor directly, changing what the call will look like?
 
-  $ caml << END
-  > $prefix
-  > module Funct(A : sig module B = RegexTLM.RelitInternalDefn_regex end) = struct
-  >   let regex = raise (A.B.Call ("Forgot ppx...", "a|b") [@relit])
-  > end
-  > module X = Funct(struct module B = RegexTLM.RelitInternalDefn_regex end)
-  > open X
-  > let () = print_endline (Regex.show regex)
-  > END
+  $ cat $ORIGINAL_DIR/tests/discovery/parsed_in_functor.ml | caml
   (Or (String a) (String b))

@@ -1,14 +1,7 @@
-  $ . $ORIGINAL_DIR/tests/helpers/absurd_prefix.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 Can we access variables from generated code?
 
-  $ caml << END
-  > $prefix
-  > open TLM
-  > let x = "hi there"
-  > let out =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "x") [@relit])
-  > let () = print_endline out;
-  > END
+  $ cat $ORIGINAL_DIR/tests/hygiene/local_variable.ml | caml
   1:2: tlm syntax error
   Error: Unbound value x

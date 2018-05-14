@@ -1,14 +1,6 @@
-  $ . $ORIGINAL_DIR/tests/helpers/regex.sh
+  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
 
 A simple call to a Relit TLM
 
-  $ caml << END
-  > $prefix
-  > module DNA = struct
-  >   open RegexTLM
-  >   let any_base =
-  >   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])
-  > end
-  > let () = print_endline (Regex.show DNA.any_base)
-  > END
+  $ cat $ORIGINAL_DIR/tests/most_basic_call.ml | caml
   (Or (Or (String a) (String b)) (String c))
