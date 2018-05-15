@@ -42,6 +42,6 @@ regex:
       { [%expr Regex.Str [%e (E.constant (C.string s))] ] }
   | DOLLAR a = PARENS
       (* also fails with s/Regex.t/string/ *)
-      { Relit_helper.ProtoExpr.spliced a [%type Regex.t ] }
+      { Relit_helper.ProtoExpr.spliced a [%type: Regex.t ] }
   | DOT
       { [%expr Regex.AnyChar ] }
