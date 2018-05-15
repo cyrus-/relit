@@ -1,5 +1,36 @@
 module Segment = struct 
-  type t = {start_pos: int; end_pos: int}
+  (* segments are [left_bound, right_bound) *)
+  type t = {left_bound: int; right_bound: int}
+
+
+  (* 
+  (* Checking the segment bounds *)
+  type check_result = 
+    | OK
+    | NonPositiveLength of t
+    | OutOfBounds of t
+    | Overlapping of t * t
+    | BadSeparation of t * t 
+
+  let check segs len = 
+    let sorted = sort segs (* TODO *) in 
+    
+
+  (* Tests *)
+  assert check [] _ = OK
+  assert check [ (-1, 1) ] 5 = OutOfBounds (-1, 1)
+  assert check [ (0, 1) ] 0 = OutOfBounds (0, 1) 
+  assert check [ (0, 1) ] 1 = OK
+  assert check [ (0, 0) ] 1 = NonPositiveLength (0, 0)
+  assert check [ (1, 0) ] 2 = NonPositiveLength (1, 0)
+  assert check [ (0, 2), (1, 3) ] 4 = Overlapping (0, 2) (1, 3)
+  assert check [ (1, 3), (0, 2) ] 4 = Overlapping (0, 2) (1, 3)
+  assert check [ (0, 2), (2, 3) ] 4 = BadSeparation (0, 2) (2, 3)
+  assert check [ (0, 2), (4, 5), (2, 3) ] 6 = BadSeparation (0, 2) (2, 3)
+  assert check [ (0, 2), (4, 5), (3, 4) ] 6 = BadSeparation (3, 4) (4, 5)
+  assert check [ (0, 2), (4, 5), (6, 9) ] 10 = OK
+  *)
+
   let read_to end_delim buf = 0
 end
 
