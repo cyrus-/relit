@@ -1,5 +1,6 @@
 module Segment = struct 
   type t = {start_pos: int; end_pos: int}
+
   let read_to end_delim buf = 0
 end
 
@@ -10,9 +11,8 @@ exception ExpansionError of expansion_error_data
 module ProtoExpr = struct
   type t = Parsetree.expression
 
-  let const_of_int i = 
-    Ast_helper.Exp.constant (
-      Ast_helper.Const.int i)  
+  let const_of_int i =
+    Ast_helper.Exp.constant ( Ast_helper.Const.int i)
 
   let spliced seg ty = 
     let start_pos_c = const_of_int Segment.(seg.start_pos) in 
@@ -21,4 +21,3 @@ module ProtoExpr = struct
     let loc = !Ast_helper.default_loc in 
     [%expr (raise (RelitInternal__Spliced ([%e start_pos_c], [%e end_pos_c])) : [%t ty])]
 end
-
