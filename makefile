@@ -11,8 +11,13 @@ test_i: build_ppx build_install
 build_ppx:
 	jbuilder build ppx/ppx_relit.exe
 
-build_examples: build_ppx build_install
+build_simple_ocaml: build_ppx build_install
 	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/simple_ocaml.native
+
+build_spliced_ocaml: build_ppx build_install
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/spliced_ocaml.native
+
+build_examples:  build_simple_ocaml build_spliced_ocaml
 
 build_install:
 	jbuilder build @install

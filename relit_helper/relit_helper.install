@@ -1,10 +1,10 @@
 lib: [
   "_build/install/default/lib/relit_helper/META" {"META"}
   "_build/install/default/lib/relit_helper/opam" {"opam"}
-  "_build/install/default/lib/relit_helper/relit_helper.cmi" {"relit_helper.cmi"}
-  "_build/install/default/lib/relit_helper/relit_helper.cmx" {"relit_helper.cmx"}
-  "_build/install/default/lib/relit_helper/relit_helper.cmt" {"relit_helper.cmt"}
-  "_build/install/default/lib/relit_helper/relit_helper.ml" {"relit_helper.ml"}
+  "_build/install/default/lib/relit_helper/Relit_helper.cmi" {"Relit_helper.cmi"}
+  "_build/install/default/lib/relit_helper/Relit_helper.cmx" {"Relit_helper.cmx"}
+  "_build/install/default/lib/relit_helper/Relit_helper.cmt" {"Relit_helper.cmt"}
+  "_build/install/default/lib/relit_helper/Relit_helper.ml" {"Relit_helper.ml"}
   "_build/install/default/lib/relit_helper/relit_helper.cma" {"relit_helper.cma"}
   "_build/install/default/lib/relit_helper/relit_helper.cmxa" {"relit_helper.cmxa"}
   "_build/install/default/lib/relit_helper/relit_helper.a" {"relit_helper.a"}
