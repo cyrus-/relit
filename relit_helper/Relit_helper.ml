@@ -1,3 +1,6 @@
+
+open Migrate_parsetree.Ast_404
+
 module Segment = struct 
   type t = {start_pos: int; end_pos: int}
 

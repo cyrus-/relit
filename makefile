@@ -2,23 +2,23 @@
 # we need this environment variable because
 # cram runs everything in a temp directory and
 # we want to share some functionality between tests.
-test: build_ppx install_regex_notation install_ppx_relit
+test: build_ppx build_install
 	find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
 
-test_i: build_ppx install_regex_notation install_ppx_relit
+test_i: build_ppx build_install
 	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.t' | xargs echo`
 
 build_ppx:
 	jbuilder build ppx/ppx_relit.exe
 
-install_regex_notation: build_install
-	jbuilder install regex_notation >/dev/null
-
-install_ppx_relit: build_install
-	jbuilder install ppx_relit >/dev/null
+build_examples: build_ppx build_install
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/simple_ocaml.native
 
 build_install:
 	jbuilder build @install
+	jbuilder install regex_notation >/dev/null
+	jbuilder install relit_helper >/dev/null
+	jbuilder install ppx_relit >/dev/null
 
 clean:
 	@rm -rf _build
