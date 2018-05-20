@@ -1,7 +1,9 @@
 open Regex_notation
-open RegexTLM
 
-let regex =
-  raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|$(Regex.Str(\"okay\"))$|c") [@relit])
-
-let () = print_endline (Regex.show regex)
+module DNA = struct
+  open RegexTLM
+  let any_base =
+    raise (RelitInternalDefn_regex.Call
+             ("Forgot ppx...", "a|$( raise([@relit] RelitInternalDefn_regex.Call(\"Forgot ppx...\", \"d|e\")) )$|c") [@relit])
+end
+let () = print_endline (Regex.show DNA.any_base)

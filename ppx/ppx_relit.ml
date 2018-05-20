@@ -20,6 +20,25 @@ module LocMap = Map.Make(struct
 
 let loc_to_relit_call : Relit_call.t LocMap.t ref = ref LocMap.empty
 
+let fully_expanded structure =
+  let exception YesItDoes in
+  let open Parsetree in
+  let open Longident in
+  let expr_mapper mapper e = match e.pexp_desc with
+    | Pexp_apply (
+        {pexp_desc = Pexp_ident {txt = Lident "raise"; _}},
+        [(_, {pexp_attributes = ({txt = "relit"}, _) :: _;
+              pexp_desc = Pexp_construct ({txt = Ldot (_, "Call"); _},_
+                                          (* {pexp_desc = Pexp_constant (Pconst_string _); _} *))})]
+      ) ->
+        raise YesItDoes
+    | _ -> Ast_mapper.default_mapper.expr mapper e
+  in
+  let mapper = { Ast_mapper.default_mapper with expr = expr_mapper } in
+  match mapper.structure mapper structure with
+  | _ -> true
+  | exception YesItDoes -> false
+
 module Iter_and_extract = TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
 
@@ -33,7 +52,7 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                        "raise", _), _, _) ; _ },
           [(_label,
             Some (
-              {exp_attributes = [({txt = "relit"; _}, _)];
+              {exp_attributes = ({txt = "relit"; _}, _) :: _;
                exp_desc = Texp_construct (
                    loc,
 
@@ -60,8 +79,7 @@ let print_position outx lexbuf =
   Format.fprintf outx "%d:%d"
     pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1)
 
-let record_splices splices =
-  let open Migrate_parsetree.OCaml_404.Ast in
+let remove_splices splices =
   let open Parsetree in
   let expr_mapper mapper e = match e with
       | [%expr (raise (ignore ([%e? {pexp_desc = Pexp_constant (Pconst_integer (start_pos, _)); _} ],
@@ -77,9 +95,8 @@ let record_splices splices =
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
-let into_protoexpansion =
+let expand_literal_macros =
 
-  let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let expr_mapper mapper initial_expr =
 
@@ -97,8 +114,9 @@ let into_protoexpansion =
         let expr = Hygiene.map_expr call expr in
 
         let splices = ref [] in (* START splices is mutable - todo clean this up. *)
-        let mapper = record_splices splices in
+        let mapper = remove_splices splices in
         let body_of_lambda = mapper.expr mapper expr in
+        let splices = !splices in (* END splices is not mutable *)
 
         let index_by_position (_, Relit_helper.Segment.{start_pos; end_pos}) =
           let length = end_pos - start_pos in
@@ -108,12 +126,12 @@ let into_protoexpansion =
         let parse_reason source =
           source |> Lexing.from_string
                  |> Reason_parser.parse_expression Reason_lexer.token
+                 |> Convert.To_current.copy_expression
         in
 
-        let splices = !splices in (* END splices is not mutable *)
         let spliced_sources = List.map index_by_position splices in
-
         let parsetrees = List.map parse_reason spliced_sources in
+
         let respective_names = splices
           |> List.map fst
           |> List.map (fun a -> Ast_helper.Pat.var {txt = a ; loc = !Ast_helper.default_loc})
@@ -124,11 +142,18 @@ let into_protoexpansion =
          * when there's no values to pass and a regular fn call
          * when there's only one. *)
         let (pattern, argument) = match List.length splices with
-        | 0 -> let unit_ = {txt = Longident.Lident "()"; loc = !Ast_helper.default_loc} in
-               (Ast_helper.Pat.construct unit_ None,
-                Ast_helper.Exp.construct unit_ None)
-        | 1 -> (List.hd respective_names, List.hd parsetrees)
-        | _ -> (Ast_helper.Pat.tuple respective_names, Ast_helper.Exp.tuple parsetrees) in
+        | 0 ->
+          let unit_ = {txt = Longident.Lident "()";
+                       loc = !Ast_helper.default_loc} in
+          (Ast_helper.Pat.construct unit_ None,
+           Ast_helper.Exp.construct unit_ None)
+        | 1 ->
+          (List.hd respective_names,
+           List.hd parsetrees)
+        | _ ->
+          (Ast_helper.Pat.tuple respective_names,
+           Ast_helper.Exp.tuple parsetrees)
+        in
 
         let lambda = Ast_helper.Exp.fun_ Asttypes.Nolabel None pattern body_of_lambda in
         Ast_helper.Exp.apply lambda [(Asttypes.Nolabel, argument)]
@@ -143,34 +168,38 @@ let into_protoexpansion =
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
-let typing_mapper _cookies =
+let rec typing_mapper =
   let structure_mapper _x structure =
+    if fully_expanded structure
+    then default_mapper.structure typing_mapper structure
+    else begin
+      (* useful definitions for the remaining part *)
+      let fname =
+        (List.hd structure).pstr_loc.Location.loc_start.Lexing.pos_fname in
+      let without_extension = Filename.remove_extension fname in
 
-    (* useful definitions for the remaining part *)
-    let fname =
-      (List.hd structure).pstr_loc.Location.loc_start.Lexing.pos_fname in
-    let without_extension = Filename.remove_extension fname in
+      (* initialize the typechecking environment *)
+      Compmisc.init_path false;
+      let module_name = Compenv.module_of_filename
+          Format.std_formatter fname without_extension in
+      Env.set_unit_name module_name;
+      let initial_env = Compmisc.initial_env () in
 
-    (* initialize the typechecking environment *)
-    Compmisc.init_path false;
-    let module_name = Compenv.module_of_filename
-        Format.std_formatter fname without_extension in
-    Env.set_unit_name module_name;
-    let initial_env = Compmisc.initial_env () in
+      (* typecheck and extract type information *)
+      structure
+      |> Typemod.type_implementation
+        fname without_extension module_name initial_env
+      |> fst |> Iter_and_extract.iter_structure;
 
-    (* typecheck and extract type information *)
-    structure
-    |> Typemod.type_implementation
-      fname without_extension module_name initial_env
-    |> fst |> Iter_and_extract.iter_structure;
-
-    (* map over ast and generate call to lexer *)
-    structure
-    |> Convert.From_current.copy_structure
-    |> into_protoexpansion.structure into_protoexpansion
-    |> Convert.To_current.copy_structure
+      (* map over ast and generate call to lexer *)
+      let structure = expand_literal_macros.structure
+          expand_literal_macros structure in
+      typing_mapper.structure typing_mapper structure
+    end
   in
   { default_mapper with structure = structure_mapper }
 
+let toplevel_mapper _cookies = typing_mapper
+
 let () =
-  register ppx_name typing_mapper
+  register ppx_name toplevel_mapper

@@ -65,7 +65,6 @@ let module_expr_of_expr expr =
     [%str let _ = [%e expr ] ]
 
 let open_dependencies_for def_path expr =
-  let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
@@ -120,9 +119,9 @@ let map_expr Relit_call.{dependencies;
 
   let disallowed = StringSet.diff importable allowed in
   let disallowed = StringSet.remove "Pervasives" disallowed in
+  let expr = Convert.To_current.copy_expression expr in
 
-  let tyexpr = expr |> Convert.To_current.copy_expression
-                    |> typecheck_expression env in
+  let tyexpr = typecheck_expression env expr in
 
   run_dependency_checker disallowed tyexpr;
 
