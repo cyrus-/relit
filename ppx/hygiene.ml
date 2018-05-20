@@ -104,7 +104,10 @@ let add_dependencies_to env dependencies =
     ) dependencies;
   !env
 
-let map_expr (dependencies : Relit_call.dependency list) def_path expr =
+let map_expr Relit_call.{dependencies;
+                         definition_path;
+                         return_type;
+                         env = call_env} expr =
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
 
@@ -123,4 +126,8 @@ let map_expr (dependencies : Relit_call.dependency list) def_path expr =
 
   run_dependency_checker disallowed tyexpr;
 
-  (open_dependencies_for def_path expr, tyexpr.exp_type)
+  let env = add_dependencies_to call_env dependencies in
+
+  if not (Ctype.matches env return_type tyexpr.exp_type)
+  then raise (Failure "parser returned wrong type");
+  open_dependencies_for definition_path expr

@@ -5,6 +5,8 @@
                compiler-libs.common
                ocaml-migrate-parsetree
                ppxlib.metaquot
+               relit_helper
+               reason
                ))
    ; In order to use compiler-libs.toplevel,
    ; we must compile only to bytecode

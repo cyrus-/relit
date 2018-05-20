@@ -14,7 +14,7 @@ let load_top_module path =
 
 let menhir_from_module lexer_path parser_path =
   Toploop.initialize_toplevel_env ();
-  Topdirs.load_file print_nothing "relit_helper.cma";
+  Topdirs.load_file print_nothing "relit_helper.cma" |> ignore;
   load_top_module lexer_path;
   load_top_module parser_path;
 

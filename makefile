@@ -2,24 +2,27 @@
 # we need this environment variable because
 # cram runs everything in a temp directory and
 # we want to share some functionality between tests.
-test: build_ppx build_install
+test: ppx install
 	find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
 
-test_i: build_ppx build_install
+test_i: ppx install
 	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.t' | xargs echo`
 
-build_ppx:
+ppx:
 	jbuilder build ppx/ppx_relit.exe
 
-build_simple_ocaml: build_ppx build_install
+simple_ocaml: ppx install
 	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/simple_ocaml.native
 
-build_spliced_ocaml: build_ppx build_install
+spliced_ocaml: ppx install
 	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/spliced_ocaml.native
 
-build_examples:  build_simple_ocaml build_spliced_ocaml
+splice_in_splice: ppx install
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/splice_in_splice.native
 
-build_install:
+examples:  simple_ocaml spliced_ocaml splice_in_splice
+
+install:
 	jbuilder build @install
 	jbuilder install regex_notation >/dev/null
 	jbuilder install relit_helper >/dev/null
@@ -31,4 +34,4 @@ clean:
 	@rm -f ppx/ppx_relit.cmi
 	@rm -f ppx/ppx_relit.o
 
-.PHONY: build run build_ppx
+.PHONY: build run ppx px install clean test test_i
