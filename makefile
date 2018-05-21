@@ -3,7 +3,8 @@
 # cram runs everything in a temp directory and
 # we want to share some functionality between tests.
 test: ppx install
-	find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
+	@echo Running `find tests -name '*.t' | wc -l` tests
+	@find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
 
 test_i: ppx install
 	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.t' | xargs echo`

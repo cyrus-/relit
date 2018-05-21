@@ -29,7 +29,7 @@ let fully_expanded structure =
         {pexp_desc = Pexp_ident {txt = Lident "raise"; _}},
         [(_, {pexp_attributes = ({txt = "relit"}, _) :: _;
               pexp_desc = Pexp_construct ({txt = Ldot (_, "Call"); _},_
-                                          (* {pexp_desc = Pexp_constant (Pconst_string _); _} *))})]
+        (* {pexp_desc = Pexp_constant (Pconst_string _); _} *))})]
       ) ->
         raise YesItDoes
     | _ -> Ast_mapper.default_mapper.expr mapper e
@@ -68,7 +68,9 @@ module Iter_and_extract = TypedtreeIter.MakeIterator(struct
                    }::_ ); _ }))]) ->
 
         let relit_call = Relit_call.of_modtype exp_env path source in
-        loc_to_relit_call := LocMap.add expr.exp_loc relit_call !loc_to_relit_call;
+        loc_to_relit_call := LocMap.add expr.exp_loc
+                                        relit_call
+                                        !loc_to_relit_call;
       | _ -> ()
   end)
 
@@ -81,17 +83,25 @@ let print_position outx lexbuf =
 
 let remove_splices splices =
   let open Parsetree in
-  let expr_mapper mapper e = match e with
-      | [%expr (raise (ignore ([%e? {pexp_desc = Pexp_constant (Pconst_integer (start_pos, _)); _} ],
-                               [%e? {pexp_desc = Pexp_constant (Pconst_integer (end_pos, _)); _} ]);
-                       Failure "RelitInternal__Spliced")
-                 : [%t? expected_type ]) ] ->
-         let start_pos = int_of_string start_pos in
-         let end_pos = int_of_string end_pos in
-         let variable_name = "RelitInternal__SplicedVar" ^ string_of_int (Utils.unique_int ()) in
-         splices := (variable_name, Relit_helper.Segment.{start_pos ; end_pos}) :: !splices;
-         Ast_helper.Exp.ident {loc = !Ast_helper.default_loc; txt = Longident.Lident variable_name}
-      | e -> Ast_mapper.default_mapper.expr mapper e
+  let expr_mapper mapper e =
+    match e with
+    | [%expr (raise (ignore (
+        [%e? {pexp_desc =
+                Pexp_constant (Pconst_integer (start_pos, _)); _} ],
+        [%e? {pexp_desc =
+                Pexp_constant (Pconst_integer (end_pos, _)); _} ]);
+           Failure "RelitInternal__Spliced") : [%t? expected_type ]) ] ->
+       let start_pos = int_of_string start_pos in
+       let end_pos = int_of_string end_pos in
+       let variable_name =
+         "RelitInternal__SplicedVar"
+         ^ string_of_int (Utils.unique_int ()) in
+       splices :=
+         (variable_name, Relit_helper.Segment.{start_pos ; end_pos})
+         :: !splices;
+       Ast_helper.Exp.ident {loc = !Ast_helper.default_loc;
+                             txt = Longident.Lident variable_name}
+    | e -> Ast_mapper.default_mapper.expr mapper e
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
@@ -100,7 +110,8 @@ let expand_literal_macros =
   let open Parsetree in
   let expr_mapper mapper initial_expr =
 
-    (* If we've matched and typed this location in the previous run, replace it *)
+    (* If we've matched and typed this location
+     * in the previous run, replace it *)
     match LocMap.find initial_expr.pexp_loc !loc_to_relit_call with
     | call (* the relit_call struct *) ->
 
@@ -108,7 +119,8 @@ let expand_literal_macros =
       let parse = Loading.menhir_from_module call.lexer call.parser in
       let lexbuf = Lexing.from_string call.source in
 
-      (* call the parser on the source & ensure dependencies are respected *)
+      (* call the parser on the source
+       * & ensure dependencies are respected *)
       begin try
         let expr = parse lexbuf in
         let expr = Hygiene.map_expr call expr in
@@ -168,34 +180,39 @@ let expand_literal_macros =
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
+let relit_transformation structure =
+    if fully_expanded structure then None else
+    (* useful definitions for the remaining part *)
+    let fname =
+      (List.hd structure).pstr_loc.Location.loc_start.Lexing.pos_fname in
+    let without_extension = Filename.remove_extension fname in
+
+    (* initialize the typechecking environment *)
+    Compmisc.init_path false;
+    let module_name = Compenv.module_of_filename
+        Format.std_formatter fname without_extension in
+    Env.set_unit_name module_name;
+    let initial_env = Compmisc.initial_env () in
+
+    (* typecheck and extract type information *)
+    structure
+    |> Typemod.type_implementation
+      fname without_extension module_name initial_env
+    |> fst |> Iter_and_extract.iter_structure;
+
+    (* map over ast and generate call to lexer *)
+    let structure = expand_literal_macros.structure
+        expand_literal_macros structure in
+    Some structure
+
 let rec typing_mapper =
+  (* run the relit transformation until there are no more tlms *)
   let structure_mapper _x structure =
-    if fully_expanded structure
-    then default_mapper.structure typing_mapper structure
-    else begin
-      (* useful definitions for the remaining part *)
-      let fname =
-        (List.hd structure).pstr_loc.Location.loc_start.Lexing.pos_fname in
-      let without_extension = Filename.remove_extension fname in
-
-      (* initialize the typechecking environment *)
-      Compmisc.init_path false;
-      let module_name = Compenv.module_of_filename
-          Format.std_formatter fname without_extension in
-      Env.set_unit_name module_name;
-      let initial_env = Compmisc.initial_env () in
-
-      (* typecheck and extract type information *)
-      structure
-      |> Typemod.type_implementation
-        fname without_extension module_name initial_env
-      |> fst |> Iter_and_extract.iter_structure;
-
-      (* map over ast and generate call to lexer *)
-      let structure = expand_literal_macros.structure
-          expand_literal_macros structure in
+    match relit_transformation structure with
+    | None ->
+      default_mapper.structure typing_mapper structure
+    | Some structure ->
       typing_mapper.structure typing_mapper structure
-    end
   in
   { default_mapper with structure = structure_mapper }
 
