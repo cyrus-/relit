@@ -1,5 +1,5 @@
 
-(* check_dependencies.ml is the file for checking
+(* hygiene.ml's the file we use in relit to check
  * the dependencies of a given piece of generated
  * code is valid. We do this through typechecking
  * the generated code, and then a manual checking
@@ -55,31 +55,12 @@ module Check_mapper (A : sig val disallowed : StringSet.t end) =
       | _ -> ()
   end)
 
-let rec lident_of_path path =
-  let open Path in
-  let open Longident in
-  match path with
-  | Pident ident -> Lident (Ident.name ident)
-  | Pdot (rest, name, _) -> Ldot (lident_of_path rest, name)
-  | Papply (a, b) -> Lapply (lident_of_path a, lident_of_path b)
-
 let module_expr_of_expr expr =
   let open Parsetree in
   let open Longident in
   let loc = !Ast_helper.default_loc in
   Ast_helper.Mod.structure
     [%str let _ = [%e expr ] ]
-
-let open_dependencies_for def_path expr =
-  let open Parsetree in
-  let loc = !Ast_helper.default_loc in
-  {pexp_desc = Pexp_open (
-       Fresh,
-       {txt = Ldot (lident_of_path def_path,
-                    "Dependencies"); loc },
-       expr);
-   pexp_loc = loc;
-   pexp_attributes = []}
 
 let tyexpr_of_module = function
   | Typedtree.{ mod_desc = Tmod_structure
@@ -103,16 +84,15 @@ let run_dependency_checker disallowed expr =
 let add_dependencies_to env dependencies =
   let env = ref env in
   List.iter (function
-    | Relit_call.Module (name, module_declaration) ->
+    | Call_record.Module (name, module_declaration) ->
       env := Env.add_module_declaration
           ~check:true name module_declaration !env
-    | Relit_call.Type (name, type_declaration) ->
+    | Call_record.Type (name, type_declaration) ->
       env := Env.add_type ~check:true name type_declaration !env
     ) dependencies;
   !env
 
-let map_expr Relit_call.{dependencies;
-                         definition_path;
+let check Call_record.{dependencies;
                          return_type;
                          env = call_env} expr =
   let env = Compmisc.initial_env () in
@@ -120,15 +100,14 @@ let map_expr Relit_call.{dependencies;
 
   let importable = StringSet.of_list (Env.imports () |> List.map fst) in
   let allowed = dependencies
-    |> List.filter (function Relit_call.Module _ -> true | _ -> false)
+    |> List.filter (function Call_record.Module _ -> true | _ -> false)
     |> List.map (function
-        | Relit_call.Module (name, _) -> Ident.name name
+        | Call_record.Module (name, _) -> Ident.name name
         | _ -> raise (Failure "impossible, just filtered them"))
     |> StringSet.of_list in
 
   let disallowed = StringSet.diff importable allowed in
   let disallowed = StringSet.remove "Pervasives" disallowed in
-  let expr = Convert.To_current.copy_expression expr in
 
   let tyexpr = typecheck_expression env expr in
 
@@ -137,5 +116,5 @@ let map_expr Relit_call.{dependencies;
   let env = add_dependencies_to call_env dependencies in
 
   if not (Ctype.matches env return_type tyexpr.exp_type)
-  then raise (Failure "parser returned wrong type");
-  open_dependencies_for definition_path expr
+  then raise (Failure "parser returned wrong type")
+  else ()
