@@ -1,6 +1,6 @@
 (library
   ((name relit_helper)
-   ; (public_name regex_notation)
+   (public_name relit_helper)
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (ocaml-migrate-parsetree
                ppxlib.metaquot))))

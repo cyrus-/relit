@@ -3,5 +3,5 @@
 Can we do the parse in another module?
 
   $ cat $TESTDIR/module_in_the_middle.ml | caml
-  Empty
+  (Or (String a) (String b))
 

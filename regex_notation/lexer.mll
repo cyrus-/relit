@@ -1,6 +1,7 @@
 {
 open Lexing
 open Parser
+open Relit_helper
 
 exception SyntaxError of string
 
@@ -14,7 +15,6 @@ let next_line lexbuf =
 let unescape s = String.sub s 1 1
 }
 
-
 let special = ['\\' '.' '|' '*' '^'
                '+' '*' '(' ')' '$']
 let escape = '\\' special
@@ -25,9 +25,9 @@ rule read =
   parse
   | "."    { DOT }
   | "|"    { BAR }
-  | "<>"   { MISC }
-  | "|"    { BAR }
   | escape as s { STR(unescape(s)) }
+  | "$(" _* ")$" { PARENS({start_pos = Lexing.lexeme_start lexbuf + 2;
+                          end_pos = Lexing.lexeme_end lexbuf - 2}) }
   | "\n"  { next_line lexbuf; read lexbuf }
   | ident    { STR (Lexing.lexeme lexbuf) }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }

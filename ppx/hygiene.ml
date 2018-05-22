@@ -8,7 +8,8 @@
 
 module StringSet = Set.Make(String)
 
-module Check_mapper (A : sig val disallowed : StringSet.t end) = TypedtreeIter.MakeIterator(struct
+module Check_mapper (A : sig val disallowed : StringSet.t end) =
+  TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
 
     let enter_expression e =
@@ -16,10 +17,11 @@ module Check_mapper (A : sig val disallowed : StringSet.t end) = TypedtreeIter.M
       let env = e.exp_env in
 
       let check_path loc p =
-        if StringSet.mem (Ident.name (Path.head p)) A.disallowed then begin
+        if StringSet.mem (Ident.name (Path.head p)) A.disallowed then (
           Location.print_error Format.std_formatter loc ;
-          raise (Failure "This TLM used a dependency it should not have here.")
-        end
+          raise (Failure "This TLM used a dependency \
+                          it should not have here.")
+        )
       in
 
       let check_ident loc_ident =
@@ -28,9 +30,12 @@ module Check_mapper (A : sig val disallowed : StringSet.t end) = TypedtreeIter.M
         check_path loc_ident.loc ident_path
       in
 
-      let check_construct i = match Env.lookup_constructor Location.(i.txt) env with
-        | Types.{cstr_res = {desc = Tconstr (p, _, _); _}} -> check_path i.loc p
-        | _ -> raise (Failure "Bug: how does looking up a constructor not return a constructor?")
+      let check_construct i =
+        match Env.lookup_constructor Location.(i.txt) env with
+        | Types.{cstr_res = {desc = Tconstr (p, _, _); _}} ->
+          check_path i.loc p
+        | _ -> raise (Failure "Bug: how does looking up a constructor\
+                               not return a constructor?")
       in
 
       match e.exp_desc with
@@ -42,7 +47,8 @@ module Check_mapper (A : sig val disallowed : StringSet.t end) = TypedtreeIter.M
         check_ident i
       | Texp_construct (i, _, _) ->
         check_construct i
-      | Texp_instvar (p1, p2, _) -> check_path e.exp_loc p1; check_path e.exp_loc p2
+      | Texp_instvar (p1, p2, _) ->
+        check_path e.exp_loc p1; check_path e.exp_loc p2
       | Texp_override (p, ps) ->
         check_path e.exp_loc p;
         List.iter (fun (p, _, _) -> check_path e.exp_loc p) ps
@@ -65,7 +71,6 @@ let module_expr_of_expr expr =
     [%str let _ = [%e expr ] ]
 
 let open_dependencies_for def_path expr =
-  let open Migrate_parsetree.OCaml_404.Ast in
   let open Parsetree in
   let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
@@ -78,7 +83,8 @@ let open_dependencies_for def_path expr =
 
 let tyexpr_of_module = function
   | Typedtree.{ mod_desc = Tmod_structure
-          {str_items = [{str_desc = Tstr_value (_, [{vb_expr = expr; _}])}]} } ->
+          {str_items = [{str_desc = Tstr_value
+                             (_, [{vb_expr = expr; _}])}]} } ->
             expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
@@ -98,29 +104,38 @@ let add_dependencies_to env dependencies =
   let env = ref env in
   List.iter (function
     | Relit_call.Module (name, module_declaration) ->
-      env := Env.add_module_declaration ~check:true name module_declaration !env
+      env := Env.add_module_declaration
+          ~check:true name module_declaration !env
     | Relit_call.Type (name, type_declaration) ->
       env := Env.add_type ~check:true name type_declaration !env
     ) dependencies;
   !env
 
-let map_expr (dependencies : Relit_call.dependency list) def_path expr =
+let map_expr Relit_call.{dependencies;
+                         definition_path;
+                         return_type;
+                         env = call_env} expr =
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
 
   let importable = StringSet.of_list (Env.imports () |> List.map fst) in
   let allowed = dependencies
-                |> List.filter (function Relit_call.Module _ -> true | _ -> false)
-                |> List.map (function (Relit_call.Module (name, _)) -> Ident.name name
-                                      | _ -> raise (Failure "impossible, just filtered them"))
-                |> StringSet.of_list in
+    |> List.filter (function Relit_call.Module _ -> true | _ -> false)
+    |> List.map (function
+        | Relit_call.Module (name, _) -> Ident.name name
+        | _ -> raise (Failure "impossible, just filtered them"))
+    |> StringSet.of_list in
 
   let disallowed = StringSet.diff importable allowed in
   let disallowed = StringSet.remove "Pervasives" disallowed in
+  let expr = Convert.To_current.copy_expression expr in
 
-  let tyexpr = expr |> Convert.To_current.copy_expression
-                    |> typecheck_expression env in
+  let tyexpr = typecheck_expression env expr in
 
   run_dependency_checker disallowed tyexpr;
 
-  (open_dependencies_for def_path expr, tyexpr.exp_type)
+  let env = add_dependencies_to call_env dependencies in
+
+  if not (Ctype.matches env return_type tyexpr.exp_type)
+  then raise (Failure "parser returned wrong type");
+  open_dependencies_for definition_path expr

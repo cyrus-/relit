@@ -10,8 +10,7 @@
 %token <string> STR
 %token DOT
 %token BAR
-%token STAR
-%token MISC
+%token <Relit_helper.Segment.t> PARENS
 %token EOF
 
 %left BAR
@@ -34,11 +33,12 @@ regex:
       (* { [%expr 2 + 2 ] } *)
 
       { [%expr Regex.Or ([%e a], [%e b]) ] }
-  | a = regex MISC b = regex
-      { [%expr Regex.Empty ] }
   | a = regex b = regex %prec SEQ
       { [%expr Regex.Seq ([%e a], [%e b]) ] }
   | s = STR
-      { [%expr Regex.Str [%e (E.constant (C.string s))] ] }
+      { let random = string_of_int (Exlit.Std.unique ()) in 
+        [%expr Regex.Str [%e (E.constant (C.string s ^ random))] ] }
+  | a = PARENS
+      { Relit_helper.ProtoExpr.spliced a [%type: Regex.t ] }
   | DOT
       { [%expr Regex.AnyChar ] }

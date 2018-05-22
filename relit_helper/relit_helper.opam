@@ -1,5 +1,5 @@
 opam-version: "1.2"
-name: "regex notation"
+name: "relit helper"
 version: "0.1"
 maintainer: "Name <email>"
 author: "Name <email>"
@@ -10,6 +10,6 @@ dev-repo: ""
 build: [
   ["jbuilder" "build"]
 ]
-install: ["jbuilder" "install" "regex_notation"]
+install: ["jbuilder" "install" "relit_helper"]
 remove: ["ocamlfind" "remove" "project"]
 depends: "ocamlfind"
