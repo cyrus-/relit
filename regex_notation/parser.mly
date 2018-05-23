@@ -36,8 +36,8 @@ regex:
   | a = regex b = regex %prec SEQ
       { [%expr Regex.Seq ([%e a], [%e b]) ] }
   | s = STR
-      { let random = string_of_int (Exlit.Std.unique ()) in 
-        [%expr Regex.Str [%e (E.constant (C.string s ^ random))] ] }
+      { let random = string_of_int (Std.unique ()) in 
+        [%expr Regex.Str [%e (E.constant (C.string (s ^ random)))] ] }
   | a = PARENS
       { Relit_helper.ProtoExpr.spliced a [%type: Regex.t ] }
   | DOT
