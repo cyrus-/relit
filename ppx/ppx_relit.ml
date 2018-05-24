@@ -135,7 +135,7 @@ let map_structure f call_records structure =
      * in the previous run, replace it *)
     match Locmap.find expr.pexp_loc call_records with
     | call_record ->
-      f call_record ~call_parsetree:expr
+      f call_record
     | exception Not_found ->
         (* continue down that expression *)
         Ast_mapper.default_mapper.expr mapper expr
@@ -143,22 +143,26 @@ let map_structure f call_records structure =
   let mapper = { Ast_mapper.default_mapper with expr = expr_mapper } in
   mapper.structure mapper structure
 
+let out = open_out "/home/charles/code/relit.log"
+
 (* Overarching view of what's happening.
  * Reading this is crucial. *)
 let relit_transformation structure =
+  Printast.structure 3 (Format.formatter_of_out_channel out) structure;
+  flush out;
   if fully_expanded structure then None else
   let call_records = Extract_call_records.from structure in
 
-  let for_each call_record ~call_parsetree =
+  let for_each call_record =
     let parse = Loading.parser_for call_record in
     let tlm_ast = parse call_record.source in
     Hygiene.check call_record tlm_ast;
-    let call_parsetree =
-      open_dependencies_in call_parsetree call_record.definition_path in
+    let tlm_ast =
+      open_dependencies_in tlm_ast call_record.definition_path in
     let (splices, tlm_ast) = take_splices_out tlm_ast in
     let spliced_asts =
       run_reason_parser_against splices call_record.source in
-    fill_in_splices call_parsetree spliced_asts
+    fill_in_splices tlm_ast spliced_asts
   in Some (map_structure for_each call_records structure)
 
 let rec relit_mapper =
