@@ -1,15 +1,13 @@
 (library
-  ((name regex_notation)
-   (public_name regex_notation)
+  ((name regex_example)
+   (public_name regex_example)
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (ocaml-migrate-parsetree
                ppxlib.metaquot
-               relit_helper
-               extlib))))
+               relit_helper))))
 
 (ocamllex (lexer))
-(ocamllex (absurd_lexer))
 
 (menhir
- ((modules (parser absurd_parser))))
+ ((modules (parser))))
 

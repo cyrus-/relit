@@ -3,6 +3,6 @@
 Can we put our definition in a functor and access it
 after we instatiate the functor?
 
-  $ cat $TESTDIR/functor_alias.ml | caml
+  $ caml $TESTDIR/functor_alias
   (Or (Or (String a) (String b)) (String c))
 

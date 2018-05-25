@@ -1,4 +1,4 @@
-module RelitInternalDefn_regex = RegexNotation
+module RelitInternalDefn_regex = RegexNotation.RelitInternalDefn_regex
 module DNA = struct
   let any_base = raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "A|T|G|C") [@relit])
 end

@@ -1,10 +1,10 @@
-open Regex_notation
+open Regex_example
 
 module Obscure(A : sig val x : int end) = struct
   module Notation = struct
     module Test = struct let y = A.x end
     module Alias = struct
-      include RegexTLM
+      include RegexNotation
     end
   end
 end

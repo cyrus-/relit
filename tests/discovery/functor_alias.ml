@@ -1,7 +1,7 @@
-open Regex_notation 
+open Regex_example 
 
 module Funct(A : sig val x : int end) = struct
-  module NotationAlias = RegexTLM
+  module NotationAlias = RegexNotation
 end
 module Alias = Funct(struct let x = 0 end)
 open Alias.NotationAlias

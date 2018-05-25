@@ -1,15 +1,15 @@
 module TestTLM = struct
   (* 
   notation $test at int {
-    lexer = Regex_notation.Absurd_lexer
-    parser = Regex_notation.Absurd_parser.literal
+    lexer = Regex_example.Absurd_lexer
+    parser = Regex_example.Absurd_parser.literal
     expansions require { }
   }
   *)
   module RelitInternalDefn_test = struct
     type t = string
-    module Lexer = Regex_notation.Absurd_lexer
-    module Parser = Regex_notation.Absurd_parser
+    module Lexer = Regex_example.Absurd_lexer
+    module Parser = Regex_example.Absurd_parser
     module Dependencies = struct end
     exception Call of string * string
   end

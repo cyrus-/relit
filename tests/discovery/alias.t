@@ -2,5 +2,5 @@
 
 Can we store the definition in an alias before opening it?
 
-  $ cat $TESTDIR/alias.ml | caml
+  $ caml $TESTDIR/alias
   (Or (Or (String a) (String b)) (String c))

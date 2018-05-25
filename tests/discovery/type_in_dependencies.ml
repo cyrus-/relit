@@ -1,6 +1,6 @@
-open Regex_notation
+open Regex_example
 
-open AbsurdTLM
+open Test_example.TestNotation
 let x = "hi there"
 let square =
   raise (RelitInternalDefn_absurd_int_arrow_int.Call ("Forgot ppx...", "typed_fn") [@relit])

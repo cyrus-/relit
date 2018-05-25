@@ -1,6 +1,6 @@
-open Regex_notation
+open Regex_example
 
-module Alias = RegexTLM
+module Alias = RegexNotation
 open Alias
 let regex =
   raise (RelitInternalDefn_regex.Call ("Forgot ppx...", "a|b|c") [@relit])

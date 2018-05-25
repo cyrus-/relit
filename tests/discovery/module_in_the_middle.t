@@ -2,6 +2,6 @@
 
 Can we do the parse in another module?
 
-  $ cat $TESTDIR/module_in_the_middle.ml | caml
+  $ caml $TESTDIR/module_in_the_middle
   (Or (String a) (String b))
 

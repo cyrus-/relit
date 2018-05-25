@@ -1,0 +1,14 @@
+(library
+  ((name test_example)
+   (public_name test_example)
+   (preprocess (pps (ppxlib.metaquot)))
+   (libraries (ocaml-migrate-parsetree
+               ppxlib.metaquot
+               relit_helper
+               extlib))))
+
+(ocamllex (test_lexer))
+
+(menhir
+ ((modules (test_parser))))
+

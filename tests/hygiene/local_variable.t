@@ -2,5 +2,5 @@
 
 Can we access variables from generated code?
 
-  $ cat $TESTDIR/local_variable.ml | caml
+  $ caml $TESTDIR/local_variable
   Error: Unbound value x

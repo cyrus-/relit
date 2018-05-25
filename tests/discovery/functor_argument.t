@@ -2,6 +2,6 @@
 
 Can we pass our TLM to a functor and still use it?
 
-  $ cat $TESTDIR/functor_argument.ml | caml
+  $ caml $TESTDIR/functor_argument
   (Or (Or (String a) (String b)) (String c))
 

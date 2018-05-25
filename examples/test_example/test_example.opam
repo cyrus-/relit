@@ -10,6 +10,6 @@ dev-repo: ""
 build: [
   ["jbuilder" "build"]
 ]
-install: ["jbuilder" "install" "regex_notation"]
+install: ["jbuilder" "install" "test_example"]
 remove: ["ocamlfind" "remove" "project"]
 depends: "ocamlfind"

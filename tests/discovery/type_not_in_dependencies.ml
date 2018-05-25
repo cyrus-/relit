@@ -1,6 +1,6 @@
-open Regex_notation
+open Regex_example
 
-open AbsurdTLM
+open Test_example.TestNotation
 let x = "hi there"
 type fake_type = int
 let square =

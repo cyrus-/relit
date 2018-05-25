@@ -3,5 +3,5 @@
 Can we include the TLM in a different module and
 use that one? Along with some aliases and a functor...
 
-  $ cat $TESTDIR/many_aliases.ml | caml
+  $ caml $TESTDIR/many_aliases
   (Or (Or (String a) (String b)) (String c))

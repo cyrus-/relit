@@ -13,19 +13,20 @@ ppx:
 	jbuilder build ppx/ppx_relit.exe
 
 simple_ocaml: ppx install
-	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/simple_ocaml.native
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_example examples/simple_ocaml.native
 
 spliced_ocaml: ppx install
-	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/spliced_ocaml.native
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_example examples/spliced_ocaml.native
 
 splice_in_splice: ppx install
-	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_notation examples/splice_in_splice.native
+	ocamlbuild -use-ocamlfind -cflags "-ppx `pwd`/_build/default/ppx/ppx_relit.exe" -pkg regex_example examples/splice_in_splice.native
 
 examples:  simple_ocaml spliced_ocaml splice_in_splice
 
 install:
 	jbuilder build @install
-	jbuilder install regex_notation >/dev/null
+	jbuilder install regex_example >/dev/null
+	jbuilder install test_example >/dev/null
 	jbuilder install relit_helper >/dev/null
 	jbuilder install ppx_relit >/dev/null
 

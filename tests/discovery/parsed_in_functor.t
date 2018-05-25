@@ -3,5 +3,5 @@
 Can we pass the TLM definition as an argument to
 a functor directly, changing what the call will look like?
 
-  $ cat $TESTDIR/parsed_in_functor.ml | caml
+  $ caml $TESTDIR/parsed_in_functor
   (Or (String a) (String b))
