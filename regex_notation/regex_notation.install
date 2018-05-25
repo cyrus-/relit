@@ -1,0 +1,45 @@
+lib: [
+  "_build/install/default/lib/regex_notation/META" {"META"}
+  "_build/install/default/lib/regex_notation/opam" {"opam"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmi" {"regex_notation__Absurd_lexer.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmx" {"regex_notation__Absurd_lexer.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_lexer.cmt" {"regex_notation__Absurd_lexer.cmt"}
+  "_build/install/default/lib/regex_notation/absurd_lexer.ml" {"absurd_lexer.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmi" {"regex_notation__Absurd_parser.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmx" {"regex_notation__Absurd_parser.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmt" {"regex_notation__Absurd_parser.cmt"}
+  "_build/install/default/lib/regex_notation/regex_notation__Absurd_parser.cmti" {"regex_notation__Absurd_parser.cmti"}
+  "_build/install/default/lib/regex_notation/absurd_parser.mli" {"absurd_parser.mli"}
+  "_build/install/default/lib/regex_notation/absurd_parser.ml" {"absurd_parser.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmi" {"regex_notation__Lexer.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmx" {"regex_notation__Lexer.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Lexer.cmt" {"regex_notation__Lexer.cmt"}
+  "_build/install/default/lib/regex_notation/lexer.ml" {"lexer.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__Parser.cmi" {"regex_notation__Parser.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Parser.cmx" {"regex_notation__Parser.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Parser.cmt" {"regex_notation__Parser.cmt"}
+  "_build/install/default/lib/regex_notation/regex_notation__Parser.cmti" {"regex_notation__Parser.cmti"}
+  "_build/install/default/lib/regex_notation/parser.mli" {"parser.mli"}
+  "_build/install/default/lib/regex_notation/parser.ml" {"parser.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__Regex.cmi" {"regex_notation__Regex.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__Regex.cmx" {"regex_notation__Regex.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__Regex.cmt" {"regex_notation__Regex.cmt"}
+  "_build/install/default/lib/regex_notation/regex.ml" {"regex.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation.cmi" {"regex_notation.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation.cmx" {"regex_notation.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation.cmt" {"regex_notation.cmt"}
+  "_build/install/default/lib/regex_notation/regex_notation.ml" {"regex_notation.ml"}
+  "_build/install/default/lib/regex_notation/regex_notation__.cmi" {"regex_notation__.cmi"}
+  "_build/install/default/lib/regex_notation/regex_notation__.cmx" {"regex_notation__.cmx"}
+  "_build/install/default/lib/regex_notation/regex_notation__.cmt" {"regex_notation__.cmt"}
+  "_build/install/default/lib/regex_notation/regex_notation__.ml-gen" {"regex_notation__.ml-gen"}
+  "_build/install/default/lib/regex_notation/regex_notation.cma" {"regex_notation.cma"}
+  "_build/install/default/lib/regex_notation/regex_notation.cmxa" {"regex_notation.cmxa"}
+  "_build/install/default/lib/regex_notation/regex_notation.a" {"regex_notation.a"}
+  "_build/install/default/lib/regex_notation/regex_notation.cmxs" {"regex_notation.cmxs"}
+  "_build/install/default/lib/regex_notation/regex_notation.dune" {"regex_notation.dune"}
+]
+doc: [
+  "_build/install/default/doc/regex_notation/README.md"
+  "_build/install/default/doc/regex_notation/LICENSE"
+]
