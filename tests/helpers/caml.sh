@@ -1,7 +1,7 @@
 caml() {
   # Get rid of annoying ocamlfind warning
-  echo $TESTDIR;
-  echo ocamlbuild -I "$TESTDIR" "$1.byte" \
+  cp $1.ml .
+  ocamlbuild "`basename $1`.byte" \
     -cflags "-ppx ppx_relit" \
     -pkg regex_example \
     -pkg test_example \
