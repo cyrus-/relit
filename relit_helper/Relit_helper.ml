@@ -14,9 +14,6 @@ module Segment = struct
     | BadSeparation of t * t 
   exception InvalidSegmentation of invalid_segmentation
 
-  let sort = List.sort 
-    (fun seg1 seg2 -> compare seg1.start_pos seg2.start_pos)
-
   let validate_seg seg len = 
     let {start_pos; end_pos} = seg in 
     if start_pos < 0 then 
@@ -38,19 +35,20 @@ module Segment = struct
       raise (InvalidSegmentation (BadSeparation (seg1, seg2)))
     else ()
 
-  let rec validate_sorted sorted len = 
-    match sorted with 
-    | [] -> ()
-    | seg :: [] -> validate_seg seg len 
-    | seg1 :: ((seg2 :: _) as tl) -> 
-      let () = validate_seg_pair seg1 seg2 len in
-      validate_sorted tl len
-
-  let validate segs len = validate_sorted (sort segs) len 
+  let validate segs len = 
+    let rec validate_sorted sorted len = 
+      match sorted with 
+      | [] -> ()
+      | seg :: [] -> validate_seg seg len 
+      | seg1 :: ((seg2 :: _) as tl) -> 
+        let () = validate_seg_pair seg1 seg2 len in
+        validate_sorted tl len in 
+    let sort = List.sort 
+      (fun seg1 seg2 -> compare seg1.start_pos seg2.start_pos) in 
+    validate_sorted (sort segs) len 
 
   (* Tests *)
-  (* TODO move these into the test suite *)
-  let tests () = 
+  let validation_tests () = 
     let validate_ok segs len = 
       match validate segs len with 
       | () -> true
@@ -99,4 +97,4 @@ module ProtoExpr = struct
                    Failure "RelitInternal__Spliced") : [%t ty])]
 end
 
-let _ = Segment.tests ()
+let _ = Segment.validation_tests ()
