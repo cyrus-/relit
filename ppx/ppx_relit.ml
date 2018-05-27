@@ -46,7 +46,7 @@ let remove_splices_mapper splices =
        let end_pos = int_of_string end_pos in
        let variable_name =
          "RelitInternal__SplicedVar"
-         ^ string_of_int (Utils.unique_int ()) in
+         ^ Utils.unique_string () in
        splices :=
          (variable_name, Relit_helper.Segment.{start_pos ; end_pos})
          :: !splices;
@@ -151,8 +151,7 @@ let relit_transformation structure =
   let call_records = Extract_call_records.from structure in
 
   let for_each call_record =
-    let parse = Loading.parser_for call_record in
-    let tlm_ast = parse call_record.source in
+    let tlm_ast = Loading.parse call_record in
     Hygiene.check call_record tlm_ast;
     let tlm_ast =
       open_dependencies_in tlm_ast call_record.definition_path in

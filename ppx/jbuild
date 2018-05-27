@@ -1,12 +1,14 @@
 (executable
   ((name        ppx_relit)
    (public_name ppx_relit)
-   (libraries (compiler-libs.toplevel
-               compiler-libs.common
+   (libraries (compiler-libs.common
+               compiler-libs.toplevel
                ocaml-migrate-parsetree
                ppxlib.metaquot
                relit_helper
                reason
+               unix
+               str
                ))
    ; In order to use compiler-libs.toplevel,
    ; we must compile only to bytecode

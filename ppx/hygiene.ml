@@ -92,9 +92,19 @@ let add_dependencies_to env dependencies =
     ) dependencies;
   !env
 
+
+let initialize_environment () =
+  let print_nothing = Format.formatter_of_buffer (Buffer.create 1000) in
+
+  (* we need to load a file into the toplevel so that
+   * we know what modules to disallow *)
+  Toploop.initialize_toplevel_env ();
+  ignore (Topdirs.load_file print_nothing "relit_helper.cma")
+
 let check Call_record.{dependencies;
                          return_type;
                          env = call_env} expr =
+  initialize_environment ();
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
 
