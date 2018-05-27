@@ -5,9 +5,13 @@
 open Call_record
 
 let parser_file call = Printf.sprintf
-  {| let source = "%s"
-     let parsetree = %s.literal %s.read (Lexing.from_string source)
-     let () = Marshal.to_channel stdout parsetree []
+  {|
+let source = "%s"
+let parsetree () = %s.literal %s.read (Lexing.from_string source)
+let () = match parsetree () with
+         | parsetree -> print_endline "ast";
+                        Marshal.to_channel stdout parsetree []
+         | exception e -> print_endline "error"; raise e
   |}
   (String.escaped call.source)
   (Path.name call.parser)
@@ -16,11 +20,12 @@ let parser_file call = Printf.sprintf
 let helper_file call = Printf.sprintf
   (* We need to know what modules are available
    * for the hygiene check. *)
-  {| let _ = %s.literal %s.read (* to make sure we get the same imports *)
-     let () = Toploop.initialize_toplevel_env ()
-     let () = Env.imports ()
-              |> List.map fst
-              |> List.iter print_endline
+  {|
+let _ = %s.literal %s.read (* to make sure we get the same imports *)
+let () = Toploop.initialize_toplevel_env ()
+let () = Env.imports ()
+         |> List.map fst
+         |> List.iter print_endline
   |}
   (Path.name call.parser)
   (Path.name call.lexer)
@@ -75,5 +80,11 @@ let parse (call : Call_record.t)
   let parser = compile (parser_file call) in
 
   let ast = Utils.with_process ("./" ^ parser)
-    Utils.(fun (pout, _) -> Marshal.from_channel pout)
+    Utils.(fun (pout, _) ->
+      let signal = input_line pout in
+      match signal with
+      | "ast" -> Marshal.from_channel pout
+      | "error" -> raise (Failure "TLM error in parser")
+      | _ -> raise (Failure "unknown parser format")
+    )
   in (Convert.To_current.copy_expression ast, top_modules)
