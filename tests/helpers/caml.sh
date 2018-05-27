@@ -1,7 +1,7 @@
 caml() {
   # Get rid of annoying ocamlfind warning
   cp $1.ml .
-  ocamlbuild "`basename $1`.byte" \
+  ocamlbuild "`basename $1`.byte" $2 \
     -quiet \
     -r \
     -cflags "-ppx ppx_relit" \

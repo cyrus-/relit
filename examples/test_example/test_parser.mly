@@ -19,7 +19,7 @@ literal:
       match s with
       | "number" -> [%expr 0]
       | "x" -> [%expr x]
-      | "module" -> [%expr List.cons]
+      | "module" -> [%expr Std.unique ]
       | "typed_fn" -> [%expr fun (a : new_type) -> a * a ]
       | "badly_typed_fn" -> [%expr fun (a : fake_type) -> a * a ]
       | _ -> raise (Failure "no parse defined")
