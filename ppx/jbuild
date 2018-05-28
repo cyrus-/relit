@@ -2,7 +2,6 @@
   ((name        ppx_relit)
    (public_name ppx_relit)
    (libraries (compiler-libs.common
-               compiler-libs.toplevel
                ocaml-migrate-parsetree
                ppxlib.metaquot
                relit_helper
@@ -10,7 +9,4 @@
                unix
                str
                ))
-   ; In order to use compiler-libs.toplevel,
-   ; we must compile only to bytecode
-   (modes (byte))
    (preprocess (pps (ppxlib.metaquot)))))

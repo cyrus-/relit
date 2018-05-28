@@ -151,7 +151,7 @@ let relit_transformation structure =
   let call_records = Extract_call_records.from structure in
 
   let for_each call_record =
-    let (tlm_ast, modules) = Loading.parse call_record in
+    let tlm_ast = Loading.parse call_record in
     Hygiene.check call_record tlm_ast;
     let tlm_ast = open_dependencies_in tlm_ast call_record.definition_path in
     let (splices, tlm_ast) = take_splices_out tlm_ast in

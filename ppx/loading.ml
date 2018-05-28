@@ -17,19 +17,6 @@ let () = match parsetree () with
   (Path.name call.parser)
   (Path.name call.lexer)
 
-let helper_file call = Printf.sprintf
-  (* We need to know what modules are available
-   * for the hygiene check. *)
-  {|
-let _ = %s.literal %s.read (* to make sure we get the same imports *)
-let () = Toploop.initialize_toplevel_env ()
-let () = Env.imports ()
-         |> List.map fst
-         |> List.iter print_endline
-  |}
-  (Path.name call.parser)
-  (Path.name call.lexer)
-
 let include_dirs () : string =
   !Clflags.include_dirs
   |> List.map (fun n -> " -I " ^ n )
@@ -55,7 +42,7 @@ let packages tmp_ml =
   |> String.concat ","
   in "-package " ^ deps
 
-let compile ?(toplevel=false) contents =
+let compile contents =
   (* write ocaml to a temporary file, compile it
    * to an executable, then return the name of the
    * executable. *)
@@ -65,17 +52,13 @@ let compile ?(toplevel=false) contents =
   Utils.command "ocamlfind" (
     "ocamlc -linkpkg -o " ^ tmp ^ " " ^
     include_dirs () ^ " " ^
-    (if toplevel then " -package compiler-libs.toplevel " else "") ^
     packages tmp_ml ^ " " ^
     tmp_ml);
   tmp
 
 (* TODO memoize this compilation *)
 let parse (call : Call_record.t)
-  : Parsetree.expression * string list =
-
-  let helper = compile ~toplevel:true (helper_file call) in
-  let top_modules = Utils.with_process ("./" ^ helper) Utils.lines in
+  : Parsetree.expression =
 
   let parser = compile (parser_file call) in
 
@@ -87,4 +70,4 @@ let parse (call : Call_record.t)
       | "error" -> raise (Failure "TLM error in parser")
       | _ -> raise (Failure "unknown parser format")
     )
-  in (Convert.To_current.copy_expression ast, top_modules)
+  in Convert.To_current.copy_expression ast
