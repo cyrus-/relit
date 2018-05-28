@@ -144,13 +144,9 @@ let map_structure f call_records structure =
   let mapper = { Ast_mapper.default_mapper with expr = expr_mapper } in
   mapper.structure mapper structure
 
-let out = open_out "/home/charles/code/relit.log"
-
 (* Overarching view of what's happening.
  * Reading this is crucial. *)
 let relit_transformation structure =
-  Printast.structure 3 (Format.formatter_of_out_channel out) structure;
-  flush out;
   if fully_expanded structure then None else
   let call_records = Extract_call_records.from structure in
 

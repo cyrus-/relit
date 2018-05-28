@@ -1,5 +1,5 @@
-open Regex_notation
-open RegexTLM
+open Regex_example
+open RegexNotation
 
 (*
 module DNA = {
