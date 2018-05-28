@@ -3,7 +3,7 @@ Typed literal macros (TLMs) in Reason.
 
 # Installation
 
-```opam install ppxlib jbuilder menhir reason```
+```opam install ppxlib jbuilder menhir reason ocamlbuild extlib```
 
 # Notes
 The warning 
