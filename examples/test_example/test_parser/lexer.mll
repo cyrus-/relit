@@ -18,6 +18,5 @@ let ident = ['a'-'z' 'A'-'Z' '_' ' '] ['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']*
 (* part 4 *)
 rule read =
   parse
-  | ident { VAR (Lexing.lexeme lexbuf) }
-  | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
+  | _ { CHAR (Lexing.lexeme lexbuf) }
   | eof      { EOF }
