@@ -36,18 +36,10 @@ let open_dependencies_in expr def_path  =
   let open Parsetree in
   let open Longident in
 
-  let rec lident_of_path path =
-    let open Path in
-    match path with
-    | Pident ident -> Lident (Ident.name ident)
-    | Pdot (rest, name, _) -> Ldot (lident_of_path rest, name)
-    | Papply (a, b) -> Lapply (lident_of_path a, lident_of_path b)
-  in
-
   let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
        Fresh,
-       {txt = Ldot (lident_of_path def_path,
+       {txt = Ldot (Utils.lident_of_path def_path,
                     "Dependencies"); loc },
        expr);
    pexp_loc = loc;

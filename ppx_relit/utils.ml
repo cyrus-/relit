@@ -35,3 +35,10 @@ let remove_prefix ~prefix str =
 let add_type_assertion expected_type parsetree =
   Ast_helper.Exp.constraint_ parsetree expected_type
 
+let rec lident_of_path path =
+  let open Path in
+  let open Longident in
+  match path with
+  | Pident ident -> Lident (Ident.name ident)
+  | Pdot (rest, name, _) -> Ldot (lident_of_path rest, name)
+  | Papply (a, b) -> Lapply (lident_of_path a, lident_of_path b)

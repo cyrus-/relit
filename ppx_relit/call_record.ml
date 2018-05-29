@@ -10,7 +10,6 @@ type dependency = Module of Ident.t * Types.module_declaration
 type t = {
   body: string;
   definition_path: Path.t;
-  return_type: Types.type_expr;
   lexer: string;
   parser: string;
   package: string;

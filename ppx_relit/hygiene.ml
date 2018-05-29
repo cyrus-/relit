@@ -65,7 +65,7 @@ let check_modules_used expr dependencies =
      else raise (Failure "This TLM used a dependency it should not have here.")
 
 let check Call_record.{dependencies;
-                       return_type;
+                       definition_path;
                        env = call_env} expr =
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
@@ -75,6 +75,14 @@ let check Call_record.{dependencies;
   check_modules_used expr dependencies;
 
   let call_env = add_dependencies_to call_env dependencies in
-  if not (Ctype.matches call_env return_type tyexpr.exp_type)
+
+  let open Types in
+  let type_t = {
+    desc = Tconstr (Path.Pdot (definition_path, "t", 0 (* a position? *)),
+                        [], ref Mnil);
+    level = 2;
+    id = 0
+  } in 
+  if not (Ctype.matches call_env type_t tyexpr.exp_type)
   then raise (Failure "parser returned wrong type")
   else ()

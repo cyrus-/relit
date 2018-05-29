@@ -40,7 +40,6 @@ module Make_record = struct
                     name ^ " field"))
     in
     let lexer = ref (Right "lexer") in
-    let return_type = ref (Right "return_type") in
     let parser = ref (Right "parser") in
     let dependencies = ref (Right "dependencies") in
     let package = ref (Right "package") in
@@ -62,9 +61,6 @@ module Make_record = struct
                         { md_type = Mty_signature signature; _ }, _)
         when Utils.has_prefix ~prefix:"Package_" name ->
       package := Left (unescape_package (Utils.remove_prefix ~prefix:"Package_" name))
-    | Types.Sig_type ({ name = "t" ; _},
-                      {type_manifest = Some type_expr}, _) ->
-      return_type := Left type_expr
     | _ -> ()
     ) signature ;
 
@@ -73,7 +69,6 @@ module Make_record = struct
       definition_path = path;
       dependencies = unwrap !dependencies;
       package = unwrap !package;
-      return_type = unwrap !return_type;
       env = env;
       body = body }
 
