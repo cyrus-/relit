@@ -6,14 +6,14 @@ open Call_record
 
 let parser_file call = Printf.sprintf
   {|
-let source = "%s"
-let parsetree () = %s.literal %s.read (Lexing.from_string source)
+let body = "%s"
+let parsetree () = %s.literal %s.read (Lexing.from_string body)
 let () = match parsetree () with
          | parsetree -> print_endline "ast";
                         Marshal.to_channel stdout parsetree []
          | exception e -> print_endline "error"; raise e
   |}
-  (String.escaped call.source) call.parser call.lexer
+  (String.escaped call.body) call.parser call.lexer
 
 let compile contents package =
   (* write ocaml to a temporary file, compile it
@@ -28,7 +28,7 @@ let compile contents package =
   tmp ^ ".native"
 
 (* TODO memoize this compilation *)
-let parse (call : Call_record.t)
+let expand_call (call : Call_record.t)
   : Parsetree.expression =
 
   let parser = compile (parser_file call) call.package in

@@ -1,9 +1,13 @@
 
+open Call_record
+
 type t = {
   variable_name: string;
   segment: Relit_helper.Segment.t;
   expected_type: Parsetree.core_type; 
 }
+
+let validate_splices splices = () (* TODO *)
 
 let remove_splices_mapper splices =
   let open Parsetree in
@@ -18,7 +22,7 @@ let remove_splices_mapper splices =
        let start_pos = int_of_string start_pos in
        let end_pos = int_of_string end_pos in
        let variable_name =
-         "RelitInternal__SplicedVar"
+         "relitinternal__splicedvar"
          ^ Utils.unique_string () in
        let splice = {
          variable_name;
@@ -38,10 +42,10 @@ let take_splices_out expr =
   let ast_with_vars_not_splices = mapper.expr mapper expr in
   (!splices, ast_with_vars_not_splices)
 
-let run_reason_parser_against splices source =
+let run_reason_parser_against splices body =
   let index_by_position Relit_helper.Segment.{start_pos; end_pos} =
     let length = end_pos - start_pos in
-    String.sub source start_pos length
+    String.sub body start_pos length
   in
   List.map (
     fun splice -> (splice.variable_name, splice.segment

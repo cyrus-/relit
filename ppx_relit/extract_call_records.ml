@@ -32,7 +32,7 @@ module Make_record = struct
         |> Utils.split_on "__RelitInternal_dot__"
         |> String.concat "."
 
-  let of_modtype env path source : t =
+  let of_modtype env path body : t =
     let unwrap = function
       | Left o -> o
       | Right name -> raise
@@ -75,7 +75,7 @@ module Make_record = struct
       package = unwrap !package;
       return_type = unwrap !return_type;
       env = env;
-      source = source }
+      body = body }
 
 end
 
@@ -106,11 +106,11 @@ module Call_finder(A : sig
                                                 _some_bool); _ },
                    _err_info::{
                      exp_desc = Texp_constant
-                         Const_string (source, _other_part );
+                         Const_string (body, _other_part );
                      exp_env;
                    }::_ ); _ }))]) ->
 
-        let call_record = Make_record.of_modtype exp_env path source in
+        let call_record = Make_record.of_modtype exp_env path body in
         A.call_records := Locmap.add expr.exp_loc
                                      call_record
                                      !A.call_records;

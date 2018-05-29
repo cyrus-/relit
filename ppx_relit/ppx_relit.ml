@@ -71,28 +71,35 @@ let map_structure f call_records structure =
 
 (* Overarching view of what's happening.
  * Reading this is crucial. *)
-let relit_transformation structure =
-  if fully_expanded structure then None else
+let relit_expansion_pass structure =
   let call_records = Extract_call_records.from structure in
-
   let for_each call_record =
-    let tlm_ast = Loading.parse call_record in
-    Hygiene.check call_record tlm_ast;
-    let tlm_ast = open_dependencies_in tlm_ast call_record.definition_path in
-    let (splices, tlm_ast) = Splice.take_splices_out tlm_ast in
+    let proto_expansion = Expansion.expand_call call_record in
+    Hygiene.check call_record proto_expansion;
+    let proto_expansion =
+      open_dependencies_in proto_expansion call_record.definition_path in
+
+    (* We ensure capture avoidance by replacing each splice reference
+     * with a fresh variable... *)
+    let (splices, open_expansion) = Splice.take_splices_out proto_expansion in
+    Splice.validate_splices splices;
     let spliced_asts =
-      Splice.run_reason_parser_against splices call_record.source in
-    Splice.fill_in_splices tlm_ast spliced_asts
-  in Some (map_structure for_each call_records structure)
+      Splice.run_reason_parser_against splices call_record.body in
+
+    (* ... and then wrap the body in a function that is immediately applied
+     * to these splices. *)
+    Splice.fill_in_splices open_expansion spliced_asts
+  in map_structure for_each call_records structure
 
 let rec relit_mapper =
-  (* run the relit transformation until there are no more tlms *)
-  let structure_mapper _x structure =
-    match relit_transformation structure with
-    | None -> default_mapper.structure relit_mapper structure
-    | Some structure -> relit_mapper.structure relit_mapper structure
+  let rec structure_mapping structure =
+    if fully_expanded structure then structure
+    else
+      let structure = relit_expansion_pass structure in
+      structure_mapping structure
   in
-  { default_mapper with structure = structure_mapper }
+  { default_mapper with
+    structure = (fun _ -> structure_mapping) }
 
 let () =
   register ppx_name (fun _cookies -> relit_mapper)

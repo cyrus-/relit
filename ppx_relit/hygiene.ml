@@ -27,7 +27,6 @@ let typecheck_expression env expr =
    * 1. make a module 2. typecheck it 3. extract expr from module *)
   let mod_expr = module_expr_of_expr expr in
   let typed_mod = Typemod.type_module env mod_expr in
-
   tyexpr_of_module typed_mod
 
 let add_dependencies_to env dependencies =
@@ -68,6 +67,7 @@ let check_modules_used expr dependencies =
 let check Call_record.{dependencies;
                        return_type;
                        env = call_env} expr =
+  (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
   let tyexpr = typecheck_expression env expr in
