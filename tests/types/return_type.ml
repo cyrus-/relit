@@ -1,5 +1,3 @@
-open Regex_example
-
 open Test_example.TestNotation
 let x = "hi there"
 let out =

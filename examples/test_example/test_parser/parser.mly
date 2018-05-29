@@ -26,6 +26,15 @@ literal:
           [%expr [%e Relit_helper.ProtoExpr.spliced
             (Relit_helper.Segment.mk (2, 4)) [%type: string ]
           ] |> ignore ; 5 ]
+      | "bad_splice_bounds" ->
+          Relit_helper.ProtoExpr.spliced
+            (Relit_helper.Segment.mk (2, 3040)) [%type: int]
+      | "bad_splice_overlap" ->
+          [%expr
+            [%e Relit_helper.ProtoExpr.spliced
+              (Relit_helper.Segment.mk (2, 5)) [%type: int ] ];
+            [%e Relit_helper.ProtoExpr.spliced
+              (Relit_helper.Segment.mk (4, 7)) [%type: int ] ] ]
       | _ -> raise (Failure "no parse defined")
     }
   | EOF { [%expr 0 ] }

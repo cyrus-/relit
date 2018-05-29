@@ -7,7 +7,9 @@ type t = {
   expected_type: Parsetree.core_type; 
 }
 
-let validate_splices splices = () (* TODO *)
+let validate_splices splices length =
+  let segments = List.map (fun x -> x.segment) splices in
+  Relit_helper.Segment.validate segments length
 
 let remove_splices_mapper splices =
   let open Parsetree in

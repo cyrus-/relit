@@ -74,7 +74,7 @@ let relit_expansion_pass structure =
     (* We ensure capture avoidance by replacing each splice reference
      * with a fresh variable... *)
     let (splices, open_expansion) = Splice.take_splices_out proto_expansion in
-    Splice.validate_splices splices;
+    Splice.validate_splices splices (String.length call_record.body);
     let spliced_asts =
       Splice.run_reason_parser_against splices call_record.body in
 
