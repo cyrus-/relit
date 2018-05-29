@@ -1,7 +1,5 @@
-caml() {
-  # Get rid of annoying ocamlfind warning
-  cp $1.ml .
-  ocamlbuild "`basename $1`.byte" $2 \
+build() {
+  $3 "`basename $1`.byte" $2 \
     -quiet \
     -r \
     -cflags "-ppx ppx_relit" \
@@ -16,4 +14,14 @@ caml() {
     | grep -v '^Command exited with code 2.$'
     # the above are slight hacks to remove random tmp names
   if [ -x "./`basename $1`.byte" ]; then "./`basename $1`.byte"; fi
+}
+
+caml() {
+  cp $1.ml .
+  build "$1" "$2" ocamlbuild
+}
+
+reason () {
+  cp $1.re .
+  build "$1" "$2" rebuild
 }
