@@ -6,9 +6,3 @@
                ppxlib.metaquot
                relit_helper
                extlib))))
-
-(ocamllex (test_lexer))
-
-(menhir
- ((modules (test_parser))))
-

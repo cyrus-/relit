@@ -1,7 +1,14 @@
 (library
-  ((name regex_example)
-   (public_name regex_example)
+  ((name test_parser)
+   (public_name test_parser)
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (ocaml-migrate-parsetree
                ppxlib.metaquot
                relit_helper))))
+
+(ocamllex (lexer))
+
+(menhir
+ ((modules (parser))))
+
+

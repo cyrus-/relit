@@ -1,6 +1,6 @@
 {
 open Lexing
-open Test_parser
+open Parser
 
 exception SyntaxError of string
 

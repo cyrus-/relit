@@ -1,0 +1,3 @@
+name="regex_example.parser"
+description="An example regex TLM using Relit."
+version="0.1"

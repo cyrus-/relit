@@ -8,8 +8,9 @@ module TestTLM = struct
   *)
   module RelitInternalDefn_test = struct
     type t = string
-    module Lexer = Test_example.Test_lexer
-    module Parser = Test_example.Test_parser
+    module Lexer_Test_parser__RelitInternal_dot__Lexer = struct end
+    module Parser_Test_parser__RelitInternal_dot__Parser = struct end
+    module Package_test_parser = struct end
     module Dependencies = struct end
     exception Call of string * string
   end

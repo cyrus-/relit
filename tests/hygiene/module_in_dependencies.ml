@@ -1,6 +1,6 @@
-open Regex_notation
+open Test_example
+open TestNotation
 
-open AbsurdTLM
 let x = "hi there"
 let out =
   raise (RelitInternalDefn_extlib_dep.Call ("Forgot ppx...", "module") [@relit])

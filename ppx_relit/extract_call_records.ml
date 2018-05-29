@@ -17,17 +17,20 @@ module Make_record = struct
 
   let extract_dependencies env signature : dependency list =
     List.map (function
-          Types.Sig_module (name,
+        | Types.Sig_module (name,
                             { md_type = Mty_alias (_, path) ; _ }, _) ->
             Module (name, (Env.find_module path env))
         | Types.Sig_type (name, type_declaration, _) ->
             Type (name, type_declaration)
         | _ -> raise (Failure "Dependencies: expected only aliases \
                                in relit definition")
-        )
-      signature
+      ) signature
 
   type ('a, 'b) either = Left of 'a | Right of 'b
+
+  let unescape_package package = package
+        |> Utils.split_on "__RelitInternal_dot__"
+        |> String.concat "."
 
   let of_modtype env path source : t =
     let unwrap = function
@@ -40,18 +43,25 @@ module Make_record = struct
     let return_type = ref (Right "return_type") in
     let parser = ref (Right "parser") in
     let dependencies = ref (Right "dependencies") in
+    let package = ref (Right "package") in
     let signature = signature_of_path env path in
 
     List.iter (function
-    | Types.Sig_module ({ name = "Lexer" ; _},
-                        { md_type = Mty_alias (_, path); _ }, _) ->
-      lexer := Left path
-    | Types.Sig_module ({ name = "Parser" ; _},
-                        { md_type = Mty_alias (_, path); _ }, _) ->
-      parser := Left path
     | Types.Sig_module ({ name = "Dependencies" ; _},
                         { md_type = Mty_signature signature; _ }, _) ->
       dependencies := Left (extract_dependencies env signature)
+    | Types.Sig_module ({ name ; _},
+                        { md_type = Mty_signature signature; _ }, _)
+        when Utils.has_prefix ~prefix:"Lexer_" name ->
+      lexer := Left (unescape_package (Utils.remove_prefix ~prefix:"Lexer_" name))
+    | Types.Sig_module ({ name ; _},
+                        { md_type = Mty_signature signature; _ }, _)
+        when Utils.has_prefix ~prefix:"Parser_" name ->
+      parser := Left (unescape_package (Utils.remove_prefix ~prefix:"Parser_" name))
+    | Types.Sig_module ({ name ; _},
+                        { md_type = Mty_signature signature; _ }, _)
+        when Utils.has_prefix ~prefix:"Package_" name ->
+      package := Left (unescape_package (Utils.remove_prefix ~prefix:"Package_" name))
     | Types.Sig_type ({ name = "t" ; _},
                       {type_manifest = Some type_expr}, _) ->
       return_type := Left type_expr
@@ -62,6 +72,7 @@ module Make_record = struct
       parser = unwrap !parser;
       definition_path = path;
       dependencies = unwrap !dependencies;
+      package = unwrap !package;
       return_type = unwrap !return_type;
       env = env;
       source = source }

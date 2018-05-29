@@ -21,8 +21,8 @@ let with_process cmd lambda =
 
 let split_on sep = Str.split (Str.regexp sep)
 
-let command name args =
-  let success = Sys.command (name ^ " " ^ args) in
+let command name c =
+  let success = Sys.command c in
   if success <> 0 then raise (Failure ("bug: " ^ name ^ " failed"))
 
 let lines (out, _) =
@@ -31,3 +31,10 @@ let lines (out, _) =
     | line -> line :: lp out
     | exception End_of_file -> []
   in lp out
+
+let has_prefix ~prefix str =
+  String.sub str 0 (String.length prefix) = prefix
+
+let remove_prefix ~prefix str =
+  let plen = String.length prefix in
+  String.sub str plen (String.length str - plen)

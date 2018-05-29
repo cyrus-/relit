@@ -12,6 +12,7 @@ caml() {
     | grep -v 'File "_none_", line' \
     | grep -v 'Interface topdirs\.cmi occurs in several' \
     | grep -v 'ocamlc.opt -c -ppx ppx_relit' \
+    | grep -v 'ocamlfind ocaml' \
     | grep -v '^Command exited with code 2.$'
     # the above are slight hacks to remove random tmp names
   if [ -x "./`basename $1`.byte" ]; then "./`basename $1`.byte"; fi

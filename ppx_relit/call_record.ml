@@ -11,8 +11,9 @@ type t = {
   source: string;
   definition_path: Path.t;
   return_type: Types.type_expr;
-  lexer: Path.t;
-  parser: Path.t;
+  lexer: string;
+  parser: string;
   env: Env.t;
-  dependencies: dependency list
+  dependencies: dependency list;
+  package: string;
 }
