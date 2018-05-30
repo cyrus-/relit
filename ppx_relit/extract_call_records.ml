@@ -43,12 +43,17 @@ module Make_record = struct
     let parser = ref (Right "parser") in
     let dependencies = ref (Right "dependencies") in
     let package = ref (Right "package") in
+    let nonterminal = ref (Right "nonterminal") in
     let signature = signature_of_path env path in
 
     List.iter (function
     | Types.Sig_module ({ name = "Dependencies" ; _},
                         { md_type = Mty_signature signature; _ }, _) ->
       dependencies := Left (extract_dependencies env signature)
+    | Types.Sig_module ({ name ; _},
+                        { md_type = Mty_signature signature; _ }, _)
+        when Utils.has_prefix ~prefix:"Nonterminal_" name ->
+      nonterminal := Left (unescape_package (Utils.remove_prefix ~prefix:"Nonterminal_" name))
     | Types.Sig_module ({ name ; _},
                         { md_type = Mty_signature signature; _ }, _)
         when Utils.has_prefix ~prefix:"Lexer_" name ->
@@ -68,6 +73,7 @@ module Make_record = struct
       parser = unwrap !parser;
       definition_path = path;
       dependencies = unwrap !dependencies;
+      nonterminal = unwrap !nonterminal;
       package = unwrap !package;
       env = env;
       body = body }

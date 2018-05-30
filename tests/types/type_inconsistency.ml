@@ -11,6 +11,7 @@ module TestTLM = struct
     module Lexer_Test_parser__RelitInternal_dot__Lexer = struct end
     module Parser_Test_parser__RelitInternal_dot__Parser = struct end
     module Package_test_parser = struct end
+    module Nonterminal_literal = struct end
     module Dependencies = struct end
     exception Call of string * string
   end

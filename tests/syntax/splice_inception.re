@@ -1,5 +1,9 @@
 open Regex_example;
 
+notation $regex at string {
+  lexer Hi and parser There.literal in this_thing;
+};
+
 module DNA = {
   open RegexNotation;
   let any_base =

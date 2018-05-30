@@ -12,6 +12,7 @@ type t = {
   definition_path: Path.t;
   lexer: string;
   parser: string;
+  nonterminal: string;
   package: string;
   dependencies: dependency list;
   env: Env.t;

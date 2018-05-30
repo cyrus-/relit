@@ -1,7 +1,7 @@
 
 (*
 notation $regex at Regex.t {
-  lexer Regex_parser.Lexer and parser Regex_parserParser in regex_example.parser;
+  lexer Regex_parser.Lexer and parser Regex_parser.Parser.literal in regex_example.parser;
   dependencies = {
     module Regex = Regex
   };
@@ -13,6 +13,7 @@ module RelitInternalDefn_regex = struct
   module Lexer_Regex_parser__RelitInternal_dot__Lexer = struct end
   module Parser_Regex_parser__RelitInternal_dot__Parser = struct end
   module Package_regex_parser = struct end
+  module Nonterminal_literal = struct end
   module Dependencies = struct
     module Regex = Regex
   end

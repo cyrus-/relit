@@ -7,13 +7,13 @@ open Call_record
 let parser_file call = Printf.sprintf
   {|
 let body = "%s"
-let parsetree () = %s.literal %s.read (Lexing.from_string body)
+let parsetree () = %s.%s %s.read (Lexing.from_string body)
 let () = match parsetree () with
          | parsetree -> print_endline "ast";
                         Marshal.to_channel stdout parsetree []
          | exception e -> print_endline "error"; raise e
   |}
-  (String.escaped call.body) call.parser call.lexer
+  (String.escaped call.body) call.parser call.nonterminal call.lexer
 
 let compile contents package =
   (* write ocaml to a temporary file, compile it
