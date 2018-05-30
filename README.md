@@ -11,7 +11,7 @@ and capture avoiding way.
 
 
 This is a notation definition:
-```
+```reason
 module Notation 
 
   notation $regex at Regex.t {
@@ -25,18 +25,18 @@ end
 ```
 
 And then you can use the notation:
-```
+```reason
 let r = Notation.$regex `(a*bbb|ab)`;
 ```
 
 Or import the notation:
-```
+```reason
 open Notation;
 let r = $regex `(a*bbb|ab)`;
 ```
 
 Or open the notation:
-```
+```reason
 open Notation.$regex;
 let r = `(a*bbb|ab)`;
 ```
@@ -45,11 +45,11 @@ let r = `(a*bbb|ab)`;
 
 Relit allows parser to return a splice of the TLM's body, which gets parsed
 as Reason code. For example, our regex lexer could choose `$()` to indicate a splice.
-(The provide example, in fact, does.)
+(The provided example, in fact, does.)
 
 This allows for spliced notation like so:
 
-```
+```reason
 module DNA_match {
   open Notation.$regex
 
