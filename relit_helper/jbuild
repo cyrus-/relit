@@ -2,6 +2,8 @@
   ((name relit_helper)
    (public_name relit_helper)
    (preprocess (pps (ppxlib.metaquot)))
-   (libraries (ocaml-migrate-parsetree
+   (libraries (reason
+               extlib
+               ocaml-migrate-parsetree
                ppxlib.metaquot))))
 

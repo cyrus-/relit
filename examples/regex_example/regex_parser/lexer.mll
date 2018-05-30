@@ -26,8 +26,9 @@ rule read =
   | "."    { DOT }
   | "|"    { BAR }
   | escape as s { STR(unescape(s)) }
-  | "$(" _* ")$" { PARENS({start_pos = Lexing.lexeme_start lexbuf + 2;
-                          end_pos = Lexing.lexeme_end lexbuf - 2}) }
+  | "$(" {
+    let segment = Relit_helper.Segment.read_to ")" lexbuf in
+    PARENS(segment) }
   | "\n"  { next_line lexbuf; read lexbuf }
   | ident    { STR (Lexing.lexeme lexbuf) }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }

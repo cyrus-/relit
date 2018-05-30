@@ -39,6 +39,6 @@ let expand_call (call : Call_record.t)
       match signal with
       | "ast" -> Marshal.from_channel pout
       | "error" -> raise (Failure "TLM error in parser")
-      | _ -> raise (Failure "unknown parser format")
+      | fmt -> raise (Failure ("unknown parser format " ^ fmt))
     )
   in Convert.To_current.copy_expression ast

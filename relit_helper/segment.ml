@@ -3,6 +3,82 @@ type t = {start_pos: int; end_pos: int}
 
 let mk (n1, n2) = {start_pos=n1; end_pos=n2}
 
+let read_to delim lexbuf =
+  let open Lexing in
+  if String.contains delim '\n'
+  then raise (Invalid_argument {|
+    newlines in delemeters aren't supported at the moment...
+  |}); (* TODO fixing this requires changing the line_num intelligently. *)
+  let delim = ExtString.String.explode delim in
+
+  let start_pos = lexbuf.lex_abs_pos + lexbuf.lex_curr_pos in
+
+  let module Lex = struct
+
+    type token = Paren | Brace | Bracket
+
+    module P = Reason_parser
+
+    let rec matches_prefix delim index = match delim with
+      | [] -> true
+      | c :: delim ->
+          try
+            let c' = Lexing.sub_lexeme_char lexbuf (index ) in
+            (c = c' && matches_prefix delim (index + 1))
+          with (Invalid_argument txt) as e ->
+            if String.equal txt "index out of bounds" 
+               && index >= lexbuf.lex_buffer_len
+            then false
+            else if String.equal txt "index out of bounds"
+            then (
+              lexbuf.refill_buff lexbuf;
+              matches_prefix delim index
+            ) else raise e
+
+    let success () = 
+      let end_pos = Lexing.lexeme_end lexbuf in
+      let offset = List.length delim in
+      lexbuf.lex_curr_pos <- lexbuf.lex_curr_pos + offset;
+      lexbuf.lex_curr_p <-
+        { lexbuf.lex_curr_p with
+          pos_cnum = lexbuf.lex_curr_p.pos_cnum + offset;
+          pos_bol = lexbuf.lex_curr_p.pos_bol + offset };
+      {start_pos; end_pos}
+
+    let at_end stack =
+      lexbuf.lex_curr_pos >= lexbuf.lex_buffer_len ||
+      (matches_prefix delim lexbuf.lex_curr_pos && stack = [])
+
+    let rec read_to stack =
+      let stack = ref stack in
+
+      while not (at_end !stack) do
+        match Reason_lexer.token_with_comments lexbuf with
+        | P.LPAREN ->
+            stack := (Paren :: !stack)
+        | P.LBRACKET -> stack := (Bracket :: !stack)
+        | P.LBRACE -> stack := (Brace :: !stack)
+        | P.RPAREN ->
+            (match !stack with
+             | Paren :: rest -> stack := rest
+             | _ -> raise (Failure "unbalenced parens in reason"))
+        | P.RBRACKET ->
+            (match !stack with
+             | Bracket :: rest -> stack := rest
+             | _ -> raise (Failure "unbalenced brackets in reason"))
+        | P.RBRACE ->
+            (match !stack with
+             | Brace :: rest -> stack := rest
+             | _ -> raise (Failure "unbalenced braces in reason"))
+        | _ -> ()
+      done;
+      (* we don't have to check if there's anything left on the stack
+       * the reason parser will through a better error than we can muster. *)
+      success ()
+
+  end in
+  Lex.read_to []
+
 (* Validating the segment bounds *)
 type invalid_segmentation =
   | NonPositiveLength of t

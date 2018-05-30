@@ -15,6 +15,6 @@ module DNA = struct
 end
 
 let bisA = raise (RelitInternalDefn_regex.Call
-             ("Forgot ppx...", "GC$(DNA.any_base)$GC") [@relit])
+             ("Forgot ppx...", "GC$(DNA.any_base)GC") [@relit])
 
 let () = print_endline (Regex.show bisA)
