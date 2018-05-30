@@ -68,8 +68,6 @@ let relit_expansion_pass structure =
   let for_each call_record =
     let proto_expansion = Expansion.expand_call call_record in
     Hygiene.check call_record proto_expansion;
-    let proto_expansion =
-      open_dependencies_in proto_expansion call_record.definition_path in
 
     (* We ensure capture avoidance by replacing each splice reference
      * with a fresh variable... *)
@@ -80,7 +78,8 @@ let relit_expansion_pass structure =
 
     (* ... and then wrap the body in a function that is immediately applied
      * to these splices. *)
-    Splice.fill_in_splices open_expansion spliced_asts
+    let expansion = Splice.fill_in_splices open_expansion spliced_asts in
+    open_dependencies_in expansion call_record.definition_path
   in map_structure for_each call_records structure
 
 let rec relit_mapper =

@@ -5,7 +5,7 @@ module DNA = {
   let any_base =
     $regex `(aa|$( { /* these {}'s are how you chain reasn syntax */
                      /* they aren't necessary for a single expression */
-      print_endline("Look at me, ma!");
+      print_endline("Look at me!!");
       $regex `($(Regex.Str("mmm"))xx$( Regex.Str("zzz")) yy)`
     })|bb)`;
 };
