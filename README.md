@@ -121,7 +121,17 @@ is supposed to provied a high-level overview.
 Then `git clone` this repository.
 
 You will also want our fork of the Reason parser to support the
-splicing syntax. To get this, `git clone https://github.com/charlesetc/reason`
+splicing syntax:
+
+```
+git clone https://github.com/charlesetc/reason
+cd reason
+make
+make install
+jbuilder install rebuild 
+```
+
+To get this, `git clone https://github.com/charlesetc/reason`
 and checkout the `reason-d-etre` branch. Then run `make && make install`.
 
 Our goal is to get everything on opam to make this process smoother.
