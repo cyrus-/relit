@@ -11,24 +11,26 @@ and capture avoiding way.
 
 Imagine we have defined a regex type
 ```
-module Regex = {
-  type t = Star of t
-         | String of string
-         | Or of t
-         ; /* etc ... */
-};
+  module Regex = {
+    type t = 
+      | Empty
+      | AnyChar 
+      | Str(string)
+      | Seq(t, t) 
+      | Or(t, t) 
+      | Star(t);
+  };
 ```
 
 and a parser/lexer based on the POSIX standard for regex,
 which interpret `|` as `Or`,
-`*` as `Star` and a list of alphanumeric characters as `String`.
+`*` as `Star` and a list of alphanumeric characters as `String`, and so on.
 
 
 e.g. "ab|c*" would be parsed as
 `Or (String "ab", Star (String "c"))`
 
-We've [implemented this regex parser and lexer]() with menhir
-and ocamllex respectively.
+We have [implemented this regex lexer and parser](https://github.com/cyrus-/relit/tree/master/examples/regex_example/regex_parser) with ocamllex and Menhir respectively.
 
 
 
