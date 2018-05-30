@@ -13,7 +13,7 @@ Imagine we have defined a regex type
 ```
 module Regex = {
   type t = Star of t
-         | String of t
+         | String of string
          | Or of t
          ; /* etc ... */
 };
