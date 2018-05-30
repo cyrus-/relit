@@ -2,17 +2,40 @@
 
 Relit is an implementation of Typed Literal Macros (TLMs) for Reason.
 TLMs allow a programmer to define a new `notation` by providing a lexer
-and parser. These notations can be imported, opened, and aliased the same
+and parser and explicit dependencies. These notations can be imported, opened, and aliased the same
 way modules can be in Reason. The killer feature is that the parser
 can specify a way to "splice" in Reason code in a context independent
 and capture avoiding way.
 
 # Basic usage
 
+Imagine we have defined a regex type
+```
+module Regex = {
+  type t = Star of t
+         | String of t
+         | Or of t
+         ; /* etc ... */
+};
+```
 
-This is a notation definition:
+and a parser/lexer based on the POSIX standard for regex,
+which interpret `|` as `Or`,
+`*` as `Star` and a list of alphanumeric characters as `String`.
+
+
+e.g. "ab|c*" would be parsed as
+`Or (String "ab", Star (String "c"))`
+
+We've [implemented this regex parser and lexer]() with menhir
+and ocamllex respectively.
+
+
+
+Then we can define the following notation:
 ```reason
-module Notation 
+module Regex_notation = { 
+  /* TLMs can be defined anywhere a module can go */
 
   notation $regex at Regex.t {
     lexer Lexer and parser Parser in regex_parser;
@@ -21,23 +44,23 @@ module Notation
     };
   };
 
-end
+};
 ```
 
 And then you can use the notation:
 ```reason
-let r = Notation.$regex `(a*bbb|ab)`;
+let r = Regex_notation.$regex `(a*bbb|ab)`;
 ```
 
 Or import the notation:
 ```reason
-open Notation;
+open Regex_notation;
 let r = $regex `(a*bbb|ab)`;
 ```
 
 Or open the notation:
 ```reason
-open Notation.$regex;
+open Regex_notation.$regex;
 let r = `(a*bbb|ab)`;
 ```
 
@@ -50,7 +73,7 @@ as Reason code. For example, our regex lexer could choose `$()` to indicate a sp
 This allows for spliced notation like so:
 
 ```reason
-module DNA_match {
+module DNA_match = {
   open Notation.$regex
 
   let any_base = `(A|C|T|G)`;
@@ -61,9 +84,23 @@ module DNA_match {
 let bis_a = `(GC$( /* this is a splice */ DNA_match.any_base)GC)`;
 ```
 
+For more details about how this works, proofs and all, see
+[this paper](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/syntax-icfp18.pdf).
+
+```
+Reasonably Programmable Literal Notation
+Cyrus Omar, Jonathan Aldrich
+International Conference on Functional Programming (ICFP)
+```
+
+# Examples
+
+We've got an `examples` directory that is the home of any example
+notations we've defined using Relit.
+
 # Tests
 
-Run `make` to run the test suite.
+Run `make` to run the test suite. See the `test` directory for all of them.
 
 The tests are run using [cram](https://bitheap.org/cram/), which makes
 assertions on the output of compiling and running many small ML files.
