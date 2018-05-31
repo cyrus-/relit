@@ -26,6 +26,10 @@ literal:
           [%expr [%e Relit_helper.ProtoExpr.spliced
             (Relit_helper.Segment.mk (2, 4)) [%type: string ]
           ] |> ignore ; 5 ]
+      | "2 bad_splice_type" ->
+          [%expr [%e Relit_helper.ProtoExpr.spliced
+            (Relit_helper.Segment.mk (0, 1)) [%type: string]
+          ] |> ignore ; 5 ]
       | "bad_splice_bounds" ->
           Relit_helper.ProtoExpr.spliced
             (Relit_helper.Segment.mk (2, 3040)) [%type: int]

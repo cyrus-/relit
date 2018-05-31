@@ -50,20 +50,36 @@ let run_reason_parser_against splices body =
     String.sub body start_pos length
   in
   List.map (
-    fun splice -> (splice.variable_name, splice.segment
+    fun splice -> (splice, splice.segment
       |> index_by_position
       |> Lexing.from_string
       |> Reason_parser.parse_expression Reason_lexer.token
-      |> Convert.To_current.copy_expression
-      |> Utils.add_type_assertion splice.expected_type)
+      |> Convert.To_current.copy_expression)
     ) splices
 
-let fill_in_splices body_of_lambda spliced_asts =
+let open_dependencies_in expr def_path  =
+  let open Parsetree in
+  let open Longident in
+
+  let loc = !Ast_helper.default_loc in
+  {pexp_desc = Pexp_open (
+       Fresh,
+       {txt = Ldot (Utils.lident_of_path def_path,
+                    "Dependencies"); loc },
+       expr);
+   pexp_loc = loc;
+   pexp_attributes = []}
+
+let fill_in_splices body_of_lambda spliced_asts def_path =
   let respective_names = spliced_asts
     |> List.map fst
-    |> List.map (fun a -> Ast_helper.Pat.var {
-                            txt = a ;
-                            loc = !Ast_helper.default_loc})
+    |> List.map (fun a ->
+        let pat = Ast_helper.Pat.var {
+          txt = a.variable_name ;
+          loc = !Ast_helper.default_loc
+        } in
+        Ast_helper.Pat.constraint_ pat a.expected_type
+      )
   in
   let spliced_asts = List.map snd spliced_asts in
 
@@ -87,4 +103,5 @@ let fill_in_splices body_of_lambda spliced_asts =
 
   let lambda =
     Ast_helper.Exp.fun_ Asttypes.Nolabel None pattern body_of_lambda in
+  let lambda = open_dependencies_in lambda def_path in
   Ast_helper.Exp.apply lambda [(Asttypes.Nolabel, argument)]

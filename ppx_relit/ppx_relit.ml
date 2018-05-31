@@ -32,19 +32,6 @@ let fully_expanded structure =
   | _ -> true
   | exception YesItDoes -> false
 
-let open_dependencies_in expr def_path  =
-  let open Parsetree in
-  let open Longident in
-
-  let loc = !Ast_helper.default_loc in
-  {pexp_desc = Pexp_open (
-       Fresh,
-       {txt = Ldot (Utils.lident_of_path def_path,
-                    "Dependencies"); loc },
-       expr);
-   pexp_loc = loc;
-   pexp_attributes = []}
-
 let map_structure f call_records structure =
   let open Parsetree in
   let expr_mapper mapper expr =
@@ -78,8 +65,8 @@ let relit_expansion_pass structure =
 
     (* ... and then wrap the body in a function that is immediately applied
      * to these splices. *)
-    let expansion = Splice.fill_in_splices open_expansion spliced_asts in
-    open_dependencies_in expansion call_record.definition_path
+    Splice.fill_in_splices open_expansion spliced_asts
+                           call_record.definition_path
   in map_structure for_each call_records structure
 
 let rec relit_mapper =
