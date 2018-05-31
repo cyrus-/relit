@@ -2,7 +2,7 @@ open Regex_example;
 
 /* define a bad regex */
 notation $regex at string {
-                            lexer Hi and parser There.literal in this_thing;
+                            lexer Hi parser There.literal in package this_thing;
                             dependencies = {};
                           };
 
