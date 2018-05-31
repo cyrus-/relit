@@ -23,9 +23,9 @@ let compile contents package =
   Utils.write_file (tmp ^ ".ml") contents;
 
   Utils.command "compiling the parser"
-    ("ocamlbuild -no-hygiene -quiet -use-ocamlfind -pkg " ^ package ^
-     " " ^ tmp ^ ".native");
-  tmp ^ ".native"
+    ("ocamlfind ocamlc -linkpkg -package " ^ package ^
+     " " ^ tmp ^ ".ml -o " ^ tmp ^ ".byte");
+  tmp ^ ".byte"
 
 (* TODO memoize this compilation *)
 let expand_call (call : Call_record.t)
