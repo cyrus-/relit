@@ -24,7 +24,7 @@ Imagine we have defined a regex type
 
 and a parser/lexer based on the POSIX standard for regex,
 which interpret `|` as `Or`,
-`*` as `Star` and a list of alphanumeric characters as `String`, and so on.
+`*` as `Star`, a list of alphanumeric characters as `String`, and so on.
 
 
 e.g. "ab|c*" would be parsed as
@@ -37,7 +37,7 @@ We have [implemented this regex lexer and parser](https://github.com/cyrus-/reli
 Then we can define the following notation:
 ```reason
 module Regex_notation = { 
-  /* TLMs can be defined anywhere a module can go */
+  /* TLMs can be defined anywhere a module can be */
 
   notation $regex at Regex.t {
     lexer Lexer and parser Parser in regex_parser;
@@ -141,7 +141,7 @@ The warning
 
 ```[WARNING] Interface topdirs.cmi occurs in several directories: /home/ygrek/.opam/4.02.1/lib/ocaml/compiler-libs, /home/ygrek/.opam/4.02.1/lib/ocaml```
 
-is due to a [https://caml.inria.fr/mantis/view.php?id=6754](bug in OCaml).
+is due to a [bug in OCaml](https://caml.inria.fr/mantis/view.php?id=6754).
 
 # Windows
 
