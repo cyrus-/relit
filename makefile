@@ -13,17 +13,17 @@ ppx_relit:
 	jbuilder build ppx_relit/ppx_relit.exe
 
 simple_ocaml: ppx_relit install
-	ocamlbuild -use-ocamlfind \
+	rebuild -use-ocamlfind \
 		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
 		-pkg regex_example examples/simple_examples/simple_ocaml.native
 
 spliced_ocaml: ppx_relit install
-	ocamlbuild -use-ocamlfind \
+	rebuild -use-ocamlfind \
 		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
 		-pkg regex_example examples/simple_examples/spliced_ocaml.native
 
 splice_in_splice: ppx_relit install
-	ocamlbuild -use-ocamlfind \
+	rebuild -use-ocamlfind \
 		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
 		-pkg regex_example examples/simple_examples/splice_in_splice.native
 
