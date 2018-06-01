@@ -2,5 +2,5 @@
 
 Can we access the TLM through a module synonym before applying it?
 
-  $ caml $TESTDIR/alias
+  $ reason $TESTDIR/alias
   (Or (Or (String a) (String b)) (String c))

@@ -2,6 +2,6 @@
 
 Can we shadow the Regex module at the application site?
 
-  $ caml $TESTDIR/module_shadowing
+  $ reason $TESTDIR/module_shadowing
   (Or (String a) (String b))
 

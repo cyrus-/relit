@@ -6,3 +6,4 @@ end
 module X = Funct(struct module B = RegexNotation.RelitInternalDefn_regex end)
 open X
 let () = print_endline (Regex.show regex)
+
