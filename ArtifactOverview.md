@@ -56,9 +56,9 @@ after verifying that the tests all pass as described above:
    setting.
 
 If the reader wishes to define new tests for the same examples, they can do so 
-by copying an existing test and modifying it in the obvious manner to refer to 
-the corresponding new Reason file -- the makefile will find all `.t` files in 
-the `tests` directory.
+by copying an existing test and modifying the path after the call to `reason`
+to refer to the corresponding new Reason file -- the makefile will find all `.t`
+files in the `tests` directory.
 
 If the reader wishes to define a new TLM package, they can do so by 
 
@@ -76,11 +76,11 @@ lines in the `makefile`.
 If the reader wishes to examine the source code, it is included in the 
 `reason` and `relit` directories (which are git repos). In particular, the file
 
-  `relit/ppx_relit/ppx_relit.ml`
+  relit/ppx_relit/ppx_relit.ml
 
 can be read starting from the bottom to understand the process of TLM
 expansion. We also include a short write-up describing the implementation 
-(which was submitted to the OCaml Workshop) in the home directory, for the
+(which was submitted to the OCaml Workshop) on the desktop, for the
 curious reader.
 
 # Unimplemented Features
@@ -102,5 +102,3 @@ the main regex example and the additional tests as described above.
 
 (We plan to have these remaining features, as well as substantial additional
 examples and conveniences, by the time of the conference.)
-
-
