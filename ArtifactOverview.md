@@ -92,14 +92,15 @@ implemented in this artifact as submitted.
 - `open notation` for implicit TLM application
 - Notation for TLM definitions in signatures
 - Explicit parametric TLMs (the alternative encoding in Sec. 4 is possible)
+- MetaOCaml-based examples
 
 In addition, the error messages are not very good yet.
 
 These are all "secondary features" -- the core idea of the paper has to do 
 with maintaining the six reasoning principles, which we demonstrate with 
-the regex example and the additional tests as described above.
+the main regex example and the additional tests as described above.
 
 (We plan to have these remaining features, as well as substantial additional
-examples, by the time of the conference).
+examples and conveniences, by the time of the conference.)
 
 
