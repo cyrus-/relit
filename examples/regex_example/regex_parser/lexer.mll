@@ -18,18 +18,22 @@ let unescape s = String.sub s 1 1
 let special = ['\\' '.' '|' '*' '^'
                '+' '*' '(' ')' '$']
 let escape = '\\' special
-let ident = ['a'-'z' 'A'-'Z' '_' ' '] ['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']*
+let not_special = _#special
 
 (* part 4 *)
 rule read =
   parse
   | "."    { DOT }
   | "|"    { BAR }
-  | escape as s { STR(unescape(s)) }
+  | "*"    { STAR }
+  | escape as s { STR (unescape s) }
+  | not_special+ as s { STR (s) }
   | "$(" {
     let segment = Relit_helper.Segment.read_to ")" lexbuf in
-    PARENS(segment) }
+    SPLICED_REGEX(segment) }
+  | "$$(" {
+    let segment = Relit_helper.Segment.read_to ")" lexbuf in
+    SPLICED_STRING(segment) }
   | "\n"  { next_line lexbuf; read lexbuf }
-  | ident    { STR (Lexing.lexeme lexbuf) }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }
   | eof      { EOF }
