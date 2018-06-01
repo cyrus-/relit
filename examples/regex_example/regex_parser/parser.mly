@@ -12,13 +12,16 @@
 %token STAR
 %token DOT
 %token BAR
+%token PLUS
+%token QMARK
+%token LPAREN
+%token RPAREN
 %token <Relit_helper.Segment.t> SPLICED_REGEX
 %token <Relit_helper.Segment.t> SPLICED_STRING
 %token EOF
 
 %left BAR
 %left SEQ
-%nonassoc STAR
 
 %start <Migrate_parsetree.Ast_404.Parsetree.expression> start
 %%
@@ -38,6 +41,12 @@ regex:
       { [%expr Regex.Or ([%e a], [%e b]) ] }
   | a = regex STAR
       { [%expr Regex.Star [%e a]] }
+  | a = regex PLUS
+      { [%expr let r = [%e a] in Regex.Seq (r, Regex.Star (r))] }
+  | a = regex QMARK
+      { [%expr Regex.Seq (Regex.Empty, Regex.Star ([%e a]))] }
+  | LPAREN a = regex RPAREN
+      { a }
   | a = SPLICED_REGEX
       { Relit_helper.ProtoExpr.spliced a [%type: Regex.t ] }
   | a = SPLICED_STRING

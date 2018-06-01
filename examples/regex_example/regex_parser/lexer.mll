@@ -26,8 +26,12 @@ rule read =
   | "."    { DOT }
   | "|"    { BAR }
   | "*"    { STAR }
-  | escape as s { STR (unescape s) }
+  | "+"    { PLUS }
+  | "?"    { QMARK }
+  | "("    { LPAREN }
+  | ")"    { RPAREN }
   | not_special+ as s { STR (s) }
+  | escape as s { STR (unescape s) }
   | "$(" {
     let segment = Relit_helper.Segment.read_to ")" lexbuf in
     SPLICED_REGEX(segment) }
