@@ -16,10 +16,10 @@
 %left BAR
 %left SEQ
 
-%start <Migrate_parsetree.Ast_404.Parsetree.expression> literal
+%start <Migrate_parsetree.Ast_404.Parsetree.expression> start
 %%
 
-literal:
+start:
   | r = regex EOF { r }
   | EOF { [%expr Regex.Empty ] }
 
