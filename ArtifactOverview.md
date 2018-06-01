@@ -45,7 +45,7 @@ after verifying that the tests all pass as described above:
    
      `relit/examples/regex_example/regex_parser/parser.mly`
 
- - Read the test in `relit/tests/figure3c.t` and `relit/tests/figure3c.re`
+ - Read the test in `relit/tests/Figure3c.t` and `relit/tests/Figure3c.re`
    and compare to Fig. 3c.
 
  - Read the other tests in the tests directory, which demonstrate the various
