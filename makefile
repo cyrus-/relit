@@ -3,11 +3,11 @@
 # cram runs everything in a temp directory and
 # we want to share some functionality between tests.
 test: ppx_relit install
-	@echo Running `find tests -name '*.t' | wc -l` tests
-	@find tests -name '*.t' | ORIGINAL_DIR=`pwd` xargs cram
+	@echo Running `find tests -name '*.test' | wc -l` tests
+	@find tests -name '*.test' | ORIGINAL_DIR=`pwd` xargs cram
 
 test_i: ppx_relit install
-	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.t' | xargs echo`
+	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.test' | xargs echo`
 
 ppx_relit:
 	jbuilder build ppx_relit/ppx_relit.exe

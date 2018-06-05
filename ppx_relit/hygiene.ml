@@ -48,9 +48,9 @@ let check_modules_used expr dependencies =
   let modules = line
     (* |> (fun x -> print_endline x; x) *)
     |> Utils.split_on ": "
-    |> (fun l -> match List.nth_opt l 1 with
-        | None -> "" (* excellent, it used no dependencies *)
-        | Some x -> x )
+    |> (fun l -> match List.nth l 1 with
+        | x -> x
+        | exception _ -> "" (* excellent, it used no dependencies *))
     |> Utils.split_on " "
     |> StringSet.of_list
   in
