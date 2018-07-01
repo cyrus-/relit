@@ -44,4 +44,4 @@ clean:
 	@rm -f ppx/ppx_relit.cmi
 	@rm -f ppx/ppx_relit.o
 
-.PHONY: build run ppx px install clean test test_i
+.PHONY: build run ppx_relit examples install clean test test_i

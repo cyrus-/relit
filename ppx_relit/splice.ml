@@ -57,15 +57,14 @@ let run_reason_parser_against splices body =
       |> Convert.To_current.copy_expression)
     ) splices
 
-let open_dependencies_in expr def_path  =
+let open_module_in mod_lident expr =
   let open Parsetree in
   let open Longident in
 
   let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
        Fresh,
-       {txt = Ldot (Utils.lident_of_path def_path,
-                    "Dependencies"); loc },
+       {txt = mod_lident; loc },
        expr);
    pexp_loc = loc;
    pexp_attributes = []}
@@ -100,8 +99,11 @@ let fill_in_splices body_of_lambda spliced_asts def_path =
     (Ast_helper.Pat.tuple respective_names,
      Ast_helper.Exp.tuple spliced_asts)
   in
+  let wrap_as_fun = Ast_helper.Exp.fun_ Asttypes.Nolabel None in
+  let apply_arg arg l = Ast_helper.Exp.apply l [(Asttypes.Nolabel, arg)] in
 
-  let lambda =
-    Ast_helper.Exp.fun_ Asttypes.Nolabel None pattern body_of_lambda in
-  let lambda = open_dependencies_in lambda def_path in
-  Ast_helper.Exp.apply lambda [(Asttypes.Nolabel, argument)]
+  body_of_lambda
+  |> wrap_as_fun pattern
+  |> open_module_in (Ldot (Utils.lident_of_path def_path, "Dependencies"))
+  |> open_module_in (Lident "Pervasives")
+  |> apply_arg argument
