@@ -4,5 +4,6 @@ A spliced expression should evaluate to the same type that the
 parser returns for it.
 
   $ reason $TESTDIR/splice_type
+  File "", line 1, characters 0-1:
   Error: This expression has type int but an expression was expected of type
            string

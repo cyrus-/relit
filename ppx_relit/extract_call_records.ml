@@ -32,7 +32,7 @@ module Make_record = struct
         |> Utils.split_on "__RelitInternal_dot__"
         |> String.concat "."
 
-  let of_modtype env path body : t =
+  let of_modtype ~env ~path ~body ~loc : t =
     let unwrap = function
       | Left o -> o
       | Right name -> raise
@@ -69,14 +69,17 @@ module Make_record = struct
     | _ -> ()
     ) signature ;
 
-    { lexer = unwrap !lexer ;
-      parser = unwrap !parser;
-      definition_path = path;
-      dependencies = unwrap !dependencies;
-      nonterminal = unwrap !nonterminal;
-      package = unwrap !package;
-      env = env;
-      body = body }
+    { lexer = unwrap !lexer
+    ; parser = unwrap !parser
+    ; dependencies = unwrap !dependencies
+    ; nonterminal = unwrap !nonterminal
+    ; package = unwrap !package
+    ; path
+    ; loc
+    ; env
+    ; body
+    }
+
 
 end
 
@@ -108,10 +111,12 @@ module Call_finder(A : sig
                    _err_info::{
                      exp_desc = Texp_constant
                          Const_string (body, _other_part );
-                     exp_env;
+                     exp_env = env;
                    }::_ ); _ }))]) ->
 
-        let call_record = Make_record.of_modtype exp_env path body in
+        let call_record =
+          Make_record.of_modtype ~loc:expr.exp_loc ~env ~path ~body
+        in
         A.call_records := Locmap.add expr.exp_loc
                                      call_record
                                      !A.call_records;
@@ -139,7 +144,8 @@ let from structure =
     (* initialize the typechecking environment *)
   let typed_structure = typecheck structure  in
   let call_records = ref Locmap.empty in
-  let module Call_finder = Call_finder(
-    struct let call_records = call_records end) in
+  let module Call_finder =
+    Call_finder(struct let call_records = call_records end)
+  in
   Call_finder.iter_structure typed_structure;
   !call_records

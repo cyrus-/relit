@@ -5,6 +5,7 @@
  * the generated code, and then a manual checking
  * of all the modules that can be accessed there.
  * *)
+module Location = Ppxlib.Location
 
 module StringSet = Set.Make(String)
 
@@ -65,7 +66,8 @@ let check_modules_used expr dependencies =
      else raise (Failure "This TLM used a dependency it should not have here.")
 
 let check Call_record.{dependencies;
-                       definition_path;
+                       path;
+                       loc;
                        env = call_env} expr =
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
@@ -78,11 +80,12 @@ let check Call_record.{dependencies;
 
   let open Types in
   let type_t = {
-    desc = Tconstr (Path.Pdot (definition_path, "t", 0 (* a position? *)),
+    desc = Tconstr (Path.Pdot (path, "t", 0 (* a position? *)),
                         [], ref Mnil);
     level = 2;
     id = 0
   } in 
   if not (Ctype.matches call_env type_t tyexpr.exp_type)
-  then raise (Failure "parser returned wrong type")
+  then raise (Location.Error
+    (Location.Error.createf ~loc "parser returned wrong type"))
   else ()

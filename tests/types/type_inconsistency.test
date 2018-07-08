@@ -3,7 +3,7 @@
 Make sure we get an error when the type annotation is inconsistent 
 
   $ reason $TESTDIR/type_inconsistency
+  File "type_inconsistency.re", line 10, characters 2-18:
   Warning 21: this statement never returns (or has an unsound type.)
-  (Failure "parser returned wrong type")
-  Error: Error while running external preprocessor
-  
+  File "type_inconsistency.re", line 10, characters 2-18:
+  Error: parser returned wrong type

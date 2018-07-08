@@ -4,5 +4,6 @@ This parser returns an integer on input "number",
 which is expected to be a string in this context.
 
   $ reason $TESTDIR/return_type
+  File "return_type.re", line 4, characters 23-26:
   Error: This expression has type int but an expression was expected of type
            string

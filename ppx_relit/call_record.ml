@@ -9,11 +9,12 @@ type dependency = Module of Ident.t * Types.module_declaration
 
 type t = {
   body: string;
-  definition_path: Path.t;
+  path: Path.t;
   lexer: string;
   parser: string;
   nonterminal: string;
   package: string;
   dependencies: dependency list;
   env: Env.t;
+  loc: Location.t;
 }

@@ -10,10 +10,12 @@ open Parsetree
 open Typedtree
 open Asttypes
 
+module Location = Ppxlib.Location
+
 open Call_record
 
 let fully_expanded structure =
-  let exception YesItDoes in
+  let exception HasRelitCall in
   let open Parsetree in
   let open Longident in
   let expr_mapper mapper e = match e.pexp_desc with
@@ -24,13 +26,13 @@ let fully_expanded structure =
               Some {pexp_desc = Pexp_tuple [_ ;
                 {pexp_desc = Pexp_constant (Pconst_string _); _}]; _} )})]
       ) ->
-        raise YesItDoes
+        raise HasRelitCall
     | _ -> Ast_mapper.default_mapper.expr mapper e
   in
   let mapper = { Ast_mapper.default_mapper with expr = expr_mapper } in
   match mapper.structure mapper structure with
   | _ -> true
-  | exception YesItDoes -> false
+  | exception HasRelitCall -> false
 
 let map_structure f call_records structure =
   let open Parsetree in
@@ -40,7 +42,12 @@ let map_structure f call_records structure =
      * in the previous run, replace it *)
     match Locmap.find expr.pexp_loc call_records with
     | call_record ->
-      f call_record
+      begin match f call_record with
+        | a -> a
+        | exception Location.Error loc_error ->
+            let extension = Location.Error.to_extension loc_error in
+            Ast_helper.Exp.extension ~loc:expr.pexp_loc extension
+      end
     | exception Not_found ->
         (* continue down that expression *)
         Ast_mapper.default_mapper.expr mapper expr
@@ -66,7 +73,7 @@ let relit_expansion_pass structure =
     (* ... and then wrap the body in a function that is immediately applied
      * to these splices. *)
     Splice.fill_in_splices open_expansion spliced_asts
-                           call_record.definition_path
+                           call_record.path
   in map_structure for_each call_records structure
 
 let rec relit_mapper =
