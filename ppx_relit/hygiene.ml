@@ -9,10 +9,9 @@ module Location = Ppxlib.Location
 
 module StringSet = Set.Make(String)
 
-let module_expr_of_expr expr =
+let module_expr_of_expr ~loc expr =
   let open Parsetree in
   let open Longident in
-  let loc = !Ast_helper.default_loc in
   Ast_helper.Mod.structure
     [%str let _ = [%e expr ] ]
 
@@ -23,10 +22,10 @@ let tyexpr_of_module = function
             expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
-let typecheck_expression env expr =
+let typecheck_expression ~loc env expr =
   (* To typecheck an expression:
    * 1. make a module 2. typecheck it 3. extract expr from module *)
-  let mod_expr = module_expr_of_expr expr in
+  let mod_expr = module_expr_of_expr ~loc expr in
   let typed_mod = Typemod.type_module env mod_expr in
   tyexpr_of_module typed_mod
 
@@ -72,7 +71,7 @@ let check Call_record.{dependencies;
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
-  let tyexpr = typecheck_expression env expr in
+  let tyexpr = typecheck_expression ~loc env expr in
 
   check_modules_used expr dependencies;
 

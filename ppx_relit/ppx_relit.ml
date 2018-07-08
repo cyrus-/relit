@@ -65,15 +65,19 @@ let relit_expansion_pass structure =
 
     (* We ensure capture avoidance by replacing each splice reference
      * with a fresh variable... *)
-    let (splices, open_expansion) = Splice.take_splices_out proto_expansion in
+    let (splices, open_expansion) =
+      Splice.take_splices_out ~loc:call_record.loc proto_expansion in
     Splice.validate_splices splices (String.length call_record.body);
     let spliced_asts =
       Splice.run_reason_parser_against splices call_record.body in
 
     (* ... and then wrap the body in a function that is immediately applied
      * to these splices. *)
-    Splice.fill_in_splices open_expansion spliced_asts
-                           call_record.path
+    Splice.fill_in_splices
+      ~body_of_lambda:open_expansion
+      ~spliced_asts
+      ~loc:call_record.loc
+      ~path:call_record.path
   in map_structure for_each call_records structure
 
 let rec relit_mapper =

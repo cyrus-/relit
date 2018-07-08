@@ -11,7 +11,7 @@ let validate_splices splices length =
   let segments = List.map (fun x -> x.segment) splices in
   Relit_helper.Segment.validate segments length
 
-let remove_splices_mapper splices =
+let remove_splices_mapper ~loc splices =
   let open Parsetree in
   let expr_mapper mapper e =
     match e with
@@ -32,15 +32,14 @@ let remove_splices_mapper splices =
          segment = Relit_helper.Segment.mk (start_pos, end_pos);
        } in
        splices := splice :: !splices;
-       Ast_helper.Exp.ident {loc = !Ast_helper.default_loc;
-                             txt = Longident.Lident variable_name}
+       Ast_helper.Exp.ident {loc; txt = Longident.Lident variable_name}
     | e -> Ast_mapper.default_mapper.expr mapper e
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
-let take_splices_out expr =
+let take_splices_out ~loc expr =
   let splices = ref [] in
-  let mapper = remove_splices_mapper splices in
+  let mapper = remove_splices_mapper ~loc splices in
   let ast_with_vars_not_splices = mapper.expr mapper expr in
   (!splices, ast_with_vars_not_splices)
 
@@ -57,11 +56,10 @@ let run_reason_parser_against splices body =
       |> Convert.To_current.copy_expression)
     ) splices
 
-let open_module_in mod_lident expr =
+let open_module_in ~loc mod_lident expr =
   let open Parsetree in
   let open Longident in
 
-  let loc = !Ast_helper.default_loc in
   {pexp_desc = Pexp_open (
        Fresh,
        {txt = mod_lident; loc },
@@ -69,14 +67,11 @@ let open_module_in mod_lident expr =
    pexp_loc = loc;
    pexp_attributes = []}
 
-let fill_in_splices body_of_lambda spliced_asts def_path =
+let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~path =
   let respective_names = spliced_asts
     |> List.map fst
     |> List.map (fun a ->
-        let pat = Ast_helper.Pat.var {
-          txt = a.variable_name ;
-          loc = !Ast_helper.default_loc
-        } in
+        let pat = Ast_helper.Pat.var { txt = a.variable_name ; loc } in
         Ast_helper.Pat.constraint_ pat a.expected_type
       )
   in
@@ -88,8 +83,7 @@ let fill_in_splices body_of_lambda spliced_asts def_path =
    * when there's only one. *)
   let (pattern, argument) = match List.length spliced_asts with
   | 0 ->
-    let unit_ = Location.{txt = Longident.Lident "()";
-                          loc = !Ast_helper.default_loc} in
+    let unit_ = Location.{txt = Longident.Lident "()"; loc } in
     (Ast_helper.Pat.construct unit_ None,
      Ast_helper.Exp.construct unit_ None)
   | 1 ->
@@ -104,6 +98,6 @@ let fill_in_splices body_of_lambda spliced_asts def_path =
 
   body_of_lambda
   |> wrap_as_fun pattern
-  |> open_module_in (Ldot (Utils.lident_of_path def_path, "Dependencies"))
-  |> open_module_in (Lident "Pervasives")
+  |> open_module_in ~loc (Ldot (Utils.lident_of_path path, "Dependencies"))
+  |> open_module_in ~loc (Lident "Pervasives")
   |> apply_arg argument
