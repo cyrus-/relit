@@ -1,6 +1,10 @@
 # Relit
 
-Relit is an implementation of Typed Literal Macros (TLMs) for [Reason](https://reasonml.github.io/) (which is an alternative syntax for the OCaml programming language). TLMs allow library providers to define new literal notation for their own types, much like the literal notation that Reason primitively builds in for lists.
+[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few data structures, e.g. list literals (`[x, y, z]`) and array literals (`[|x, y, z|]`). This is unsatisfying because there are many other possible literal notations that may be useful to programmers in various domains where Reason/OCaml is semantically suitable but notationally unwieldy, e.g. for finite maps, regular expressions, HTML elements, SQL queries, syntax trees for various languages of interest, and specialized scientific notation, e.g. the SMILES notation for chemical structures.
+
+In a paper at ICFP 2018 (link to come), Omar and Aldrich address this problem by introducing *typed literal macros (TLMs)*. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for any type or parameterized family of types. From the client's perspective, TLMs are nice because they come equipped with powerful abstract reasoning principles --- as a client, you do not need to peek at the underlying expansion or the parser implementation to reason about types and binding. The paper investigates these abstract reasoning principles in formal detail.
+
+Relit is an implementation of TLMs for Reason.
 
 # Example
 
