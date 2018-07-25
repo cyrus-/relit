@@ -1,15 +1,10 @@
 # Relit
 
-Relit is an implementation of Typed Literal Macros (TLMs) for Reason.
-TLMs allow a programmer to define a new `notation` by providing a lexer
-and parser and explicit dependencies. These notations can be imported, opened, and aliased the same
-way modules can be in Reason. The killer feature is that the parser
-can specify a way to "splice" in Reason code in a context independent
-and capture avoiding way.
+Relit is an implementation of Typed Literal Macros (TLMs) for [Reason](https://reasonml.github.io/) (which is an alternative syntax for the OCaml programming language). TLMs allow library providers to define new literal notation for their own types, much like the literal notation that Reason primitively builds in for lists.
 
-# Basic usage
+# Example
 
-Imagine we have defined a regex type
+Imagine we have defined a type `Regex.t` classifying simple regular expressions:
 ```
   module Regex = {
     type t = 
@@ -22,45 +17,32 @@ Imagine we have defined a regex type
   };
 ```
 
-and a parser/lexer based on the POSIX standard for regex,
-which interpret `|` as `Or`,
-`*` as `Star`, a list of alphanumeric characters as `String`, and so on.
-
-
-e.g. "ab|c*" would be parsed as
-`Or (String "ab", Star (String "c"))`
-
-We have [implemented this regex lexer and parser](https://github.com/cyrus-/relit/tree/master/examples/regex_example/regex_parser) with ocamllex and Menhir respectively.
-
-
-
-Then we can define the following notation:
+Then we can define a TLM definition as follows -- Relit introduces the new `notation` keyword:
 ```reason
 module Regex_notation = { 
-  /* TLMs can be defined anywhere a module can be */
-
+  /* a TLM can be defined anywhere a module can be defined */
   notation $regex at Regex.t {
     lexer Lexer and parser Parser in regex_parser;
     dependencies {
       module Regex = Regex;
     };
   };
-
 };
 ```
 
-And then you can use the notation:
+The client can apply the TLM as follows to construct a value, `r`, of type `Regex.t`:
 ```reason
 let r = Regex_notation.$regex `(a*bbb|ab)`;
 ```
+Parsing and expansion of the literal body, here `a*bbb|ab`, occurs at compile-time by the lexer and parser specified by the applied TLM (see below for the TLM provider's perspective).
 
-Or import the notation:
+To make things more concise, we can open the module containing the notation:
 ```reason
 open Regex_notation;
 let r = $regex `(a*bbb|ab)`;
 ```
 
-Or open the notation:
+Or even open the notation itself:
 ```reason
 open Regex_notation.$regex;
 let r = `(a*bbb|ab)`;
