@@ -1,12 +1,12 @@
 # Relit
 
-[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few data structures, e.g. list literals (`[x, y, z]`) and array literals (`[|x, y, z|]`). This is unsatisfying because there are many other possible literal notations that may be useful to programmers in various domains where Reason/OCaml is semantically suitable but notationally unwieldy, e.g. for finite maps, regular expressions, HTML elements, SQL queries, syntax trees for various languages of interest, and specialized scientific notation, e.g. the SMILES notation for chemical structures.
+[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few standard data structures, e.g. list literals (`[x, y, z]`) and array literals (`[|x, y, z|]`). This is unsatisfying because there are many other possible literal notations that may be useful to programmers, e.g. for finite maps, regular expressions, HTML elements, SQL queries, syntax tree representations, and specialized scientific notation, e.g. the SMILES notation for chemical structures.
 
-In a paper at ICFP 2018 (link to come), Omar and Aldrich address this problem by introducing *typed literal macros (TLMs)*. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for any type at all. From the client's perspective, TLMs are nice because they come equipped with powerful abstract reasoning principles --- as a client, you do not need to peek at the underlying expansion or the parser implementation to reason about types and binding.
+In [a paper at ICFP 2018](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf), Omar and Aldrich address this problem by introducing *typed literal macros (TLMs)*. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for any type at all. From the client's perspective, TLMs are nice because they come equipped with powerful abstract reasoning principles --- as a client, you do not need to peek at the underlying expansion or the responsible parser to reason about types and binding.
 
 Relit is an implementation of TLMs for Reason.
 
-# Example
+## Example
 
 Imagine we have defined a type `Regex.t` classifying simple regular expressions:
 ```
@@ -52,7 +52,7 @@ open Regex_notation.$regex;
 let r = `(a*bbb|ab)`;
 ```
 
-# Splicing
+### Splicing
 
 Relit allows parser to return a splice of the TLM's body, which gets parsed
 as Reason code. For example, our regex lexer could choose `$()` to indicate a splice.
@@ -81,26 +81,18 @@ Cyrus Omar, Jonathan Aldrich
 International Conference on Functional Programming (ICFP)
 ```
 
-# Examples
+## More Examples and Tests
 
 We've got an `examples` directory that is the home of any example
 notations we've defined using Relit.
 
-# Tests
+Run `make` to run the corresponding test suite, in the `test` directory.
 
-Run `make` to run the test suite. See the `test` directory for all of them.
+The tests are written to use [cram](https://bitheap.org/cram/), which makes
+assertions about the output of commands executed at the terminal (in our 
+case, the compiler with the Relit preprocessor enabled).
 
-The tests are run using [cram](https://bitheap.org/cram/), which makes
-assertions on the output of compiling and running many small ML files.
-
-# Hacking / Reading
-
-The ppx execution starts in `ppx_relit/ppx_relit.ml` at the very last line
-of the file. Generally reading up from there will give you a good idea
-of what's going on, and specifically the function `relit_expansion_pass`
-is supposed to provied a high-level overview.
-
-# Installation
+## Installation
 
 ```opam install ppxlib jbuilder menhir reason ocamlbuild extlib```
 
@@ -122,13 +114,20 @@ and checkout the `reason-d-etre` branch. Then run `make && make install`.
 
 Our goal is to get everything on opam to make this process smoother.
 
-# Notes
+Note that while Relit should in theory work on Windows, we have not tested
+this. If you get it to work, let us know!
+
+## How It Works
+
+The ppx execution starts in `ppx_relit/ppx_relit.ml` at the very last line
+of the file. Generally reading up from there will give you a good idea
+of what's going on, and specifically the function `relit_expansion_pass`
+is supposed to provied a high-level overview.
+
+
+## Notes
 The warning 
 
 ```[WARNING] Interface topdirs.cmi occurs in several directories: /home/ygrek/.opam/4.02.1/lib/ocaml/compiler-libs, /home/ygrek/.opam/4.02.1/lib/ocaml```
 
 is due to a [bug in OCaml](https://caml.inria.fr/mantis/view.php?id=6754).
-
-# Windows
-
-Theoretically supported but not tested on Windows.
