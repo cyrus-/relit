@@ -1,6 +1,6 @@
 # Relit
 
-[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few standard data structures, e.g. list literals (`[x, y, z]`) and array literals (`[|x, y, z|]`). This is unsatisfying because there are many other possible literal notations that may be useful to programmers, e.g. for finite maps, regular expressions, HTML elements, SQL queries, syntax tree representations, and specialized scientific notation, e.g. the SMILES notation for chemical structures.
+[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few standard data structures, e.g. list literals like `[x, y, z]` and array literals like `[|x, y, z|]`. This is unsatisfying because there are many other possible literal notations that may be useful to programmers, e.g. for finite maps, regular expressions, HTML elements, SQL queries, syntax tree representations, and specialized scientific data structures, e.g. the SMILES notation for chemical structures.
 
 In [a paper at ICFP 2018](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf), Omar and Aldrich address this problem by introducing *typed literal macros (TLMs)*. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for any type at all. From the client's perspective, TLMs are nice because they come equipped with powerful abstract reasoning principles --- as a client, you do not need to peek at the underlying expansion or the responsible parser to reason about types and binding.
 
@@ -9,7 +9,7 @@ Relit is an implementation of TLMs for Reason.
 ## Example
 
 Imagine we have defined a type `Regex.t` classifying simple regular expressions:
-```
+```reason
   module Regex = {
     type t = 
       | Empty
@@ -26,8 +26,10 @@ Then we can define a TLM definition as follows -- Relit introduces the new `nota
 module Regex_notation = { 
   /* a TLM can be defined anywhere a module can be defined */
   notation $regex at Regex.t {
-    lexer Lexer and parser Parser in regex_parser;
-    dependencies {
+    lexer  Lexer 
+    parser Parser 
+    in package regex_parser;
+    dependencies = {
       module Regex = Regex;
     };
   };
@@ -48,7 +50,7 @@ let r = $regex `(a*bbb|ab)`;
 
 Or even open the notation itself:
 ```reason
-open Regex_notation.$regex;
+open notation Regex_notation.$regex;
 let r = `(a*bbb|ab)`;
 ```
 
