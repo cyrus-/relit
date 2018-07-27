@@ -124,7 +124,7 @@ this. If you get it to work, let us know!
 The ppx execution starts in `ppx_relit/ppx_relit.ml` at the very last line
 of the file. Generally reading up from there will give you a good idea
 of what's going on, and specifically the function `relit_expansion_pass`
-is supposed to provied a high-level overview.
+is supposed to provide a high-level overview.
 
 
 ## Notes
