@@ -79,6 +79,24 @@ let read_to delim lexbuf =
   end in
   Lex.read_to []
 
+module Read_to_tests = struct
+
+  let show_t t : unit =
+    Printf.fprintf stderr "[%d, %d]" t.start_pos t.end_pos
+
+  let lex_assert str delim a b =
+    let lexbuf = Lexing.from_string str in
+    lexbuf.Lexing.lex_curr_pos <- a;
+    let t = read_to delim lexbuf in
+    assert (t.start_pos = a);
+    assert (t.end_pos = b)
+
+  let () = lex_assert "(hi) there" ")" 1 3
+  let () = lex_assert "((hi)) there" "))" 2 4
+  (* let () = lex_assert "( hi ) there" "}" 1 3 *)
+
+end
+
 (* Validating the segment bounds *)
 type invalid_segmentation =
   | NonPositiveLength of t
