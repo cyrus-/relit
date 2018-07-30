@@ -7,11 +7,18 @@ open Call_record
 let parser_file call = Printf.sprintf
   {|
 let body = "%s"
-let parsetree () = %s.%s %s.read (Lexing.from_string body)
+let lexbuf = Lexing.from_string body
+let parsetree () = %s.%s %s.read lexbuf
 let () = match parsetree () with
-         | parsetree -> print_endline "ast";
-                        Marshal.to_channel stdout parsetree []
-         | exception e -> print_endline "error"; raise e
+         | parsetree ->
+           print_endline "ast";
+           Marshal.to_channel stdout parsetree []
+         | exception e ->
+           print_endline "error";
+           let pos = lexbuf.lex_curr_p in
+           Printf.fprintf stderr "parsing error %%s:%%d:%%d:\n"
+             pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1);
+           raise e
   |}
   (String.escaped call.body) call.parser call.nonterminal call.lexer
 
