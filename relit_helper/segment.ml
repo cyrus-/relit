@@ -61,15 +61,15 @@ let read_to delim lexbuf =
         | P.RPAREN ->
             (match !stack with
              | Paren :: rest -> stack := rest
-             | _ -> raise (Failure "unbalenced parens in reason"))
+             | _ -> raise (Failure "unbalanced parens in reason"))
         | P.RBRACKET ->
             (match !stack with
              | Bracket :: rest -> stack := rest
-             | _ -> raise (Failure "unbalenced brackets in reason"))
+             | _ -> raise (Failure "unbalanced brackets in reason"))
         | P.RBRACE ->
             (match !stack with
              | Brace :: rest -> stack := rest
-             | _ -> raise (Failure "unbalenced braces in reason"))
+             | _ -> raise (Failure "unbalanced braces in reason"))
         | _ -> ()
       done;
       (* we don't have to check if there's anything left on the stack
