@@ -60,9 +60,17 @@ let check_modules_used expr dependencies =
         | Call_record.Module (name, _) -> Ident.name name
         | _ -> raise (Failure "impossible, just filtered them"))
     |> StringSet.of_list
-  in if StringSet.is_empty (StringSet.diff modules dependencies)
-     then ()
-     else raise (Failure "This TLM used a dependency it should not have here.")
+  in
+  let extras = StringSet.diff modules dependencies in
+  if StringSet.is_empty extras
+  then ()
+  else (
+    Printf.fprintf stderr
+      "This TLM depends on the following module that it did not have access to: %s\n"
+      (StringSet.elements extras |> String.concat ", ");
+    exit 1
+  )
+
 
 let check Call_record.{dependencies;
                        path;

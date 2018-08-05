@@ -3,7 +3,7 @@
 The TLM should not be able to depend on a module it does not list as a dependency.
 
   $ reason $TESTDIR/module_not_in_dependencies "-package extlib"
-  (Failure "This TLM used a dependency it should not have here.")
+  This TLM depends on the following module that it did not have access to: Std
   File "module_not_in_dependencies.re", line 1:
   Error: Error while running external preprocessor
   
