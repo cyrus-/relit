@@ -16,7 +16,7 @@ let () = match parsetree () with
          | exception e ->
            print_endline "error";
            let pos = lexbuf.lex_curr_p in
-           Printf.fprintf stderr "parsing error %%s:%%d:%%d:\n"
+           Printf.printf "parsing error %%s:%%d:%%d:\n"
              pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1);
            raise e
   |}
@@ -45,7 +45,11 @@ let expand_call (call : Call_record.t)
       let signal = input_line pout in
       match signal with
       | "ast" -> Marshal.from_channel pout
-      | "error" -> raise (Failure "TLM error in parser")
+      | "error" ->
+          begin try while true do
+            input_line stdin |> print_endline
+          done with _ -> () end;
+          raise (Failure "TLM error in parser")
       | fmt -> raise (Failure ("unknown parser format " ^ fmt))
     )
   in Convert.To_current.copy_expression ast
