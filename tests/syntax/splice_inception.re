@@ -2,9 +2,11 @@ open Regex_example;
 
 /* define a bad regex */
 notation $regex at string {
-                            lexer Hi parser There.literal in package this_thing;
-                            dependencies = {};
-                          };
+  lexer Hi
+  parser There.literal
+  in package this_thing;
+  dependencies = {};
+};
 
 notation $r = RegexNotation.$regex;
 
