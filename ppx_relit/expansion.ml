@@ -7,20 +7,26 @@ open Call_record
 let parser_file call = Printf.sprintf
   {|
 let body = "%s"
+let () = Relit_helper.Location.location := Some (Marshal.from_string "%s" 0)
 let lexbuf = Lexing.from_string body
 let parsetree () = %s.%s %s.read lexbuf
-let () = match parsetree () with
-         | parsetree ->
-           print_endline "ast";
-           Marshal.to_channel stdout parsetree []
-         | exception e ->
-           print_endline "error";
-           let pos = lexbuf.lex_curr_p in
-           Printf.printf "parsing error %%s:%%d:%%d:\n"
-             pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1);
-           raise e
+let () =
+  match parsetree () with
+  | parsetree ->
+    print_endline "ast";
+    Marshal.to_channel stdout parsetree []
+  | exception e ->
+    print_endline "error";
+    let pos = lexbuf.lex_curr_p in
+    Printf.printf "parsing error %%s:%%d:%%d:\n"
+      pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1);
+    raise e
   |}
-  (String.escaped call.body) call.parser call.nonterminal call.lexer
+  (String.escaped call.body)
+  (Marshal.to_string call.loc [] |> String.escaped)
+  call.parser
+  call.nonterminal
+  call.lexer
 
 let compile contents package =
   (* write ocaml to a temporary file, compile it

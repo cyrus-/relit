@@ -3,4 +3,5 @@
 We should not be able to access a variable defined at the application site. 
 
   $ reason $TESTDIR/local_variable
+  File "local_variable.re", line 5, characters 10-27:
   Error: Unbound value x

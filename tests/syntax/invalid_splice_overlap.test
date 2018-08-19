@@ -3,6 +3,7 @@
 The ppx should check to make sure that the splices are within bounds.
 
   $ reason $TESTDIR/invalid_splice_overlap
+  File "invalid_splice_overlap.re", line 2, characters 10-44:
   Warning 10: this expression should have type unit.
   Relit_helper__Segment.InvalidSegmentation(_)
   File "invalid_splice_overlap.re", line 1:
