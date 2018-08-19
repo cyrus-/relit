@@ -5,7 +5,7 @@
   open Longident
   open Parsetree
 
-  let loc = !Ast_helper.default_loc
+  let loc = Relit_helper.Location.loc
 
 %}
 %token <string> STR

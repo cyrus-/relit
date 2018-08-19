@@ -96,7 +96,7 @@ case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
 
-```opam install ppxlib jbuilder menhir reason ocamlbuild extlib```
+```opam install ppxlib jbuilder menhir reason ocamlbuild extlib base64```
 
 Then `git clone` this repository.
 

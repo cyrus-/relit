@@ -4,6 +4,7 @@
   module C = Ast_helper.Const
   open Longident
 
+  let loc = Relit_helper.Location.loc
 
 %}
 %token <string> CHAR
@@ -15,7 +16,6 @@
 literal:
   | s = text EOF
     {
-      let loc = Relit_helper.Location.get () in
       match s with
       | "number" -> [%expr 0]
       | "x" -> [%expr x]
@@ -41,9 +41,7 @@ literal:
               (Relit_helper.Segment.mk (4, 7)) [%type: int ] ] ]
       | _ -> raise (Failure "no parse defined")
     }
-  | EOF {
-    let loc = Relit_helper.Location.get () in
-    [%expr 0 ] }
+  | EOF { [%expr 0 ] }
 
 text:
   | a = CHAR { a }

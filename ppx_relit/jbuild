@@ -8,5 +8,6 @@
                reason
                unix
                str
+               base64
                ))
    (preprocess (pps (ppxlib.metaquot)))))

@@ -4,6 +4,7 @@
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (reason
                extlib
+               base64
                ocaml-migrate-parsetree
                ppxlib.metaquot))))
 

@@ -7,7 +7,6 @@ open Call_record
 let parser_file call = Printf.sprintf
   {|
 let body = "%s"
-let () = Relit_helper.Location.location := Some (Marshal.from_string "%s" 0)
 let lexbuf = Lexing.from_string body
 let parsetree () = %s.%s %s.read lexbuf
 let () =
@@ -23,7 +22,6 @@ let () =
     raise e
   |}
   (String.escaped call.body)
-  (Marshal.to_string call.loc [] |> String.escaped)
   call.parser
   call.nonterminal
   call.lexer
@@ -36,18 +34,23 @@ let compile contents package =
   Utils.write_file (tmp ^ ".ml") contents;
 
   Utils.command "compiling the parser"
-    ("ocamlfind ocamlc -linkpkg -package " ^ package ^
+    ("ocamlfind ocamlc -linkpkg -package unix -package " ^ package ^
      " " ^ tmp ^ ".ml -o " ^ tmp ^ ".byte");
   tmp ^ ".byte"
 
-(* TODO memoize this compilation *)
 let expand_call (call : Call_record.t)
   : Parsetree.expression =
 
+  (* TODO memoize this compilation *)
   let parser = compile (parser_file call) call.package in
 
+
+  (* this is base64-encoded in order to be passed to an environment variable. *)
+  let serialized_location = Marshal.to_string call.loc [] ^ "\n" |> B64.encode in
+  Unix.putenv "RELIT_INTERNAL_LOCATION" serialized_location;
+
   let ast = Utils.with_process ("./" ^ parser)
-    Utils.(fun (pout, _) ->
+    Utils.(fun (pout, pin) ->
       let signal = input_line pout in
       match signal with
       | "ast" -> Marshal.from_channel pout
