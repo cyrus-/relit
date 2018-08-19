@@ -11,7 +11,7 @@ let validate_splices splices length =
   let segments = List.map (fun x -> x.segment) splices in
   Relit_helper.Segment.validate segments length
 
-let remove_splices_mapper ~loc splices =
+let remove_splices_mapper splices =
   let open Parsetree in
   let expr_mapper mapper e =
     match e with
@@ -32,14 +32,14 @@ let remove_splices_mapper ~loc splices =
          segment = Relit_helper.Segment.mk (start_pos, end_pos);
        } in
        splices := splice :: !splices;
-       Ast_helper.Exp.ident {loc; txt = Longident.Lident variable_name}
+       Ast_helper.Exp.ident {loc = e.pexp_loc; txt = Longident.Lident variable_name}
     | e -> Ast_mapper.default_mapper.expr mapper e
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
 
-let take_splices_out ~loc expr =
+let take_splices_out expr =
   let splices = ref [] in
-  let mapper = remove_splices_mapper ~loc splices in
+  let mapper = remove_splices_mapper splices in
   let ast_with_vars_not_splices = mapper.expr mapper expr in
   (!splices, ast_with_vars_not_splices)
 

@@ -7,6 +7,8 @@ notation $absurd_int at int {
   };
 };
 
+notation $absurd = $absurd_int;
+
 notation $absurd_int_arrow_int at int => int {
   lexer Test_parser.Lexer
   parser Test_parser.Parser.literal

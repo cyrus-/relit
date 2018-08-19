@@ -7,17 +7,14 @@ type expansion_error_data = {msg: string; loc: Segment.t option}
 exception ExpansionError of expansion_error_data
 
 
-module Location = struct
-  let loc : Location.t =
-    let encoded =
-      try Sys.getenv "RELIT_INTERNAL_LOCATION"
-      with End_of_file ->
-        raise (Failure ("bug: Relit helper should not be called outside of the "
-                        ^ "Relit TLM context"))
-    in
-    Marshal.from_string (B64.decode encoded) 0
-
-end
+let loc : Location.t =
+  let encoded =
+    try Sys.getenv "RELIT_INTERNAL_LOCATION"
+    with End_of_file ->
+      raise (Failure ("bug: Relit helper should not be called outside of the "
+                      ^ "Relit TLM context"))
+  in
+  Marshal.from_string (B64.decode encoded) 0
 
 module ProtoExpr = struct
   type t = Parsetree.expression
@@ -29,7 +26,6 @@ module ProtoExpr = struct
     let start_pos_c = const_of_int Segment.(seg.start_pos) in 
     let end_pos_c = const_of_int Segment.(seg.end_pos) in 
     let open Parsetree in 
-    let loc = Location.loc in
     [%expr (raise (ignore ([%e start_pos_c], [%e end_pos_c]);
                    Failure "RelitInternal__Spliced") : [%t ty])]
 end
