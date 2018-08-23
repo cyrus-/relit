@@ -12,6 +12,11 @@ test_i: ppx_relit install
 ppx_relit:
 	jbuilder build ppx_relit/ppx_relit.exe
 
+timeline: ppx_relit install
+	rebuild -use-ocamlfind \
+		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
+		-pkg timeline_example examples/simple_examples/my_first_timeline.native
+
 simple_ocaml: ppx_relit install
 	rebuild -use-ocamlfind \
 		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
@@ -27,13 +32,15 @@ splice_in_splice: ppx_relit install
 		-cflags "-ppx `pwd`/_build/default/ppx_relit/ppx_relit.exe" \
 		-pkg regex_example examples/simple_examples/splice_in_splice.native
 
-examples:  simple_ocaml spliced_ocaml splice_in_splice
+examples:  simple_ocaml spliced_ocaml splice_in_splice timeline
 
 install:
 	jbuilder build @install
 	jbuilder install regex_parser >/dev/null
 	jbuilder install test_parser >/dev/null
+	jbuilder install timeline_parser >/dev/null
 	jbuilder install regex_example >/dev/null
+	jbuilder install timeline_example >/dev/null
 	jbuilder install test_example >/dev/null
 	jbuilder install relit_helper >/dev/null
 	jbuilder install ppx_relit >/dev/null
