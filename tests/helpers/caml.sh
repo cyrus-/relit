@@ -4,6 +4,7 @@ build() {
     -r \
     -cflags "-ppx ppx_relit" \
     -pkg regex_example \
+    -pkg timeline_example \
     -pkg test_example \
     | grep -v 'Command line: ppx_relit' \
     | grep -v 'File "_none_", line' \

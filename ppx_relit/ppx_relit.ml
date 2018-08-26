@@ -61,7 +61,7 @@ let relit_expansion_pass structure =
   let call_records = Extract_call_records.from structure in
   let for_each call_record =
     let proto_expansion = Expansion.expand_call call_record in
-    Hygiene.check call_record proto_expansion;
+    let proto_expansion = Hygiene.check call_record proto_expansion in
 
     (* We ensure capture avoidance by replacing each splice reference
      * with a fresh variable... *)

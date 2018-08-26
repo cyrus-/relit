@@ -44,20 +44,21 @@ let expand_call (call : Call_record.t)
   (* TODO memoize this compilation *)
   let parser = compile (parser_file call) call.package in
 
-
   (* this is base64-encoded in order to be passed to an environment variable. *)
   let serialized_location = Marshal.to_string call.loc [] ^ "\n" |> B64.encode in
   Unix.putenv "RELIT_INTERNAL_LOCATION" serialized_location;
 
   let ast = Utils.with_process ("./" ^ parser)
     Utils.(fun (pout, pin) ->
+
       let signal = input_line pout in
       match signal with
-      | "ast" -> Marshal.from_channel pout
+      | "ast" ->
+          Marshal.from_channel pout
       | "error" ->
-          begin try while true do
-            input_line stdin |> print_endline
-          done with _ -> () end;
+          (* begin try while true do *)
+          (*   input_line stdin |> print_endline *)
+          (* done with _ -> () end; *)
           raise (Failure "TLM error in parser")
       | fmt -> raise (Failure ("unknown parser format " ^ fmt))
     )

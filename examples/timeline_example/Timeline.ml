@@ -1,5 +1,5 @@
 
-type time = Minutes of int | Seconds of int
+type time = Seconds of int
 
 type event =
   { happened : unit -> unit
@@ -9,6 +9,11 @@ type t = event list
 
 let rec to_string = function
   | [] -> ""
-  | (Minutes i)::rest -> "(Minutes " ^ string_of_int i ^ ")" ^ to_string rest
+  | ({at = Seconds i; _})::rest ->
+      "(Seconds " ^ string_of_int i ^ ")" ^ to_string rest
 
-let execute t = (raise (Failure "unimplemented")) 
+let rec execute = function
+  | [] -> ()
+  | {at = Seconds i; happened = f}::rest ->
+      Unix.sleep i;
+      f ()

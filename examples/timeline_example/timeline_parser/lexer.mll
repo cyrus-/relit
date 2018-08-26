@@ -13,11 +13,12 @@ let next_line lexbuf =
     }
 }
 
+let digit =  ['0' - '9']
+
 (* part 4 *)
 rule read =
   parse
-  | "\d"    { NUMBER(Lexing.lexeme lexbuf |> int_of_string) }
-  | "min"    { MINUTES }
+  |  digit* { NUMBER(Lexing.lexeme lexbuf |> int_of_string) }
   | "sec"    { SECONDS }
   | "(" {
     let segment = Relit_helper.Segment.read_to ")" lexbuf in

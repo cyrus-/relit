@@ -4,4 +4,5 @@
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (ocaml-migrate-parsetree
                ppxlib.metaquot
+               unix
                relit_helper))))
