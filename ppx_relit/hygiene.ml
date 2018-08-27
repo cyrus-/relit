@@ -85,6 +85,6 @@ let check Call_record.{dependencies;
 
   Ast_helper.Exp.constraint_ ~loc
     expr
-    (Ast_helper.Typ.constr ~locy
+    (Ast_helper.Typ.constr ~loc
     {txt = Longident.(Ldot (Utils.lident_of_path path, "t")) ; loc }
     [])
