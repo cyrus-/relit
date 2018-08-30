@@ -1,7 +1,7 @@
 {
 open Lexing
 open Parser
-open Relit_helper
+open Relit
 
 exception SyntaxError of string
 
@@ -21,7 +21,7 @@ rule read =
   |  digit* { NUMBER(Lexing.lexeme lexbuf |> int_of_string) }
   | "sec"    { SECONDS }
   | "(" {
-    let segment = Relit_helper.Segment.read_to ")" lexbuf in
+    let segment = Relit.Segment.read_to ")" lexbuf in
     SPLICED_EXP(segment) }
   | "\n"  { next_line lexbuf; read lexbuf }
   | " " { read lexbuf }

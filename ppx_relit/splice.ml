@@ -12,13 +12,13 @@ open Call_record
 
 type t = {
   variable_name: string;
-  segment: Relit_helper.Segment.t;
+  segment: Relit.Segment.t;
   expected_type: Parsetree.core_type; 
 }
 
 let validate_splices splices length =
   let segments = List.map (fun x -> x.segment) splices in
-  Relit_helper.Segment.validate segments length
+  Relit.Segment.validate segments length
 
 let remove_splices_mapper splices =
   let open Parsetree in
@@ -39,7 +39,7 @@ let remove_splices_mapper splices =
        let splice = {
          variable_name;
          expected_type;
-         segment = Relit_helper.Segment.mk (start_pos, end_pos);
+         segment = Relit.Segment.mk (start_pos, end_pos);
        } in
        splices := splice :: !splices;
        let loc = e.pexp_loc in
@@ -60,7 +60,7 @@ let take_splices_out expr =
   (!splices, ast_with_vars_not_splices)
 
 let run_reason_parser_against splices body =
-  let index_by_position Relit_helper.Segment.{start_pos; end_pos} =
+  let index_by_position Relit.Segment.{start_pos; end_pos} =
     let length = end_pos - start_pos in
     String.sub body start_pos length
   in

@@ -1,5 +1,5 @@
 (library
-  ((name relit_helper)
+  ((name relit)
    (public_name relit_helper)
    (preprocess (pps (ppxlib.metaquot)))
    (libraries (reason

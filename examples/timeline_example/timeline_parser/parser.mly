@@ -5,10 +5,10 @@
   open Longident
   open Parsetree
 
-  let loc = Relit_helper.loc
+  let loc = Relit.loc
 
 %}
-%token <Relit_helper.Segment.t> SPLICED_EXP
+%token <Relit.Segment.t> SPLICED_EXP
 %token EOF
 %token<int> NUMBER
 %token SECONDS
@@ -20,7 +20,7 @@ timeline:
   | n = NUMBER SECONDS splice = SPLICED_EXP timeline = timeline
     { let n = Ast_helper.Const.int n |> Ast_helper.Exp.constant ~loc in
     [%expr {Timeline.happened =
-      (fun () -> [%e Relit_helper.ProtoExpr.spliced splice [%type: unit]]);
+      (fun () -> [%e Relit.ProtoExpr.spliced splice [%type: unit]]);
       at = Timeline.Seconds [%e n]} :: [%e timeline]] }
   | EOF
     { [%expr []] }
