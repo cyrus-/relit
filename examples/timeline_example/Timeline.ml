@@ -16,4 +16,5 @@ let rec execute = function
   | [] -> ()
   | {at = Seconds i; happened = f}::rest ->
       Unix.sleep i;
-      f ()
+      f ();
+      execute rest

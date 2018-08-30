@@ -1,4 +1,13 @@
 
+(* This file is responsible for replacing the internal representations of
+ * splices in a given ast with unique variables that point to the splices
+ * they are immediately applied to. This is how we ensure that the splices
+ * don't have access to any local bindings the TLMs generate code may contain.
+ * Yay for hygiene!
+ *
+ * See the large comment in `fill_in_splices` for some more detail.
+ * *)
+
 open Call_record
 
 type t = {
@@ -13,6 +22,7 @@ let validate_splices splices length =
 
 let remove_splices_mapper splices =
   let open Parsetree in
+  let open Longident in
   let expr_mapper mapper e =
     match e with
     | [%expr (raise (ignore (
@@ -32,7 +42,13 @@ let remove_splices_mapper splices =
          segment = Relit_helper.Segment.mk (start_pos, end_pos);
        } in
        splices := splice :: !splices;
-       Ast_helper.Exp.ident {loc = e.pexp_loc; txt = Longident.Lident variable_name}
+       let loc = e.pexp_loc in
+
+       (* Apply unit to the variable: it'll be a thunk *)
+       Ast_helper.Exp.apply ~loc
+         (Ast_helper.Exp.ident ~loc {loc; txt = Lident variable_name})
+         [(Asttypes.Nolabel, (Ast_helper.Exp.construct ~loc {loc; txt = Lident "()"} None))]
+
     | e -> Ast_mapper.default_mapper.expr mapper e
   in { Ast_mapper.default_mapper with
        expr = expr_mapper }
@@ -68,14 +84,42 @@ let open_module_in ~loc mod_lident expr =
    pexp_attributes = []}
 
 let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~path =
-  let respective_names = spliced_asts
-    |> List.map fst
-    |> List.map (fun a ->
-        let pat = Ast_helper.Pat.var { txt = a.variable_name ; loc } in
-        Ast_helper.Pat.constraint_ pat a.expected_type
-      )
-  in
-  let spliced_asts = List.map snd spliced_asts in
+  (* splices are represented as "thunks", i.e. a lambda that takes unit.
+   *
+   * this ensures that an side-effects happen if and when the code that the splice
+   * is generated into is run. For example, if a TLM took a splice and put it into
+   * a closure, then the side effects should occur when that closure is called, not
+   * when it's defined. See the Timeline example for a more applied use case.
+   *
+   * some things to be aware of:
+   * spliced_asts starts out life in this function as a list of splices and their respective
+   * ast's, but is redefined at one point to be just the ast's. (the splices are used to form the
+   * variable names)
+   *
+   * a good way to read this function is from the bottom-up. I hope the last 5 lines provide
+   * a higher level picture: Essentially, we start out with a body ast and some splices. We then
+   * wrap this ast with a function that's immediately applied to each of the asts.
+   *
+   * The "body" already has references to the arguments of the function we construct here:
+   * they are put there in `take_out_splices`.
+   * *)
+
+  let respective_names = List.map (fun (splice, _) ->
+        let pat = Ast_helper.Pat.var { txt = splice.variable_name ; loc } in
+        let ty = Ast_helper.Typ.arrow ~loc Asttypes.Nolabel
+          (Ast_helper.Typ.constr ~loc Location.{txt = Longident.Lident "unit"; loc} [])
+          splice.expected_type
+        in
+        Ast_helper.Pat.constraint_ ~loc pat ty
+  ) spliced_asts in
+
+  let spliced_asts = List.map (fun (_, ast) ->
+    Ast_helper.Exp.fun_
+      Asttypes.Nolabel
+      None
+      (Ast_helper.Pat.construct Location.{txt = Longident.Lident "()"; loc} None)
+      ast
+  ) spliced_asts in
 
   (* there's a constraint on the parsetree to only have
    * tuples of multiple values. So we have to use unit
