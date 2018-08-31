@@ -94,7 +94,9 @@ First, make sure you have [opam](https://opam.ocaml.org/) and OCaml 4.04+ by run
 
 Then, install the necessary dependencies:
 
-```opam install ppxlib jbuilder menhir ocamlbuild extlib base64```
+```
+opam install ppxlib jbuilder menhir ocamlbuild extlib base64
+```
 
 Next, you need our fork of the Reason parser:
 
