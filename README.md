@@ -90,25 +90,19 @@ case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
 
-```opam install ppxlib jbuilder menhir reason ocamlbuild extlib base64```
-
-Then `git clone` this repository.
+```opam install ppxlib jbuilder menhir ocamlbuild extlib base64```
 
 You will also want our fork of the Reason parser to support the
 splicing syntax:
 
 ```
+opam remove reason
 git clone https://github.com/charlesetc/reason
 cd reason
+git checkout reason-d-etre
 make
 make install
-jbuilder install rebuild 
 ```
-
-To get this, `git clone https://github.com/charlesetc/reason`
-and checkout the `reason-d-etre` branch. Then run `make && make install`.
-
-Our goal is to get everything on opam to make this process smoother.
 
 Finally, to run the tests you need the `cram` library. You can install this using `pip`.
 
@@ -116,8 +110,18 @@ Finally, to run the tests you need the `cram` library. You can install this usin
 pip install cram
 ```
 
+Once all that is done, you can run `make` in the base directory 
+
 Note that while Relit should in theory work on Windows, we have not tested
 this. If you get it to work, let us know!
+
+Finally, you can clone the Relit repo and `make`, which will install the relit ppx and execute the tests:
+
+```
+git clone https://github.com/cyrus-/relit
+cd relit
+make
+```
 
 ## How It Works
 
