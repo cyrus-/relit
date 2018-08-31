@@ -1,14 +1,12 @@
-# Relit
+# Relit: Typed Literal Macros for Reason
 
-[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed (initially by engineers at Facebook) to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literal notation for only a few standard data structures, e.g. list literals like `[x, y, z]`, array literals like `[|x, y, z|]`, and [JSX literals](https://reasonml.github.io/docs/en/jsx), which support a variation on HTML notation. This approach is unsatisfying because there are many other possible literal notations that may be useful, e.g. for finite maps, regular expressions, SQL queries, syntax tree representations, and specialized scientific data structures, e.g. the SMILES notation in chemistry, to name just a few possibilities.
+[Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed (initially by engineers at Facebook) to make OCaml more notationally familiar to contemporary programmers. However, Reason, like OCaml, builds in literals for only a few common data structures, e.g. list literals like `[x, y, z]`, array literals like `[|x, y, z|]`, and [JSX literals](https://reasonml.github.io/docs/en/jsx), which support a variation on HTML notation. This approach is unsatisfying because there are many other possible data structures for which literal notation may be useful, e.g. for finite maps, regular expressions, SQL queries, syntax tree representations, and specialized scientific data structures, e.g. the [SMILES notation](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system) in chemistry, to name just a few possibilities.
 
-In [a paper at ICFP 2018](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf), we address this problem by introducing *typed literal macros (TLMs)* into Reason. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for expressions and patterns of any type at all. "Relit" is what we call this implementation of TLMs for Reason.
-
-The ICFP paper includes a thorough and accessible tutorial, from the perspectives of both the library provider and the client programmer. The paper also defines the system's type and hygiene discipline in formal detail. In this README, though, let's stick to a simple example that will demonstrate the essential ideas.
+In [a paper at ICFP 2018](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf), we address this problem by introducing *typed literal macros (TLMs)* into Reason. TLMs allow a library provider to define new literal notation, of nearly arbitrary design, for expressions and patterns of any type at all. 
 
 ## Example: Regex Notation
 
-Say that we have defined a recursive datatype `Regex.t` classifying simple regular expressions:
+For example, say that we have defined a recursive datatype `Regex.t` classifying simple regular expressions:
 ```reason
   module Regex = {
     type t = 
@@ -21,13 +19,12 @@ Say that we have defined a recursive datatype `Regex.t` classifying simple regul
   };
 ```
 
-Then we can define a TLM definition as follows — Relit introduces the new `notation` keyword:
+Applying these constructors directly is notationally costly, so let's define a TLM named `$regex` that implements POSIX-style regex notation as follows (GitHub does not yet know how to highlight our extensions to Reason):
 ```reason
 module Regex_notation = { 
-  /* a TLM can be defined anywhere a module can be defined */
   notation $regex at Regex.t {
-    lexer  Lexer 
-    parser Parser 
+    lexer Regex_parser.Lexer
+    parser Regex_parser.Parser.start 
     in package regex_parser;
     dependencies = {
       module Regex = Regex;
@@ -36,46 +33,56 @@ module Regex_notation = {
 };
 ```
 
-The client can apply the TLM as follows to construct a value, `r`, of type `Regex.t`:
+The client can apply `$regex` as follows to construct a value of type `Regex.t`:
 ```reason
 let r = Regex_notation.$regex `(a*bbb|ab)`;
 ```
-Parsing and expansion of the literal body, here `a*bbb|ab`, occurs at compile-time by the lexer and parser specified by the applied TLM (see below for the TLM provider's perspective).
+The lexer and parser specified by the applied TLM is delegated responsibility at compile-time for parsing and expanding the literal body, here `a*bbb|ab`, to an OCaml expression (see below for more details on the TLM provider's perspective). In this case, the expansion is the following much more verbose and obscure expression:
+```reason
+Regex.(Seq(Star(Str("a")), Seq(Str("b"), Seq(Str("b"), Seq(Or(Str("b"), Str("a")), Str("b")))))
+```
 
-To make things more concise, we can open the module containing the notation:
+### Abbreviations
+To make things even more concise, we can open the module containing the notation definition to bring it into scope:
 ```reason
 open Regex_notation;
 let r = $regex `(a*bbb|ab)`;
 ```
+or abbreviate the notation definition:
+```reason
+notation $r = Regex_notation.$regex;
+let r = $r `(a*bbb|ab)`;
+```
 
-Or even open the notation itself:
+or implicitly apply `$regex` to all bare literals in scope by opening it:
 ```reason
 open notation Regex_notation.$regex;
 let r = `(a*bbb|ab)`;
 ```
 
-
 ### Splicing
 
-Relit allows parser to return a splice of the TLM's body, which gets parsed
-as Reason code. For example, our regex lexer could choose `$()` to indicate a splice.
-(The provided example, in fact, does.)
-
-This allows for spliced notation like so:
+The example above didn't contain any sub-expressions, but sometimes we'll want to construct a regex value compositionally. To support this, Relit allows TLMs to _splice_ expressions out of the literal body for inclusion in the expansion. The TLM decides how it will recognize a spliced expression. For example, `$regex` recognizes the notation `$(e)` for spliced regex values, and `$$(e)` for spliced string values, where `e` is a Reason expression of arbitrary form (in particular, `e` can itself apply TLMs). For example, we can splice one regex, `DNA.any_base`, into another, `bisA`, as follows:
 
 ```reason
-module DNA_match = {
-  open Notation.$regex
-
-  let any_base = `(A|C|T|G)`;
-
+open notation Regex_notation.$regex;
+module DNA = {
+  let any_base = `(A|T|G|C)`;
 };
-
-/* a segment of dna */
-let bis_a = `(GC$( /* this is a splice */ DNA_match.any_base)GC)`;
+let bisA = `(GC$(DNA.any_base)GC)`;
 ```
 
+(Splicing is also sometimes called interpolation or unquotation/antiquotation.)
+
+### Abstract Reasoning Principles
+
+_TODO - everything below_
+
 From the client programmer's perspective, TLMs are nice because they come equipped with powerful abstract reasoning principles—when you encounter a TLM application, you do not need to peek at the underlying expansion or the responsible parser to reason about types and binding. Instead, the system requires a type annotation on each TLM definition and maintains a strictly hygienic binding discipline to simplify life for client programmers, particularly when they encounter unfamiliar notation.
+
+### Provider Perspective
+
+The lexer and parser are defined...
 
 ## More Examples and Tests
 
@@ -135,9 +142,20 @@ of what's going on, and specifically the function `relit_expansion_pass`
 is supposed to provide a high-level overview.
 
 
-## Notes
-The warning 
+## Current Limitations
 
-```[WARNING] Interface topdirs.cmi occurs in several directories: /home/ygrek/.opam/4.02.1/lib/ocaml/compiler-libs, /home/ygrek/.opam/4.02.1/lib/ocaml```
+ * Relit does not currently implement pattern TLMs or parametric TLMs.
+ * TODO: other stuff 
+ * The warning 
 
-is due to a [bug in OCaml](https://caml.inria.fr/mantis/view.php?id=6754).
+      ```
+      [WARNING] Interface topdirs.cmi occurs in several directories: /home/ygrek/.opam/4.02.1/lib/ocaml/compiler-libs, /home/ygrek/.opam/4.02.1/lib/ocaml
+      ```
+
+   is due to a [bug in OCaml](https://caml.inria.fr/mantis/view.php?id=6754).
+
+## Contributors
+
+ * Cyrus Omar
+ * Charles Chamberlain
+
