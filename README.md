@@ -116,6 +116,12 @@ and checkout the `reason-d-etre` branch. Then run `make && make install`.
 
 Our goal is to get everything on opam to make this process smoother.
 
+Finally, to run the tests you need the `cram` library. You can install this using `pip`.
+
+```
+pip install cram
+```
+
 Note that while Relit should in theory work on Windows, we have not tested
 this. If you get it to work, let us know!
 
