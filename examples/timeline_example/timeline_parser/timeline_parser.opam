@@ -1,0 +1,15 @@
+opam-version: "2.2"
+name: "timeline parser for timeline_example"
+version: "0.1"
+maintainer: "Name <email>"
+author: "Name <email>"
+homepage: ""
+bug-reports: ""
+license: "MIT"
+dev-repo: ""
+build: [
+  ["jbuilder" "build"]
+]
+install: ["jbuilder" "install" "timeline_parser"]
+remove: ["ocamlfind" "remove" "project"]
+depends: "ocamlfind"

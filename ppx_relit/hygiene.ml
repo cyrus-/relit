@@ -80,19 +80,11 @@ let check Call_record.{dependencies;
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
   let tyexpr = typecheck_expression ~loc env expr in
-
   check_modules_used expr dependencies;
-
   let call_env = add_dependencies_to call_env dependencies in
 
-  let open Types in
-  let type_t = {
-    desc = Tconstr (Path.Pdot (path, "t", 0 (* a position? *)),
-                        [], ref Mnil);
-    level = 2;
-    id = 0
-  } in 
-  if not (Ctype.matches call_env type_t tyexpr.exp_type)
-  then raise (Location.Error
-    (Location.Error.createf ~loc "parser returned wrong type"))
-  else ()
+  Ast_helper.Exp.constraint_ ~loc
+    expr
+    (Ast_helper.Typ.constr ~loc
+    {txt = Longident.(Ldot (Utils.lident_of_path path, "t")) ; loc }
+    [])

@@ -5,7 +5,7 @@
   open Longident
   open Parsetree
 
-  let loc = Relit_helper.loc
+  let loc = Relit.loc
 
 %}
 %token <string> STR
@@ -16,8 +16,8 @@
 %token QMARK
 %token LPAREN
 %token RPAREN
-%token <Relit_helper.Segment.t> SPLICED_REGEX
-%token <Relit_helper.Segment.t> SPLICED_STRING
+%token <Relit.Segment.t> SPLICED_REGEX
+%token <Relit.Segment.t> SPLICED_STRING
 %token EOF
 
 %left BAR
@@ -48,7 +48,7 @@ regex:
   | LPAREN a = regex RPAREN
       { a }
   | a = SPLICED_REGEX
-      { Relit_helper.ProtoExpr.spliced a [%type: Regex.t ] }
+      { Relit.ProtoExpr.spliced a [%type: Regex.t ] }
   | a = SPLICED_STRING
       { [%expr Regex.Str
-          [%e Relit_helper.ProtoExpr.spliced a [%type: string ] ]] }
+          [%e Relit.ProtoExpr.spliced a [%type: string ] ]] }

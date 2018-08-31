@@ -1,7 +1,7 @@
 {
 open Lexing
 open Parser
-open Relit_helper
+open Relit
 
 exception SyntaxError of string
 
@@ -33,10 +33,10 @@ rule read =
   | not_special+ as s { STR (s) }
   | escape as s { STR (unescape s) }
   | "$(" {
-    let segment = Relit_helper.Segment.read_to ")" lexbuf in
+    let segment = Relit.Segment.read_to ")" lexbuf in
     SPLICED_REGEX(segment) }
   | "$$(" {
-    let segment = Relit_helper.Segment.read_to ")" lexbuf in
+    let segment = Relit.Segment.read_to ")" lexbuf in
     SPLICED_STRING(segment) }
   | "\n"  { next_line lexbuf; read lexbuf }
   | _ { raise (SyntaxError ("Unexpected char: " ^ Lexing.lexeme lexbuf)) }

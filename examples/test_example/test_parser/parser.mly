@@ -4,7 +4,7 @@
   module C = Ast_helper.Const
   open Longident
 
-  let loc = Relit_helper.loc
+  let loc = Relit.loc
 
 %}
 %token <string> CHAR
@@ -23,22 +23,22 @@ literal:
       | "typed_fn" -> [%expr fun (a : new_type) -> a * a ]
       | "badly_typed_fn" -> [%expr fun (a : fake_type) -> a * a ]
       | "$( 2 )" ->
-          [%expr [%e Relit_helper.ProtoExpr.spliced
-            (Relit_helper.Segment.mk (2, 4)) [%type: string ]
+          [%expr [%e Relit.ProtoExpr.spliced
+            (Relit.Segment.mk (2, 4)) [%type: string ]
           ] |> ignore ; 5 ]
       | "2 bad_splice_type" ->
-          [%expr [%e Relit_helper.ProtoExpr.spliced
-            (Relit_helper.Segment.mk (0, 1)) [%type: string]
+          [%expr [%e Relit.ProtoExpr.spliced
+            (Relit.Segment.mk (0, 1)) [%type: string]
           ] |> ignore ; 5 ]
       | "bad_splice_bounds" ->
-          Relit_helper.ProtoExpr.spliced
-            (Relit_helper.Segment.mk (2, 3040)) [%type: int]
+          Relit.ProtoExpr.spliced
+            (Relit.Segment.mk (2, 3040)) [%type: int]
       | "bad_splice_overlap" ->
           [%expr
-            [%e Relit_helper.ProtoExpr.spliced
-              (Relit_helper.Segment.mk (2, 5)) [%type: int ] ];
-            [%e Relit_helper.ProtoExpr.spliced
-              (Relit_helper.Segment.mk (4, 7)) [%type: int ] ] ]
+            [%e Relit.ProtoExpr.spliced
+              (Relit.Segment.mk (2, 5)) [%type: int ] ];
+            [%e Relit.ProtoExpr.spliced
+              (Relit.Segment.mk (4, 7)) [%type: int ] ] ]
       | _ -> raise (Failure "no parse defined")
     }
   | EOF { [%expr 0 ] }
