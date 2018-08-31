@@ -90,10 +90,13 @@ case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
 
+First, make sure you have [opam](https://opam.ocaml.org/) and OCaml 4.04+ by running `opam switch`.
+
+Then, install the necessary dependencies:
+
 ```opam install ppxlib jbuilder menhir ocamlbuild extlib base64```
 
-You will also want our fork of the Reason parser to support the
-splicing syntax:
+Next, you need our fork of the Reason parser:
 
 ```
 opam remove reason
@@ -104,16 +107,11 @@ make
 make install
 ```
 
-Finally, to run the tests you need the `cram` library. You can install this using `pip`.
+To run the tests you also need the `cram` library. You can install this using `pip`.
 
 ```
 pip install cram
 ```
-
-Once all that is done, you can run `make` in the base directory 
-
-Note that while Relit should in theory work on Windows, we have not tested
-this. If you get it to work, let us know!
 
 Finally, you can clone the Relit repo and `make`, which will install the relit ppx and execute the tests:
 
@@ -123,7 +121,11 @@ cd relit
 make
 ```
 
+Note that while Relit should in theory work on Windows, we have not tested
+this. If you get it to work, let us know!
+
 ## How It Works
+
 
 The ppx execution starts in `ppx_relit/ppx_relit.ml` at the very last line
 of the file. Generally reading up from there will give you a good idea
