@@ -4,7 +4,5 @@ Make sure we get an error when using a type that is not given in the dependencie
 but that is defined at the application site as would be necessary.
 
   $ reason $TESTDIR/type_not_in_dependencies
-  File "type_not_in_dependencies.re", line 8, characters 26-27:
-  Warning 20: this argument will not be used by the function.
   File "type_not_in_dependencies.re", line 7, characters 13-53:
   Error: Unbound type constructor fake_type

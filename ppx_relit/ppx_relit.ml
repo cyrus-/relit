@@ -14,8 +14,6 @@ open Parsetree
 open Typedtree
 open Asttypes
 
-module Location = Ppxlib.Location
-
 open Call_record
 
 let fully_expanded structure =
@@ -40,6 +38,7 @@ let fully_expanded structure =
 
 let map_structure f call_records structure =
   let open Parsetree in
+  let module Location = Ppxlib.Location in
   let expr_mapper mapper expr =
 
     (* If we've matched and typed this location
