@@ -1,6 +1,10 @@
 
 (* 
- * 
+ * This is the starting place for the Relit ppx transformation.
+ * This file is best read bottom-to-top, diving into any modules
+ * where you're curious as to the implementation.
+ *
+ * See https://github.com/cyrus-/relit for an overview of Relit.
  * *)
 
 let ppx_name = "relit"
