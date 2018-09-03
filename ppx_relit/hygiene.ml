@@ -32,10 +32,10 @@ let typecheck_expression ~loc env expr =
 let add_dependencies_to env dependencies =
   let env = ref env in
   List.iter (function
-    | Call_record.Module (name, module_declaration) ->
+    | App_record.Module (name, module_declaration) ->
       env := Env.add_module_declaration
           ~check:true name module_declaration !env
-    | Call_record.Type (name, type_declaration) ->
+    | App_record.Type (name, type_declaration) ->
       env := Env.add_type ~check:true name type_declaration !env
     ) dependencies;
   !env
@@ -55,9 +55,9 @@ let check_modules_used expr dependencies =
     |> StringSet.of_list
   in
   let dependencies = dependencies
-    |> List.filter (function Call_record.Module _ -> true | _ -> false)
+    |> List.filter (function App_record.Module _ -> true | _ -> false)
     |> List.map (function
-        | Call_record.Module (name, _) -> Ident.name name
+        | App_record.Module (name, _) -> Ident.name name
         | _ -> raise (Failure "impossible, just filtered them"))
     |> StringSet.of_list
   in
@@ -72,16 +72,16 @@ let check_modules_used expr dependencies =
   )
 
 
-let check Call_record.{dependencies;
+let check App_record.{dependencies;
                        path;
                        loc;
-                       env = call_env} expr =
+                       env = app_env} expr =
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
   let tyexpr = typecheck_expression ~loc env expr in
   check_modules_used expr dependencies;
-  let call_env = add_dependencies_to call_env dependencies in
+  let app_env = add_dependencies_to app_env dependencies in
 
   Ast_helper.Exp.constraint_ ~loc
     expr

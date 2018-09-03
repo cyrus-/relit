@@ -2,9 +2,9 @@
 (* the machinery for loading the parser and lexer
  * at the ppx's run-time and then parsing the tlm's source *)
 
-open Call_record
+open App_record
 
-let parser_file call = Printf.sprintf
+let parser_file app = Printf.sprintf
   {|
 let body = "%s"
 let lexbuf = Lexing.from_string body
@@ -21,10 +21,10 @@ let () =
       pos.pos_fname pos.pos_lnum (pos.pos_cnum - pos.pos_bol + 1);
     raise e
   |}
-  (String.escaped call.body)
-  call.parser
-  call.nonterminal
-  call.lexer
+  (String.escaped app.body)
+  app.parser
+  app.nonterminal
+  app.lexer
 
 let compile contents package =
   (* write ocaml to a temporary file, compile it
@@ -38,14 +38,14 @@ let compile contents package =
      " " ^ tmp ^ ".ml -o " ^ tmp ^ ".byte");
   tmp ^ ".byte"
 
-let expand_call (call : Call_record.t)
+let expand_app (app : App_record.t)
   : Parsetree.expression =
 
   (* TODO memoize this compilation *)
-  let parser = compile (parser_file call) call.package in
+  let parser = compile (parser_file app) app.package in
 
   (* this is base64-encoded in order to be passed to an environment variable. *)
-  let serialized_location = Marshal.to_string call.loc [] ^ "\n" |> B64.encode in
+  let serialized_location = Marshal.to_string app.loc [] ^ "\n" |> B64.encode in
   Unix.putenv "RELIT_INTERNAL_LOCATION" serialized_location;
 
   let ast = Utils.with_process ("./" ^ parser)
