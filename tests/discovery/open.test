@@ -5,3 +5,4 @@ and then open an instance of that functor?
 
   $ reason $TESTDIR/open
   (Or (Or (String a) (String b)) (String c))
+  (Or (Or (String aa) (String bb)) (String cc))
