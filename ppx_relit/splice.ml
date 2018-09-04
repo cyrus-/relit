@@ -8,7 +8,7 @@
  * See the large comment in `fill_in_splices` for some more detail.
  * *)
 
-open Call_record
+open App_record
 
 type t = {
   variable_name: string;

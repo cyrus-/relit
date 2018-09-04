@@ -137,7 +137,7 @@ To run the tests you also need the `cram` library. You can install this using `p
 pip install cram
 ```
 
-Finally, you can clone the Relit repo and `make`, which will install the relit ppx and execute the tests:
+Finally, you can clone the Relit repo and `make`, which will install the Relit ppx and execute the tests:
 
 ```
 git clone https://github.com/cyrus-/relit

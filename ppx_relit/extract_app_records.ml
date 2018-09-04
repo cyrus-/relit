@@ -1,5 +1,5 @@
 
-open Call_record
+open App_record
 
 module Make_record = struct
 
@@ -83,8 +83,8 @@ module Make_record = struct
 
 end
 
-module Call_finder(A : sig
-    val call_records : Call_record.t Locmap.t ref
+module App_finder(A : sig
+    val app_records : App_record.t Locmap.t ref
   end) = TypedtreeIter.MakeIterator(struct
     include TypedtreeIter.DefaultIteratorArgument
 
@@ -104,9 +104,9 @@ module Call_finder(A : sig
                    loc,
 
                    (* extract the path of our TLM definition
-                    * and the relit source of this call. *)
+                    * and the relit source of this application. *)
                    { cstr_tag =
-                       Cstr_extension (Pdot (path, "Call", _),
+                       Cstr_extension (Pdot (path, "App", _),
                                                 _some_bool); _ },
                    _err_info::{
                      exp_desc = Texp_constant
@@ -114,17 +114,19 @@ module Call_finder(A : sig
                      exp_env = env;
                    }::_ ); _ }))]) ->
 
-        let call_record =
+        let app_record =
           Make_record.of_modtype ~loc:expr.exp_loc ~env ~path ~body
         in
-        A.call_records := Locmap.add expr.exp_loc
-                                     call_record
-                                     !A.call_records;
+        A.app_records := Locmap.add expr.exp_loc
+                                     app_record
+                                     !A.app_records;
       | _ -> ()
   end)
 
 let typecheck structure =
   let open Parsetree in
+
+  (* initialize the typechecking environment *)
   let filename =
     (List.hd structure).pstr_loc.Location.loc_start.Lexing.pos_fname in
   let without_extension = Filename.remove_extension filename in
@@ -134,18 +136,23 @@ let typecheck structure =
   Env.set_unit_name module_name;
   let initial_env = Compmisc.initial_env () in
 
+  (* turn off some warnings, since we use exceptions to fill in for any type *)
+  let warning_state = Warnings.backup () in
+  Warnings.parse_options false "-20-21";
+
   (* typecheck and extract type information *)
   let (typed_structure, _) =
     Typemod.type_implementation filename without_extension module_name
-                                initial_env structure in
+      initial_env structure
+  in
+  Warnings.restore warning_state;
   typed_structure
 
 let from structure =
-    (* initialize the typechecking environment *)
-  let typed_structure = typecheck structure  in
-  let call_records = ref Locmap.empty in
-  let module Call_finder =
-    Call_finder(struct let call_records = call_records end)
+  let typed_structure = typecheck structure in
+  let app_records = ref Locmap.empty in
+  let module App_finder =
+    App_finder(struct let app_records = app_records end)
   in
-  Call_finder.iter_structure typed_structure;
-  !call_records
+  App_finder.iter_structure typed_structure;
+  !app_records
