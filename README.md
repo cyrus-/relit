@@ -112,8 +112,9 @@ module Regex_notation = {
   };
 };
 ```
+#### Scoping
 
-Note that a TLM definition can appear anywhere a module definition can appear, and TLM definitions follow the same scoping rules as modules (internally, they are implemented as modules with singleton signatures; see the paper).
+A TLM definition can appear anywhere a module definition can appear, and TLM definitions follow the same scoping rules as modules (internally, they are implemented as modules with singleton signatures; see the paper).
 
 #### Lexing and Parsing
 
@@ -142,7 +143,7 @@ case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
 
-First, make sure you have [opam](https://opam.ocaml.org/) and OCaml 4.04+ by running `opam switch`.
+First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have OCaml 4.04+ by running `opam switch`.
 
 Then, install the necessary dependencies:
 
@@ -150,7 +151,7 @@ Then, install the necessary dependencies:
 opam install ppxlib jbuilder menhir ocamlbuild extlib base64
 ```
 
-Next, you need our fork of the Reason parser:
+Next, you need to install our fork of the Reason parser:
 
 ```
 opam remove reason
@@ -161,13 +162,13 @@ make
 make install
 ```
 
-To run the tests you also need the `cram` library. You can install this using `pip`.
+To run the tests you also need the [`cram`](https://bitheap.org/cram/) library. The easiest way to install it is using `pip`.
 
 ```
 pip install cram
 ```
 
-Finally, you can clone the Relit repo and `make`, which will install the Relit ppx and execute the tests:
+Finally, you can clone the Relit repo and `make`, which will install the Relit ppx, the `relit_helper` package, and execute the tests:
 
 ```
 git clone https://github.com/cyrus-/relit
