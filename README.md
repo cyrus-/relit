@@ -59,7 +59,7 @@ let r = Regex_notation.$regex.( `(a*bb(b|a)b)` )
 
 ### Splicing
 
-Sometimes we will want to construct a regex value compositionally, i.e. by building up from other values. To support this, `$regex` recognizes the notation `$(e)` for a spliced regex value, and `$$(e)` for a spliced string value, where `e` is a Reason expression of arbitrary form (in particular, `e` might itself apply TLMs). For example, we can splice one regex, `DNA.any_base`, into another, `bisI` (BisI is a restriction enzyme, see [here](https://pythonforbiologists.com/regular-expressions/)), as follows:
+Sometimes we want to construct a regex value compositionally, i.e. by "splicing together" other values. To support this, `$regex` recognizes the notation `$(e)` for a spliced regex value, and `$$(e)` for a spliced string value, where `e` is a Reason expression of arbitrary form (so `e` might even itself apply TLMs). For example, we can splice one regex, `DNA.any_base`, into another, `bisI` (BisI is a restriction enzyme, see [here](https://pythonforbiologists.com/regular-expressions/)), as follows:
 
 ```reason
 open notation Regex_notation.$regex;
@@ -69,41 +69,40 @@ module DNA = {
 let bisI = `(GC$(DNA.any_base)GC)`;
 ```
 
-Each TLM decides for itself how it recognizes spliced expressions within the literal body. 
+Each TLM decides for itself how it recognizes spliced expressions.
 
-Keep in mind that the literal body is expanded at compile-time, so using TLMs together with composite representations of data structures like regexes and SQL queries can help programmers avoid [injection attacks](https://en.wikipedia.org/wiki/Code_injection) without giving up the notational benefits of string representations.
+Keep in mind that the literal body is expanded at compile-time, so using TLMs together with composite representations of data structures like regexes and SQL queries can help programmers avoid [string injection attacks](https://en.wikipedia.org/wiki/Code_injection) without giving up the notational benefits of string representations.
 
-Splicing is also sometimes called interpolation because it generalizes [string interpolation](https://en.wikipedia.org/wiki/String_interpolation) as featured in many languages. Splicing is also sometimes called unquotation or antiquotation because it generalizes the unquotation forms in code quotation systems, like those in various [Lisp dialects](https://en.wikipedia.org/wiki/Lisp_(programming_language)#Self-evaluating_forms_and_quoting) and many other languages. 
+Splicing is also sometimes called interpolation because it generalizes [string interpolation](https://en.wikipedia.org/wiki/String_interpolation) as featured in many contemporary languages. Splicing is also sometimes called unquotation or antiquotation because it generalizes the unquotation forms in code quotation systems, like those in various [Lisp dialects](https://en.wikipedia.org/wiki/Lisp_(programming_language)#Self-evaluating_forms_and_quoting) and many other languages. 
 
 ### Typing, Hygiene and Segmentation
 
-When you encounter an unfamiliar notation, you do not need to peek at the underlying expansion or the parser to reason about types and binding. Instead, the system maintains the following abstract reasoning principles:
+User-defined notation is great when you are familiar with it, but what about when you encounter an unfamiliar  notation? TLMs were carefully designed to be uniquely reasonable in this situation. In particular, you do not need to peek at the generated expansion or the details of the parser to reason about types and binding in a program that uses TLMs. Instead, the system maintains the following important abstract reasoning principles:
 
-  1. **Expansion Typing**: Each TLM has a type annotation—`at Regex.t` on `$regex` above—that determines the type of the generated expansion.
-  2. **Context Independence**: The expansion is context independent, meaning that it does not make any assumptions about which variables (including module variables) are in scope. Therefore, you can name and rename variables or imports without thinking about the expansion's dependencies (see below for more on how dependencies are managed).
-  3. **Segmentation**: Spliced expressions must be non-overlapping and separated by at least one character. This ensures that there is always a unique segmentation of every literal body into spliced expressions and expressions parsed in some other way by the applied TLM.
-
-  4. **Segment Typing**: Each spliced expression is labeled with an expected type by the applied TLM. This information is currently used when reporting type errors. In the future, we expect to convey segmentation and segment typing information interactively within the editor.
-  5. **Capture Avoidance**: Spliced expressions are capture avoiding, meaning that any variables that appear in a spliced expression cannot capture bindings internal to the expansion. Consider the following example:
+  * **Expansion Typing**: Each notation definition specifies a type annotation—`at Regex.t` on `$regex` above—that determines the type of the generated expansion.
+  * **Context Independence**: The expansion is guaranteed to be context independent, meaning that it does not make any assumptions about which variables (including module variables) are in scope. Therefore, clients can name and rename variables and manage imports without thinking about the expansion's dependencies. For example, the `Regex` module can be shadowed, or not in scope at all, when applying the `$regex` TLM above, even though the expansion uses the constructors defined in the `Regex` module (see below for more on how dependencies are managed).
+  * **Capture Avoidance**: Spliced expressions are capture avoiding, meaning that any variables that appear in a spliced expression cannot capture bindings internal to the expansion. Consider the following example:
 
      ```reason
      let tmp = DNA.any_base;
      let bisI = $regex `(GC$(tmp)GC)`
      ```
 
-     Even if the expansion generated by the TLM above happens to bind a variable named `tmp`, the system ensures that the reference to `tmp` in the spliced expression will always refer to the visible binding of `tmp` on the first line.
+     Even if the expansion generated by the TLM above happens to bind a variable named `tmp` for internal use, the system ensures that the reference to `tmp` in the spliced expression will always refer to the binding of `tmp` on the first line.
 
-     The context independence and capture avoidance principles together are sometimes referred to as the hygiene principles. Relit is strictly hygienic—there is no way for a TLM to opt out of these restrictions.
+     The context independence and capture avoidance principles together are referred to as the hygiene principles. Relit is strictly hygienic—there is no way for a TLM to opt out of these restrictions.
+  * **Segmentation**: Spliced expressions must be separated by at least one character. This ensures that there is always a unique segmentation of every literal body into spliced expressions and expressions parsed in some other way by the applied TLM.
+
+  * **Segment Typing**: Each spliced expression is labeled with an expected type by the applied TLM. This information is currently used when reporting type errors. In the future, we expect to convey the segmentation and segment typing information interactively within the editor.
 
 The ICFP paper investigates these reasoning principles in formal detail (i.e. with a typed lambda calculus and proofs).
 
 ### TLM Definitions
-_TODO - everything below_
-
+The full definition of `Regex_notation.$regex` is given below:
 
 ```reason
 module Regex_notation = { 
-  notation $regex at Regex.t { /* full definition given under "TLM Provider Perspective" below */ }
+  notation $regex at Regex.t {
     lexer Regex_parser.Lexer
     parser Regex_parser.Parser.start 
     in package regex_parser;
@@ -114,7 +113,19 @@ module Regex_notation = {
 };
 ```
 
-The lexer and parser are defined...
+Note that a TLM definition can appear anywhere a module definition can appear, and TLM definitions follow the same scoping rules as modules (internally, they are implemented as modules with singleton signatures; see paper).
+
+#### The Lexer and Parser
+
+Each TLM must specify a lexer, here `Regex_parser.Lexer`, and a parser, here `Regex_parser.Parser.start` (where `start` is the name of the starting non-terminal). 
+The lexer and parser will be loaded and invoked at compile-time. To cleanly facilitate this, they must be packaged into a named ocamlfind package, here indicated by `in package regex_parser`. 
+
+The lexer must be generated by (or satisfy the same interface as lexers generated by) [ocamllex](https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html). The parser must be generated by (or satisfy the same interface as parsers generated by) [Menhir](http://gallium.inria.fr/~fpottier/menhir/), which is a modernized derivative of ocamlyacc. These are the most popular and mature lexer and parser generators within the OCaml ecosystem, and notably, Reason itself is implemented using these same generators. [Chapter 16](https://v1.realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html) of *Real World OCaml* nicely introduces both.
+
+We will not detail the regex lexer and parser definitions here, but the ICFP paper (Sec. 2.2) does so. The full definitions can be found alongside the rest of the definitions above in the [`examples/regex_example` directory](https://github.com/cyrus-/relit/tree/master/examples/regex_example). For the most part, they are entirely standard lexer and parser definitions. The only interesting bit has to do with splicing: the paper describes how splicing is implemented at the level of the lexer by invoking a helper function, `Relit.read_to`, in the `relit_helper` package. 
+
+
+#### Dependencies
 
 ## More Examples and Tests
 
