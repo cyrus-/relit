@@ -21,10 +21,8 @@ let rec eq = (a, b) =>
   | (Empty, Empty) => true
   | (AnyChar, AnyChar) => true
   | (Str(s), Str(r)) => s == r
-  | (Or(a, b), Or(c, d)) =>
-    eq(a, c) && eq(b, d)
-  | (Seq(a, b), Seq(c, d)) =>
-    eq(a, c) && eq(b, d)
+  | (Or(a, b), Or(c, d)) => eq(a, c) && eq(b, d)
+  | (Seq(a, b), Seq(c, d)) => eq(a, c) && eq(b, d)
   | (Star(a), Star(b)) => eq(a, b)
   | _ => false
   };
