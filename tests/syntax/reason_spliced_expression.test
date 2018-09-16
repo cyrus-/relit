@@ -3,4 +3,4 @@
 A simple application of a Relit TLM
 
   $ reason $TESTDIR/reason_spliced_expression
-  (Or (Or (String a) (String okay)) (String c))
+  (Or (Or (String "a") (String "okay")) (String "c"))

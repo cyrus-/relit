@@ -9,7 +9,7 @@ type t =
 let rec show = t =>
   switch (t) {
   | Empty => "Empty"
-  | Str(str) => "(String " ++ str ++ ")"
+  | Str(str) => "(String \"" ++ str ++ "\")"
   | AnyChar => "Any"
   | Seq(a, b) => show(a) ++ " ; " ++ show(b)
   | Or(a, b) => "(Or " ++ show(a) ++ " " ++ show(b) ++ ")"

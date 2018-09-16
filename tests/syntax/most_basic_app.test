@@ -3,4 +3,4 @@
 A simple application of the Regex TLM
 
   $ reason $TESTDIR/most_basic_app
-  (Or (String a) ; (Star (String a)) (Star (String b)) ; (Star (String c)))
+  (Or (String "a") ; (Star (String "a")) (Star (String "b")) ; (Star (String "c")))

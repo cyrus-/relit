@@ -4,5 +4,5 @@ Can we include the TLM inside a module inside a functor
 and then open an instance of that functor?
 
   $ reason $TESTDIR/open
-  (Or (Or (String a) (String b)) (String c))
-  (Or (Or (String aa) (String bb)) (String cc))
+  (Or (Or (String "a") (String "b")) (String "c"))
+  (Or (Or (String "aa") (String "bb")) (String "cc"))
