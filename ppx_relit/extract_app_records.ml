@@ -106,7 +106,7 @@ module App_finder(A : sig
                    (* extract the path of our TLM definition
                     * and the relit source of this application. *)
                    { cstr_tag =
-                       Cstr_extension (Pdot (path, "App", _),
+                       Cstr_extension (Pdot (path, "Apply", _),
                                                 _some_bool); _ },
                    _err_info::{
                      exp_desc = Texp_constant

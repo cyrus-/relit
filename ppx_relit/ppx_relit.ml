@@ -24,7 +24,7 @@ let fully_expanded structure =
     | Pexp_apply (
         {pexp_desc = Pexp_ident {txt = Lident "raise"; _}},
         [(_, {pexp_attributes = ({txt = "relit"}, _) :: _;
-              pexp_desc = Pexp_construct ({txt = Ldot (_, "App"); _},
+              pexp_desc = Pexp_construct ({txt = Ldot (_, "Apply"); _},
               Some {pexp_desc = Pexp_tuple [_ ;
                 {pexp_desc = Pexp_constant (Pconst_string _); _}]; _} )})]
       ) ->
