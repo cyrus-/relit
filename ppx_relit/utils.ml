@@ -42,3 +42,25 @@ let rec lident_of_path path =
   | Pident ident -> Lident (Ident.name ident)
   | Pdot (rest, name, _) -> Ldot (lident_of_path rest, name)
   | Papply (a, b) -> Lapply (lident_of_path a, lident_of_path b)
+
+let maybe_print f x =
+  let parsetree = f x in
+  match Sys.getenv_opt "RELIT_DEBUG" with
+  | Some "true" ->
+      Reason_pprint_ast.configure ~width:80
+        ~assumeExplicitArity:true ~constructorLists:[];
+      (Reason_pprint_ast.createFormatter ())#structure
+        [] Format.err_formatter
+        (Convert.From_current.copy_structure parsetree);
+      parsetree
+  | Some "color" ->
+      Reason_pprint_ast.configure ~width:50
+        ~assumeExplicitArity:true ~constructorLists:[];
+
+      prerr_string "\x1b[97m\x1b[48;5;105m";
+      (Reason_pprint_ast.createFormatter ())#structure
+        [] Format.err_formatter
+        (Convert.From_current.copy_structure parsetree);
+      prerr_string "\x1bc";
+      parsetree
+  | _ -> parsetree

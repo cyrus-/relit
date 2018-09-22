@@ -87,7 +87,7 @@ let rec relit_mapper =
       structure_mapping structure
   in
   { default_mapper with
-    structure = (fun _ -> structure_mapping) }
+    structure = (fun _ -> Utils.maybe_print structure_mapping) }
 
 let () =
   register ppx_name (fun _cookies -> relit_mapper)
