@@ -6,6 +6,6 @@ bin: [
   "_build/install/default/bin/ppx_relit" {"ppx_relit"}
 ]
 doc: [
-  "_build/install/default/doc/ppx_relit/README.md"
   "_build/install/default/doc/ppx_relit/LICENSE"
+  "_build/install/default/doc/ppx_relit/README.md"
 ]

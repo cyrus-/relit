@@ -1,5 +1,7 @@
 # Relit: Typed Literal Macros for Reason
 
+<img src="./blazelit-small.png" alt="Blazelit: the cute logo for Relit" align='right' />
+
 [Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed by engineers at Facebook to make OCaml more notationally comfortable for contemporary programmers. However, Reason, following OCaml, builds in literal notation for only a few common data structures, e.g. list literals like `[x, y, z]`, array literals like `[|x, y, z|]`, and [JSX literals](https://reasonml.github.io/docs/en/jsx), which support an extension of HTML notation. This approach is unsatisfying because there are many other possible data structures for which literal notation might be useful, e.g. for finite maps, regular expressions, SQL queries, syntax tree representations, and chemical structures expressed using [SMILES notation](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system), to name just a few possibilities.
 
 In [our ICFP 2018 paper](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf) ([.bib](https://github.com/cyrus-/relit/blob/master/relit.bib)), we address this problem by introducing **typed literal macros (TLMs)** into Reason. TLMs allow the programmer to define new literal notation, of nearly arbitrary design, for expressions and patterns of any type at all. 
