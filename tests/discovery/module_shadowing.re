@@ -5,6 +5,6 @@ module Middle = {
     /* notice this doesn't shadow Regex */
     let x = 2;
   };
-  let parsed = RegexNotation.$regex `(a|b)`;
+  let parsed = Regex_notation.$regex `(a|b)`;
 };
 let () = print_endline(Regex.show(Middle.parsed));

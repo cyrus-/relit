@@ -1,12 +1,12 @@
 open Regex_example;
 
-module Funct = (A: {notation $b = RegexNotation.$regex;}) => {
+module Funct = (A: {notation $b = Regex_notation.$regex;}) => {
   notation $regex = A.$b;
 };
 
 module X =
   Funct({
-    notation $b = RegexNotation.$regex;
+    notation $b = Regex_notation.$regex;
   });
 
 open X;

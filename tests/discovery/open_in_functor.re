@@ -6,7 +6,7 @@ module Obscure = (A: {let x: int;}) => {
       let y = A.x;
     };
     module Alias = {
-      include RegexNotation;
+      include Regex_notation;
     };
   };
 };

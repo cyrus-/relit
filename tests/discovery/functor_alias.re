@@ -1,7 +1,7 @@
 open Regex_example;
 
 module Funct = (A: {let x: int;}) => {
-  module NotationAlias = RegexNotation;
+  module NotationAlias = Regex_notation;
 };
 module M =
   Funct({

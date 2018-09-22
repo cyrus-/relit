@@ -1,5 +1,5 @@
 open Regex_example;
-open RegexNotation;
+open Regex_notation;
 
 /*
  module DNA = {

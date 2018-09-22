@@ -1,6 +1,6 @@
 open Regex_example;
 
-open Test_example.TestNotation;
+open Test_example.Test_notation;
 let x = "hi there";
 module Std = {
   /* should not matter */

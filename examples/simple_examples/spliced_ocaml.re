@@ -1,5 +1,5 @@
 open Regex_example;
-open RegexNotation;
+open Regex_notation;
 
 module DNA = {
   let any_base = $regex `(a|$(Regex.Str("okay"))|c)`;

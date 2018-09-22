@@ -1,5 +1,5 @@
 open Timeline_example;
-open TimelineNotation;
+open Timeline_notation;
 let timeline =
   $timeline `(
 

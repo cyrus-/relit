@@ -1,4 +1,4 @@
-open Test_example.TestNotation;
+open Test_example.Test_notation;
 let x = "hi there";
 type t' = TestModule.t;
 module TestModule = {

@@ -1,6 +1,6 @@
 open Regex_example;
 
-notation $regex = RegexNotation.$regex;
+notation $regex = Regex_notation.$regex;
 module DNA = {
   let any_base = $regex `(A|T|G|C)`;
 };

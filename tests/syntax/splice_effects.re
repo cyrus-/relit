@@ -8,7 +8,7 @@ notation $regex at string {
   dependencies = {};
 };
 
-notation $r = RegexNotation.$regex;
+notation $r = Regex_notation.$regex;
 
 module DNA = {
   notation $regex2 = $r;

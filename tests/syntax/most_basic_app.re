@@ -1,7 +1,7 @@
 open Regex_example;
 
 module DNA = {
-  open RegexNotation;
+  open Regex_notation;
   module Regex = {}; /* should not matter */
   let any_base = $regex `(a+|b*c*)`;
 };

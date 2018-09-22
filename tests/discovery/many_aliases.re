@@ -2,7 +2,7 @@ open Regex_example;
 
 module Obscure = (A: {let x: int;}) => {
   module NotationAlias = {
-    include RegexNotation;
+    include Regex_notation;
   };
 };
 module Alias1 =
