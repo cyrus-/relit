@@ -8,8 +8,6 @@
  * See the large comment in `fill_in_splices` for some more detail.
  * *)
 
-open App_record
-
 type t = {
   variable_name: string;
   segment: Relit.Segment.t;
@@ -22,7 +20,6 @@ let validate_splices splices length =
 
 let remove_splices_mapper splices =
   let open Parsetree in
-  let open Longident in
   let expr_mapper mapper e =
     match e with
     | [%expr (raise (ignore (
@@ -74,7 +71,6 @@ let run_reason_parser_against splices body =
 
 let open_module_in ~loc mod_lident expr =
   let open Parsetree in
-  let open Longident in
 
   {pexp_desc = Pexp_open (
        Fresh,

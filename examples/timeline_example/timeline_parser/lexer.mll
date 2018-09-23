@@ -1,7 +1,6 @@
 {
 open Lexing
 open Parser
-open Relit
 
 exception SyntaxError of string
 

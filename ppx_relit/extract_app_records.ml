@@ -51,19 +51,19 @@ module Make_record = struct
                         { md_type = Mty_signature signature; _ }, _) ->
       dependencies := Left (extract_dependencies env signature)
     | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature signature; _ }, _)
+                        { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Nonterminal_" name ->
       nonterminal := Left (unescape_package (Utils.remove_prefix ~prefix:"Nonterminal_" name))
     | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature signature; _ }, _)
+                        { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Lexer_" name ->
       lexer := Left (unescape_package (Utils.remove_prefix ~prefix:"Lexer_" name))
     | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature signature; _ }, _)
+                        { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Parser_" name ->
       parser := Left (unescape_package (Utils.remove_prefix ~prefix:"Parser_" name))
     | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature signature; _ }, _)
+                        { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Package_" name ->
       package := Left (unescape_package (Utils.remove_prefix ~prefix:"Package_" name))
     | _ -> ()
@@ -101,7 +101,7 @@ module App_finder(A : sig
             Some (
               {exp_attributes = ({txt = "relit"; _}, _) :: _;
                exp_desc = Texp_construct (
-                   loc,
+                   _loc,
 
                    (* extract the path of our TLM definition
                     * and the relit source of this application. *)
@@ -111,7 +111,7 @@ module App_finder(A : sig
                    _err_info::{
                      exp_desc = Texp_constant
                          Const_string (body, _other_part );
-                     exp_env = env;
+                     exp_env = env; _
                    }::_ ); _ }))]) ->
 
         let app_record =

@@ -150,7 +150,7 @@ First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you ha
 Then, install the necessary dependencies:
 
 ```
-opam install ppxlib jbuilder menhir ocamlbuild extlib base64
+opam install ppxlib dune menhir ocamlbuild extlib base64
 ```
 
 Next, you need to install our fork of the Reason parser:
@@ -195,7 +195,7 @@ is supposed to provide a high-level overview.
 ## Current Limitations
 
  * Relit does not currently implement pattern TLMs or parametric TLMs.
- * Does not currently work with Dune (jbuilder)
+ * The Relit PPX not currently work with Dune
  * TODO: other stuff and issue links
  * The warning 
 

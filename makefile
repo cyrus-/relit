@@ -10,7 +10,7 @@ test_i: ppx_relit install
 	ORIGINAL_DIR=`pwd` cram -i `find tests -name '*.test' | xargs echo`
 
 ppx_relit:
-	jbuilder build ppx_relit/ppx_relit.exe
+	dune build ppx_relit/ppx_relit.exe
 
 timeline: ppx_relit install
 	rebuild -use-ocamlfind \
@@ -35,15 +35,15 @@ splice_in_splice: ppx_relit install
 examples:  simple_ocaml spliced_ocaml splice_in_splice timeline
 
 install:
-	jbuilder build @install
-	jbuilder install regex_parser >/dev/null
-	jbuilder install test_parser >/dev/null
-	jbuilder install timeline_parser >/dev/null
-	jbuilder install regex_example >/dev/null
-	jbuilder install timeline_example >/dev/null
-	jbuilder install test_example >/dev/null
-	jbuilder install relit_helper >/dev/null
-	jbuilder install ppx_relit >/dev/null
+	dune build @install
+	dune install regex_parser >/dev/null
+	dune install test_parser >/dev/null
+	dune install timeline_parser >/dev/null
+	dune install regex_example >/dev/null
+	dune install timeline_example >/dev/null
+	dune install test_example >/dev/null
+	dune install relit_helper >/dev/null
+	dune install ppx_relit >/dev/null
 
 clean:
 	@rm -rf _build

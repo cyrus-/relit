@@ -1,7 +1,0 @@
-(library
-  ((name regex_example)
-   (public_name regex_example)
-   (preprocess (pps (ppxlib.metaquot)))
-   (libraries (ocaml-migrate-parsetree
-               ppxlib.metaquot
-               relit_helper))))

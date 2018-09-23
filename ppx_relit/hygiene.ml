@@ -11,14 +11,13 @@ module StringSet = Set.Make(String)
 
 let module_expr_of_expr ~loc expr =
   let open Parsetree in
-  let open Longident in
   Ast_helper.Mod.structure
     [%str let _ = [%e expr ] ]
 
 let tyexpr_of_module = function
   | Typedtree.{ mod_desc = Tmod_structure
           {str_items = [{str_desc = Tstr_value
-                             (_, [{vb_expr = expr; _}])}]} } ->
+                             (_, [{vb_expr = expr; _}]); _}]; _}; _ } ->
             expr
   | _ -> raise (Failure "Bug: we literally just constructed this")
 
@@ -75,13 +74,12 @@ let check_modules_used expr dependencies =
 let check App_record.{dependencies;
                        path;
                        loc;
-                       env = app_env} expr =
+                       env = _app_env; _} expr =
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
-  let tyexpr = typecheck_expression ~loc env expr in
+  let _ = typecheck_expression ~loc env expr in
   check_modules_used expr dependencies;
-  let app_env = add_dependencies_to app_env dependencies in
 
   Ast_helper.Exp.constraint_ ~loc
     expr

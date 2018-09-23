@@ -49,7 +49,7 @@ let read_to delim lexbuf =
       lexbuf.lex_curr_pos >= lexbuf.lex_buffer_len ||
       (matches_prefix delim lexbuf.lex_curr_pos && stack = [])
 
-    let rec read_to stack =
+    let read_to stack =
       let stack = ref stack in
 
       while not (at_end !stack) do
@@ -116,7 +116,7 @@ let validate_seg seg len =
     raise (InvalidSegmentation (OutOfBounds seg))
   else ()
 
-let rec validate_seg_pair seg1 seg2 len =
+let validate_seg_pair seg1 seg2 len =
   let () = validate_seg seg1 len in
   let () = validate_seg seg2 len in
   let end_pos1 = seg1.end_pos in
@@ -142,7 +142,7 @@ let validation_tests () =
   let validate_ok segs len =
     match validate segs len with
     | () -> true
-    | exception (InvalidSegmentation e) -> false in
+    | exception (InvalidSegmentation _) -> false in
 
   let validate_raises segs len result =
     match validate segs len with

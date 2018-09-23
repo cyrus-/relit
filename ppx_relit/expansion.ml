@@ -48,9 +48,7 @@ let expand_app (app : App_record.t)
   let serialized_location = Marshal.to_string app.loc [] ^ "\n" |> B64.encode in
   Unix.putenv "RELIT_INTERNAL_LOCATION" serialized_location;
 
-  let ast = Utils.with_process ("./" ^ parser)
-    Utils.(fun (pout, pin) ->
-
+  let ast = Utils.with_process ("./" ^ parser) (fun (pout, _pin) ->
       let signal = input_line pout in
       match signal with
       | "ast" ->

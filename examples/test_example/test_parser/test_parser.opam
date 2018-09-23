@@ -8,8 +8,8 @@ bug-reports: ""
 license: "MIT"
 dev-repo: ""
 build: [
-  ["jbuilder" "build"]
+  ["dune" "build" "-p" "test_parser"]
 ]
-install: ["jbuilder" "install" "test_parser"]
+install: ["dune" "install" "test_parser"]
 remove: ["ocamlfind" "remove" "project"]
 depends: "ocamlfind"

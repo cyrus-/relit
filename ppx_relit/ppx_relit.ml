@@ -10,8 +10,6 @@
 let ppx_name = "relit"
 
 open Ast_mapper
-open Parsetree
-open Typedtree
 open Asttypes
 
 open App_record
@@ -22,11 +20,11 @@ let fully_expanded structure =
   let open Longident in
   let expr_mapper mapper e = match e.pexp_desc with
     | Pexp_apply (
-        {pexp_desc = Pexp_ident {txt = Lident "raise"; _}},
-        [(_, {pexp_attributes = ({txt = "relit"}, _) :: _;
+      {pexp_desc = Pexp_ident {txt = Lident "raise"; _}; _},
+        [(_, {pexp_attributes = ({txt = "relit"; _}, _) :: _;
               pexp_desc = Pexp_construct ({txt = Ldot (_, "Apply"); _},
               Some {pexp_desc = Pexp_tuple [_ ;
-                {pexp_desc = Pexp_constant (Pconst_string _); _}]; _} )})]
+                {pexp_desc = Pexp_constant (Pconst_string _); _}]; _} ); _})]
       ) ->
         raise HasRelitApp
     | _ -> Ast_mapper.default_mapper.expr mapper e
@@ -79,7 +77,7 @@ let relit_expansion_pass structure =
       ~path:app_record.path
   in map_structure for_each app_records structure
 
-let rec relit_mapper =
+let relit_mapper =
   let rec structure_mapping structure =
     if fully_expanded structure then structure
     else
@@ -87,7 +85,8 @@ let rec relit_mapper =
       structure_mapping structure
   in
   { default_mapper with
-    structure = (fun _ -> Utils.maybe_print structure_mapping) }
+    structure = (fun _ -> Utils.maybe_print structure_mapping)
+  }
 
 let () =
   register ppx_name (fun _cookies -> relit_mapper)

@@ -1,0 +1,19 @@
+opam-version: "1.2"
+name: "relit_helper"
+version: "0.1"
+maintainer: "Charles Chamberlain <charlespipin@gmail.com>"
+authors: [
+  "Charles Chamberlain <charlespipin@gmail.com>"
+  "Cyrus Omar <cyrus.omar@gmail.com>"
+]
+homepage: "https://github.com/cyrus-/relit"
+bug-reports: "https://github.com/cyrus-/relit/issues"
+license: "MIT"
+dev-repo: "https://github.com/cyrus-/relit"
+build: [
+  ["dune" "build" "-p" "relit_helper"]
+]
+depends: [
+  "dune"
+  "ocamlfind"
+]
