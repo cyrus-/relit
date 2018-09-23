@@ -191,6 +191,8 @@ of the file. Generally reading up from there will give you a good idea
 of what's going on, and specifically the function `relit_expansion_pass`
 is supposed to provide a high-level overview.
 
+There's also a [talk proposal](./relit-ocaml-workshop.pdf) that goes over implementation in detail.
+
 ## Debug Mode
 
 Relit does provide a way to peek at the underlying expansion of macros when the need arises.
@@ -211,13 +213,17 @@ will cause the Relit PPX to print out:
 open Regex_example;
 
 let regex =
+  /* open Pervasives to ensure context independence */
   Pervasives.(
+    /* open $regex's Dependencies, again insuring context indepedence
+       (RelitInternalDefn_regex is Relit's internal way of saying $regex) */
     Regex_example.Regex_notation.RelitInternalDefn_regex.Dependencies
       .(
       () => (
         Regex.Or(
           Regex.Str("a"),
           Regex.Star(Regex.Str("b")),
+        /* a type assertion that the expansion is the type the notation definition specified */
         ): Regex_example.Regex_notation.RelitInternalDefn_regex.t
       )
     )
