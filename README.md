@@ -4,26 +4,26 @@
 
 [Reason](https://reasonml.github.io/) is an increasingly popular alternative syntax for OCaml designed by engineers at Facebook to make OCaml more notationally comfortable for contemporary programmers. However, Reason, following OCaml, builds in literal notation for only a few common data structures, e.g. list literals like `[x, y, z]`, array literals like `[|x, y, z|]`, and [JSX literals](https://reasonml.github.io/docs/en/jsx), which support an extension of HTML notation. This approach is unsatisfying because there are many other possible data structures for which literal notation might be useful, e.g. for finite maps, regular expressions, SQL queries, syntax tree representations, and chemical structures expressed using [SMILES notation](https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system), to name just a few possibilities.
 
-In [our ICFP 2018 paper](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf) ([.bib](https://github.com/cyrus-/relit/blob/master/relit.bib)), we address this problem by introducing **typed literal macros (TLMs)** into Reason. TLMs allow the programmer to define new literal notation, of nearly arbitrary design, for expressions and patterns of any type at all. 
+In [our ICFP 2018 paper](https://github.com/cyrus-/ptsms-paper/raw/master/icfp18/omar-icfp18-final.pdf) ([.bib](https://github.com/cyrus-/relit/blob/master/relit.bib)), we address this problem by introducing **typed literal macros (TLMs)** into Reason. TLMs allow the programmer to define new literal notation, of nearly arbitrary design, for expressions and patterns of any type at all.
 
 ## Tutorial: Regex Notation
 
 For example, say that we have defined a recursive datatype `Regex.t` classifying simple regular expressions:
 ```reason
   module Regex = {
-    type t = 
+    type t =
       | Empty
-      | AnyChar 
+      | AnyChar
       | Str(string)
-      | Seq(t, t) 
-      | Or(t, t) 
+      | Seq(t, t)
+      | Or(t, t)
       | Star(t);
   };
 ```
 
 Applying these constructors directly is notationally costly, so let's define a TLM named `$regex` (pronounced "lit regex") that implements the familiar POSIX-style regex notation. The definition of `$regex`, which we place by convention into a module named `Regex_notation`, is outlined below (note that GitHub does not yet know how to highlight our extensions to Reason).
 ```reason
-module Regex_notation = { 
+module Regex_notation = {
   notation $regex at Regex.t { /* ... full definition given under "TLM Definitions" below ... */ }
 };
 ```
@@ -75,7 +75,7 @@ Each TLM decides for itself how it recognizes spliced expressions.
 
 Keep in mind that the literal body is expanded at compile-time, so using TLMs together with composite representations of data structures like regexes and SQL queries can help programmers avoid [string injection attacks](https://en.wikipedia.org/wiki/Code_injection) without giving up the notational benefits of string representations.
 
-Splicing is also sometimes called interpolation because it generalizes [string interpolation](https://en.wikipedia.org/wiki/String_interpolation) as featured in many languages. Splicing is also sometimes called unquotation or antiquotation because it generalizes the unquotation forms in code quotation systems, like those in various [Lisp dialects](https://en.wikipedia.org/wiki/Lisp_(programming_language)#Self-evaluating_forms_and_quoting) and many other languages. 
+Splicing is also sometimes called interpolation because it generalizes [string interpolation](https://en.wikipedia.org/wiki/String_interpolation) as featured in many languages. Splicing is also sometimes called unquotation or antiquotation because it generalizes the unquotation forms in code quotation systems, like those in various [Lisp dialects](https://en.wikipedia.org/wiki/Lisp_(programming_language)#Self-evaluating_forms_and_quoting) and many other languages.
 
 ### Typing, Hygiene and Segmentation
 
@@ -103,10 +103,10 @@ The ICFP paper investigates these reasoning principles in formal detail (i.e. wi
 Let us now consider the full definition of `Regex_notation.$regex`, given below, in more detail.
 
 ```reason
-module Regex_notation = { 
+module Regex_notation = {
   notation $regex at Regex.t {
     lexer Regex_parser.Lexer
-    parser Regex_parser.Parser.start 
+    parser Regex_parser.Parser.start
     in package regex_parser;
     dependencies = {
       module Regex = Regex;
@@ -120,15 +120,15 @@ A TLM definition can appear anywhere a module definition can appear, and TLM def
 
 #### Lexing and Parsing
 
-Each TLM must specify a lexer, here `Regex_parser.Lexer`, and a parser, here `Regex_parser.Parser.start`, where `start` is the name of the starting non-terminal. 
-The lexer and parser will be loaded and invoked at compile-time. To cleanly facilitate this, the lexer and parser must be packaged into a named [ocamlfind](http://projects.camlcity.org/projects/findlib.html) package, here indicated by `in package regex_parser`. 
+Each TLM must specify a lexer, here `Regex_parser.Lexer`, and a parser, here `Regex_parser.Parser.start`, where `start` is the name of the starting non-terminal.
+The lexer and parser will be loaded and invoked at compile-time. To cleanly facilitate this, the lexer and parser must be packaged into a named [ocamlfind](http://projects.camlcity.org/projects/findlib.html) package, here indicated by `in package regex_parser`.
 
 The lexer must be generated by (or satisfy the same interface as lexers generated by) [ocamllex](https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html) and the parser must be generated by (or satisfy the same interface as parsers generated by) [Menhir](http://gallium.inria.fr/~fpottier/menhir/), which is a modernized derivative of ocamlyacc. These are the most popular and mature lexer and parser generators within the OCaml ecosystem, and notably, Reason itself is implemented using these same generators. [Chapter 16](https://v1.realworldocaml.org/v1/en/html/parsing-with-ocamllex-and-menhir.html) of *Real World OCaml* nicely introduces both.
 
 We will not detail the regex lexer and parser definitions here, but the ICFP paper (Sec. 2.2) does cover them. The full definitions can be found alongside the rest of the definitions above in the [`examples/regex_example`](https://github.com/cyrus-/relit/tree/master/examples/regex_example) directory. For the most part, they are entirely standard lexer and parser definitions. The only interesting bit has to do with splicing: the paper describes how splicing is implemented at the level of the lexer by invoking a helper function, `Relit.Segment.read_to`, in the `relit_helper` package. Ultimately, the parser generates [standard OCaml parse trees](https://caml.inria.fr/pub/docs/manual-ocaml/libref/Parsetree.html), with a special representation for tracking spliced expressions (see paper). We rely on the excellent [`ppxlib` library](https://github.com/ocaml-ppx/ppxlib) to normalize between different versions of the parse tree API and, for now, we rely on its [`metaquot` library](https://github.com/ocaml-ppx/ppxlib#metaquot-and-metaquot_lifters) to make the generation of parse trees notationally tractable. (In the future, we might switch to TLMs as suggested in the paper, but the existing library is more mature.)
 
 #### Dependencies
-Each TLM definition also provides a listing of expansion dependencies, i.e. types and modules from the definition site that expansions generated by the parser might need access to (other than `Pervasives`). In the example above, there is a single dependency on the `Regex` module, which expansions can refer to internally also as `Regex` (the internal name can differ in general). The system ensures that the dependencies are available at all application sites, including those where `Regex` might be unbound or bound to a different module. This maintains the context independence principle described above. 
+Each TLM definition also provides a listing of expansion dependencies, i.e. types and modules from the definition site that expansions generated by the parser might need access to (other than `Pervasives`). In the example above, there is a single dependency on the `Regex` module, which expansions can refer to internally also as `Regex` (the internal name can differ in general). The system ensures that the dependencies are available at all application sites, including those where `Regex` might be unbound or bound to a different module. This maintains the context independence principle described above.
 
 The paper further motivates this design decision, but briefly, explicit dependencies serve to ensure that renamings need not propagate into the parse trees constructed in the parser (where variables are represented using strings), and it also serves to maintain the abstraction discipline of the OCaml module system (making all bindings at the definition site implicitly available at application sites would require violating abstraction).
 
@@ -140,7 +140,7 @@ notations we've defined using Relit.
 Run `make` to run the corresponding test suite, in the `test` directory.
 
 The tests are written to use [cram](https://bitheap.org/cram/), which makes
-assertions about the output of commands executed at the terminal (in our 
+assertions about the output of commands executed at the terminal (in our
 case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
@@ -191,13 +191,55 @@ of the file. Generally reading up from there will give you a good idea
 of what's going on, and specifically the function `relit_expansion_pass`
 is supposed to provide a high-level overview.
 
+## Debug Mode
+
+Relit does provide a way to peek at the underlying expansion of macros when the need arises.
+
+Setting the environment variable `RELIT_DEBUG=true` within the build environment will trigger the Relit PPX to print its fully-expanded AST to stderr. For example, a file that looks like :
+
+```reason
+open Regex_example;
+
+let regex = Regex_notation.$regex `(a|b*)`;
+
+let () = print_endline(Regex.show(regex));
+```
+
+will cause the Relit PPX to print out:
+
+```reason
+open Regex_example;
+
+let regex =
+  Pervasives.(
+    Regex_example.Regex_notation.RelitInternalDefn_regex.Dependencies
+      .(
+      () => (
+        Regex.Or(
+          Regex.Str("a"),
+          Regex.Star(Regex.Str("b")),
+        ): Regex_example.Regex_notation.RelitInternalDefn_regex.t
+      )
+    )
+  )();
+
+let () = print_endline(Regex.show(regex));
+```
+
+This ends up showing a lot of the implementation details of Relit.
+Especially in the case of nested splicing, this output can get
+difficult to read. Relit is designed to ensure that TLM readers and users
+should rarely, if ever, have to look at the expansion of a TLM.
+Debug mode is mainly targeted towards authors of TLM definitions: it allows
+TLM writers to debug their parsers easily.
+
 
 ## Current Limitations
 
  * Relit does not currently implement pattern TLMs or parametric TLMs.
- * The Relit PPX not currently work with Dune
- * TODO: other stuff and issue links
- * The warning 
+ * The Relit PPX not currently work with Dune.
+ * Using Relit within rtop doesn't work.
+ * The warning
 
       ```
       [WARNING] Interface topdirs.cmi occurs in several directories: /home/ygrek/.opam/4.02.1/lib/ocaml/compiler-libs, /home/ygrek/.opam/4.02.1/lib/ocaml
