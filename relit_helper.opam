@@ -15,5 +15,9 @@ build: [
 ]
 depends: [
   "dune"
-  "ocamlfind"
+  "extlib"
+  "ppxlib"
+  "ocaml-migrate-parsetree"
+  "base64"
+  "relit-reason"
 ]

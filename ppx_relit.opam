@@ -16,4 +16,10 @@ build: [
 depends: [
   "dune"
   "ocamlfind"
+  "ocaml-migrate-parsetree"
+  "relit-reason"
+  "base64"
+  "ppxlib"
+  "base-unix"
+  "ocamlbuild"
 ]
