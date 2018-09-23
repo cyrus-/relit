@@ -207,7 +207,7 @@ let regex = Regex_notation.$regex `(a|b*)`;
 let () = print_endline(Regex.show(regex));
 ```
 
-will cause the Relit PPX to print out:
+will cause the Relit PPX to print out (comments added later):
 
 ```reason
 open Regex_example;
