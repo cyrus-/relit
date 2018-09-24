@@ -5,7 +5,7 @@
              ocaml-migrate-parsetree
              ppxlib.metaquot
              relit_helper
-             reason
+             relit-reason
              unix
              str
              base64
