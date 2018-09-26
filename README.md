@@ -243,7 +243,7 @@ TLM writers to debug their parsers easily.
 ## Current Limitations
 
  * Relit does not currently implement pattern TLMs or parametric TLMs.
- * The Relit PPX not currently work with Dune.
+ * The Relit PPX does not currently work with Dune ([issue](https://github.com/cyrus-/relit/issues/6))
  * Using Relit within rtop doesn't work.
  * The warning
 
@@ -255,6 +255,6 @@ TLM writers to debug their parsers easily.
 
 ## Contributors
 
- * Cyrus Omar
  * Charles Chamberlain
+ * Cyrus Omar
 
