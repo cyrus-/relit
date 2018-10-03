@@ -1,6 +1,8 @@
 open Timeline_example;
 open Timeline_notation;
 
+module Timeline_example = {};
+
 let timeline =
   $timeline `(
     0 sec (print_endline("This should print second."))

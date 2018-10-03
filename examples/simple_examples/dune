@@ -1,0 +1,23 @@
+(executable
+  (name my_first_timeline)
+  (preprocess (staged_pps ppx_relit))
+  (modules my_first_timeline)
+  (libraries timeline_example))
+
+(executable
+  (name spliced_ocaml)
+  (preprocess (staged_pps ppx_relit))
+  (modules spliced_ocaml)
+  (libraries regex_example timeline_example))
+
+(executable
+  (name simple_example)
+  (preprocess (staged_pps ppx_relit))
+  (modules simple_example)
+  (libraries regex_example timeline_example))
+
+(executable
+  (name splice_in_splice)
+  (preprocess (staged_pps ppx_relit))
+  (modules splice_in_splice)
+  (libraries regex_example timeline_example))

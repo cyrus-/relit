@@ -72,7 +72,7 @@ let check_modules_used expr dependencies =
 
 
 let check App_record.{dependencies;
-                       path;
+                       longident;
                        loc;
                        env = _app_env; _} expr =
   (* This is an empty environment, but does have Pervasives. *)
@@ -84,5 +84,5 @@ let check App_record.{dependencies;
   Ast_helper.Exp.constraint_ ~loc
     expr
     (Ast_helper.Typ.constr ~loc
-    {txt = Longident.(Ldot (Utils.lident_of_path path, "t")) ; loc }
+    {txt = Longident.(Ldot (longident, "t")) ; loc }
     [])

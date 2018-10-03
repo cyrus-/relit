@@ -74,19 +74,17 @@ let relit_expansion_pass structure =
       ~body_of_lambda:open_expansion
       ~spliced_asts
       ~loc:app_record.loc
-      ~path:app_record.path
+      ~longident:app_record.longident
   in map_structure for_each app_records structure
 
-let relit_mapper =
-  let rec structure_mapping structure =
-    if fully_expanded structure then structure
-    else
-      let structure = relit_expansion_pass structure in
-      structure_mapping structure
-  in
-  { default_mapper with
-    structure = (fun _ -> Utils.maybe_print structure_mapping)
-  }
+let rec structure_mapping structure =
+  if Ast_mapper.tool_name () = "ocamldep" then structure else
+  if fully_expanded structure then structure else
+  let structure = relit_expansion_pass structure in
+  structure_mapping structure
 
 let () =
-  register ppx_name (fun _cookies -> relit_mapper)
+  Ppxlib.Driver.register_transformation
+    ~impl:(Utils.maybe_print structure_mapping)
+    (* ~intf *)
+    ppx_name

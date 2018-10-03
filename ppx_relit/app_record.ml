@@ -9,7 +9,7 @@ type dependency = Module of Ident.t * Types.module_declaration
 
 type t = {
   body: string;
-  path: Path.t;
+  longident: Longident.t;
   lexer: string;
   parser: string;
   nonterminal: string;

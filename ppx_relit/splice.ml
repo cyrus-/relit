@@ -77,9 +77,10 @@ let open_module_in ~loc mod_lident expr =
        {txt = mod_lident; loc },
        expr);
    pexp_loc = loc;
-   pexp_attributes = []}
+   pexp_attributes = [{txt="warning"; loc},
+     PStr [{pstr_desc = Pstr_eval ({pexp_desc = Pexp_constant (Pconst_string ("-33", None)) ; pexp_loc = loc; pexp_attributes = []}, []); pstr_loc = loc}]]}
 
-let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~path =
+let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
   (* splices are represented as "thunks", i.e. a lambda that takes unit.
    *
    * this ensures that an side-effects happen if and when the code that the splice
@@ -138,6 +139,6 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~path =
 
   body_of_lambda
   |> wrap_as_fun pattern
-  |> open_module_in ~loc (Ldot (Utils.lident_of_path path, "Dependencies"))
+  |> open_module_in ~loc (Ldot (longident, "Dependencies"))
   |> open_module_in ~loc (Lident "Pervasives")
   |> apply_arg argument

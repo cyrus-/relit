@@ -1,14 +1,14 @@
-(executable
+(library
   (name        ppx_relit)
   (public_name ppx_relit)
+  (kind ppx_rewriter)
   (libraries compiler-libs.common
              ocaml-migrate-parsetree
+             ppxlib
              ppxlib.metaquot
              relit_helper
              relit-reason
              unix
              str
-             base64
-             )
-  (preprocess (pps ppxlib.metaquot))
-  (package ppx_relit))
+             base64)
+  (preprocess (pps ppxlib.metaquot)))

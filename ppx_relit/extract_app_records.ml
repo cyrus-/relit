@@ -32,7 +32,7 @@ module Make_record = struct
         |> Utils.split_on "__RelitInternal_dot__"
         |> String.concat "."
 
-  let of_modtype ~env ~path ~body ~loc : t =
+  let of_modtype ~env ~body ~path ~longident ~loc : t =
     let unwrap = function
       | Left o -> o
       | Right name -> raise
@@ -74,7 +74,7 @@ module Make_record = struct
     ; dependencies = unwrap !dependencies
     ; nonterminal = unwrap !nonterminal
     ; package = unwrap !package
-    ; path
+    ; longident
     ; loc
     ; env
     ; body
@@ -101,7 +101,7 @@ module App_finder(A : sig
             Some (
               {exp_attributes = ({txt = "relit"; _}, _) :: _;
                exp_desc = Texp_construct (
-                   _loc,
+                   {txt = Ldot (longident, "Apply"); _ },
 
                    (* extract the path of our TLM definition
                     * and the relit source of this application. *)
@@ -115,7 +115,7 @@ module App_finder(A : sig
                    }::_ ); _ }))]) ->
 
         let app_record =
-          Make_record.of_modtype ~loc:expr.exp_loc ~env ~path ~body
+          Make_record.of_modtype ~loc:expr.exp_loc ~env ~longident ~path ~body
         in
         A.app_records := Locmap.add expr.exp_loc
                                      app_record

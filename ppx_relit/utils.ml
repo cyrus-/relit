@@ -53,14 +53,4 @@ let maybe_print f x =
         [] Format.err_formatter
         (Convert.From_current.copy_structure parsetree);
       parsetree
-  | Some "color" ->
-      Reason_pprint_ast.configure ~width:50
-        ~assumeExplicitArity:true ~constructorLists:[];
-
-      prerr_string "\x1b[97m\x1b[48;5;105m";
-      (Reason_pprint_ast.createFormatter ())#structure
-        [] Format.err_formatter
-        (Convert.From_current.copy_structure parsetree);
-      prerr_string "\x1bc";
-      parsetree
   | _ -> parsetree
