@@ -10,7 +10,7 @@ exception ExpansionError of expansion_error_data
 let loc : Location.t =
   let encoded =
     try Sys.getenv "RELIT_INTERNAL_LOCATION"
-    with End_of_file ->
+    with Not_found ->
       raise (Failure ("bug: Relit helper should not be called outside of the "
                       ^ "Relit TLM context"))
   in

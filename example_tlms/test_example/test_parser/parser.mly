@@ -31,8 +31,7 @@ literal:
             (Relit.Segment.mk (0, 1)) [%type: string]
           ] |> ignore ; 5 ]
       | "bad_splice_bounds" ->
-          Relit.ProtoExpr.spliced
-            (Relit.Segment.mk (2, 3040)) [%type: int]
+          Relit.ProtoExpr.spliced (Relit.Segment.mk (2, 3040)) [%type: int]
       | "bad_splice_overlap" ->
           [%expr
             [%e Relit.ProtoExpr.spliced

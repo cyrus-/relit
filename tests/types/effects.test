@@ -1,6 +1,0 @@
-  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
-
-Effects in spliced expressions should execute at the right time.
-
-  $ reason $TESTDIR/effects
-  (Seconds 2)(Seconds 4)

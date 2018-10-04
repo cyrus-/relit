@@ -1,8 +1,0 @@
-  $ . $ORIGINAL_DIR/tests/helpers/caml.sh
-
-Make sure we get an error when the type annotation is inconsistent 
-
-  $ reason $TESTDIR/type_inconsistency
-  File "type_inconsistency.re", line 12, characters 2-18:
-  Error: This expression has type int but an expression was expected of type
-           TestTLM.RelitInternalDefn_test.t = string

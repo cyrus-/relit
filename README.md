@@ -134,14 +134,12 @@ The paper further motivates this design decision, but briefly, explicit dependen
 
 ## More Examples and Tests
 
+TODO: FIX this
+
 We've got an `examples` directory that is the home of any example
 notations we've defined using Relit.
 
 Run `make` to run the corresponding test suite, in the `test` directory.
-
-The tests are written to use [cram](https://bitheap.org/cram/), which makes
-assertions about the output of commands executed at the terminal (in our
-case, the compiler with the Relit preprocessor enabled).
 
 ## Installation
 
