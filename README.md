@@ -134,12 +134,15 @@ The paper further motivates this design decision, but briefly, explicit dependen
 
 ## More Examples and Tests
 
-TODO: FIX this
+We've got an `examples_tlsm` directory that is the home of the example notations we've defined using Relit.
 
-We've got an `examples` directory that is the home of any example
-notations we've defined using Relit.
+To see some simple uses of these examples, look under `simple_tests`. To build and run them:
 
-Run `make` to run the corresponding test suite, in the `test` directory.
+```
+make {simple_example,spliced_ocaml,splice_in_splice,my_first_timeline}
+```
+
+Run `make` to run the tests. They're pretty clear to read! Checkout `test/test.ml`.
 
 ## Installation
 
@@ -162,21 +165,8 @@ make
 make install
 ```
 
-To run the tests you also need the [`cram`](https://bitheap.org/cram/) library. The easiest way to install it is using `pip`.
-
-```
-pip install cram
-```
-
-Finally, you can clone the Relit repo and `make`, which will install the Relit ppx, the `relit_helper` package, and execute the tests:
-
-```
-git clone https://github.com/cyrus-/relit
-cd relit
-make
-```
-
 To use Relit, make sure you include the Relit ppx in your build process.
+With dune, use `staged_pps` as you can see in `simple_tests/dune`.
 
 Note that while Relit should in theory work on Windows, we have not tested
 this. If you get it to work, let us know!
@@ -241,8 +231,7 @@ TLM writers to debug their parsers easily.
 ## Current Limitations
 
  * Relit does not currently implement pattern TLMs or parametric TLMs.
- * The Relit PPX does not currently work with Dune ([issue](https://github.com/cyrus-/relit/issues/6))
- * Using Relit within rtop doesn't work.
+ * Using Relit doesn't work within the toploop/rtop/utop.
  * The warning
 
       ```
