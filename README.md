@@ -151,7 +151,7 @@ First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you ha
 Then, install the necessary dependencies:
 
 ```
-opam install ppxlib dune menhir ocamlbuild extlib base64
+opam install ppxlib dune menhir extlib base64 ppx_expect
 ```
 
 Next, you need to install our fork of the Reason parser:
