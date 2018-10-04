@@ -146,15 +146,22 @@ Run `make` to run the tests. They're pretty clear to read! Checkout `test/test.m
 
 ## Installation
 
-First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have OCaml 4.04+ by running `opam switch`.
+First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.06** by running `opam switch`.
 
-Then, install the necessary dependencies:
+Next install the very latest version of dune:
 
 ```
-opam install ppxlib dune menhir extlib base64 ppx_expect
+git clone git@github.com:ocaml/dune
+opam pin add ./dune
 ```
 
-Next, you need to install our fork of the Reason parser:
+Then, install the rest of the dependencies dependencies:
+
+```
+opam install ppxlib menhir extlib base64 ppx_expect
+```
+
+Lastly, you need to install our fork of the Reason parser:
 
 ```
 opam remove reason
