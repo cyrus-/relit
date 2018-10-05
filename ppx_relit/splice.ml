@@ -102,7 +102,7 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
    * *)
 
   let respective_names = List.map (fun (splice, _) ->
-        let pat = Ast_helper.Pat.var { txt = splice.variable_name ; loc } in
+        let pat = Ast_helper.Pat.var ~loc { txt = splice.variable_name ; loc } in
         let ty = Ast_helper.Typ.arrow ~loc Asttypes.Nolabel
           (Ast_helper.Typ.constr ~loc Location.{txt = Longident.Lident "unit"; loc} [])
           splice.expected_type
@@ -111,10 +111,10 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
   ) spliced_asts in
 
   let spliced_asts = List.map (fun (_, ast) ->
-    Ast_helper.Exp.fun_
+    Ast_helper.Exp.fun_ ~loc
       Asttypes.Nolabel
       None
-      (Ast_helper.Pat.construct Location.{txt = Longident.Lident "()"; loc} None)
+      (Ast_helper.Pat.construct ~loc Location.{txt = Longident.Lident "()"; loc} None)
       ast
   ) spliced_asts in
 
@@ -125,17 +125,17 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
   let (pattern, argument) = match List.length spliced_asts with
   | 0 ->
     let unit_ = Location.{txt = Longident.Lident "()"; loc } in
-    (Ast_helper.Pat.construct unit_ None,
-     Ast_helper.Exp.construct unit_ None)
+    (Ast_helper.Pat.construct ~loc unit_ None,
+     Ast_helper.Exp.construct ~loc unit_ None)
   | 1 ->
     (List.hd respective_names,
      List.hd spliced_asts)
   | _ ->
-    (Ast_helper.Pat.tuple respective_names,
-     Ast_helper.Exp.tuple spliced_asts)
+    (Ast_helper.Pat.tuple ~loc respective_names,
+     Ast_helper.Exp.tuple ~loc spliced_asts)
   in
-  let wrap_as_fun = Ast_helper.Exp.fun_ Asttypes.Nolabel None in
-  let apply_arg arg l = Ast_helper.Exp.apply l [(Asttypes.Nolabel, arg)] in
+  let wrap_as_fun = Ast_helper.Exp.fun_ ~loc Asttypes.Nolabel None in
+  let apply_arg arg l = Ast_helper.Exp.apply ~loc l [(Asttypes.Nolabel, arg)] in
 
   body_of_lambda
   |> wrap_as_fun pattern

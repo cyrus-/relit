@@ -9,6 +9,8 @@ module Location = Ppxlib.Location
 
 module StringSet = Set.Make(String)
 
+open App_record
+
 let module_expr_of_expr ~loc expr =
   let open Parsetree in
   Ast_helper.Mod.structure
@@ -71,18 +73,18 @@ let check_modules_used expr dependencies =
   )
 
 
-let check App_record.{dependencies;
-                       longident;
-                       loc;
-                       env = _app_env; _} expr =
+let check {dependencies; loc; env = _app_env; _} expr =
   (* This is an empty environment, but does have Pervasives. *)
   let env = Compmisc.initial_env () in
   let env = add_dependencies_to env dependencies in
   let _ = typecheck_expression ~loc env expr in
-  check_modules_used expr dependencies;
+  (* Location.print Format.err_formatter loc; *)
+  check_modules_used expr dependencies
 
-  Ast_helper.Exp.constraint_ ~loc
+let add_type_assertion expr app_record =
+  (* Location.print Format.err_formatter app_record.loc; *)
+  Ast_helper.Exp.constraint_ ~loc:app_record.loc
     expr
-    (Ast_helper.Typ.constr ~loc
-    {txt = Longident.(Ldot (longident, "t")) ; loc }
+    (Ast_helper.Typ.constr ~loc:app_record.loc
+    {txt = Longident.(Ldot (app_record.longident, "t")) ; loc = app_record.loc }
     [])

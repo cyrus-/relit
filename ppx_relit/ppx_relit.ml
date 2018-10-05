@@ -58,7 +58,7 @@ let relit_expansion_pass structure =
   let app_records = Extract_app_records.from structure in
   let for_each app_record =
     let proto_expansion = Expansion.expand_app app_record in
-    let proto_expansion = Hygiene.check app_record proto_expansion in
+    Hygiene.check app_record proto_expansion;
 
     (* We ensure capture avoidance by replacing each splice reference
      * with a fresh variable... *)
@@ -70,11 +70,15 @@ let relit_expansion_pass structure =
 
     (* ... and then wrap the body in a function that is immediately applied
      * to these splices. *)
-    Splice.fill_in_splices
+    let proto_expansion = Splice.fill_in_splices
       ~body_of_lambda:open_expansion
       ~spliced_asts
       ~loc:app_record.loc
       ~longident:app_record.longident
+    in
+
+    Hygiene.add_type_assertion proto_expansion app_record
+
   in map_structure for_each app_records structure
 
 let rec structure_mapping structure =
