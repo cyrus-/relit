@@ -139,6 +139,6 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
 
   body_of_lambda
   |> wrap_as_fun pattern
-  |> open_module_in ~loc (Ldot (longident, "Dependencies"))
   |> open_module_in ~loc (Lident "Pervasives")
+  |> open_module_in ~loc (Ldot (longident, "Dependencies"))
   |> apply_arg argument
