@@ -196,7 +196,8 @@ of the file. Generally reading up from there will give you a good idea
 of what's going on, and specifically the function `relit_expansion_pass`
 is supposed to provide a high-level overview.
 
-There's also a [four page talk proposal](./relit-ocaml-workshop.pdf) that goes over implementation in a little more detail.
+There's also a [four page talk proposal](./relit-ocaml-workshop.pdf) and [slides](http://files.narwhal.space/relit/talk.html) that cover the implementation in a little more detail.
+We're happy to discuss the implementation with anyone who wants to work on it or implement TLMs in another language!
 
 ### Debug Mode
 
