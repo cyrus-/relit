@@ -22,6 +22,12 @@ let%expect_test "module_in_dependencies" =
   compile_and_run ~name:"module_in_dependencies";
   [%expect{| 42 |}]
 
+let%expect_test "type_t_not_in_dependencies" =
+  compile_and_run ~name:"type_t_not_in_dependencies";
+  [%expect{|
+    File "test/cases/type_t_not_in_dependencies.re", line 5, characters 13-48:
+    Error: Unbound type constructor t |}]
+
 let%expect_test "type_not_in_dependencies" =
   compile_and_run ~name:"type_not_in_dependencies";
   [%expect{|

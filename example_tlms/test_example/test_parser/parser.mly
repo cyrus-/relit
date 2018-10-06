@@ -22,6 +22,7 @@ literal:
       | "module" -> [%expr Std.unique () ]
       | "typed_fn" -> [%expr fun (a : new_type) -> a * a ]
       | "badly_typed_fn" -> [%expr fun (a : fake_type) -> a * a ]
+      | "type_t_fn" -> [%expr fun (a : t) -> a * a ]
       | "$( 2 )" ->
           [%expr [%e Relit.ProtoExpr.spliced
             (Relit.Segment.mk (2, 4)) [%type: string ]
