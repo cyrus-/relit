@@ -137,8 +137,22 @@ let fill_in_splices ~loc ~body_of_lambda ~spliced_asts ~longident =
   let wrap_as_fun = Ast_helper.Exp.fun_ ~loc Asttypes.Nolabel None in
   let apply_arg arg l = Ast_helper.Exp.apply ~loc l [(Asttypes.Nolabel, arg)] in
 
+  (* The calls to `open_module_in` here are very important.
+   * Firstly, they ensure that any modules or variables relied
+   * upon by a macro's expansion cannot be shadowed: TLMs should
+   * expand the same no matter where they are called. (We have
+   * already ensured that they _only_ use these dependencies in
+   * Hygiene.check.)
+   *
+   * You'll notice the argument is applied (with apply_arg)
+   * AFTER we open the dependencies and pervasives. This is
+   * because the argument contains the spliced expressions,
+   * which should be able to refer to things actually in the
+   * scope of the tlm application. *)
+
   body_of_lambda
   |> wrap_as_fun pattern
+  |> open_module_in ~loc (Lident "Dependencies")
   |> open_module_in ~loc (Lident "Pervasives")
-  |> open_module_in ~loc (Ldot (longident, "Dependencies"))
+  |> open_module_in ~loc longident
   |> apply_arg argument
