@@ -134,7 +134,7 @@ The paper further motivates this design decision, but briefly, explicit dependen
 
 ## More Examples and Tests
 
-We've got an `examples_tlms` directory that is the home of the example notations we've defined using Relit.
+We've got an `examples_tlms` directory that is the home of several example notations we've defined using Relit.
 
 To see some simple uses of these examples, look under `simple_tests`. To build and run them:
 
@@ -144,11 +144,13 @@ make {simple_example,spliced_ocaml,splice_in_splice,my_first_timeline}
 
 Run `make` to run the full test suite. Those tests are pretty clear to read! Check out `test/test.ml`.
 
+There is also a [standlone repository that defines a TLM for lists](https://github.com/charlesetc/example-tlm) and can be used as a project template for TLM providers.
+
 ## Installation
 
 First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.06.1** by running `opam switch`.
 
-Next install the very latest version of dune (version 1.3.0 had a bug that we fixed, so the next version of Dune should be fine):
+Next install the very latest version of dune (version 1.3.0 had a bug that we fixed, so the next release of Dune should be fine):
 
 ```
 git clone https://github.com/ocaml/dune
@@ -253,7 +255,8 @@ TLM writers to debug their parsers easily.
 
 ## Current Limitations
 
- * Relit does not yet implement pattern TLMs or parametric TLMs, which were described in the paper.
+ * Relit does not yet implement pattern TLMs.
+ * Relit does not yet implement parametric TLMs. As a somewhat awkward workaround, you can use parameterized modules (functors), e.g. see [this example of a TLM for lists](https://github.com/charlesetc/example-tlm).
  * Relit doesn't work within the toploop/rtop/utop.
  * The following warning will come up a lot: 
 
