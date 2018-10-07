@@ -213,24 +213,31 @@ let regex = Regex_notation.$regex `(a|b*)`;
 let () = print_endline(Regex.show(regex));
 ```
 
-will cause the Relit PPX to print out (comments added here for clarity):
+will cause the Relit PPX to print out the following (comments added here for clarity):
 
 ```reason
+
 open Regex_example;
 
-let regex =
-  /* open Pervasives to ensure context independence */
-  Pervasives.(
-    /* open $regex's Dependencies, again insuring context indepedence
-       (RelitInternalDefn_regex is Relit's internal way of saying $regex) */
-    Regex_notation.RelitInternalDefn_regex.Dependencies
-      .(
-      () => (
-        Regex.Or(
-          Regex.Str("a"),
-          Regex.Star(Regex.Str("b")),
-        /* a type assertion that the expansion is the type the notation definition specified */
-        ): Regex_notation.RelitInternalDefn_regex.t
+/* type annotation (moved to the let binding by the pretty-printer) ensures
+   that the expansion is of the expected type */
+let regex: Regex_notation.RelitInternalDefn_regex.t =
+  (
+    /* open this first to avoid edge case where path to TLM is through a 
+       shadowed module in Pervasives */
+    [@warning "-33"] /* suppresses warnings when a dependency is not used */
+    Regex_notation.RelitInternalDefn_regex.( 
+      [@warning "-33"]
+      Pervasives.(
+        [@warning "-33"]
+        Dependencies.( /* open the dependencies */
+          () => /* no spliced expressions, so this is an empty argument list */
+            /* the generated expansion itself */
+            Regex.Or(
+              Regex.Or(Regex.Str("a"), Regex.Str("b")),
+              Regex.Str("c"),
+            )
+        )
       )
     )
   )();
@@ -239,9 +246,8 @@ let () = print_endline(Regex.show(regex));
 ```
 
 This ends up showing a lot of the implementation details of Relit.
-In the case of nested splicing, this output can get
-difficult to read. Relit is designed to ensure that TLM readers and users
-should rarely, if ever, have to look at the expansion of a TLM.
+Relit is designed to ensure that TLM readers and users
+should rarely have to look at the expansion of a TLM application.
 Debug mode is mainly targeted towards authors of TLM definitions: it allows
 TLM writers to debug their parsers easily.
 
