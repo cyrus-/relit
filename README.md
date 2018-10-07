@@ -210,7 +210,7 @@ Setting the environment variable `RELIT_DEBUG=true` within the build environment
 ```reason
 open Regex_example;
 
-let regex = Regex_notation.$regex `(a|b*)`;
+let regex = Regex_notation.$regex `(a|b|c)`;
 
 let () = print_endline(Regex.show(regex));
 ```
