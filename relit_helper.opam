@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "relit_helper"
-version: "0.2"
+version: "0.2.0"
 maintainer: "Charles Chamberlain <charlespipin@gmail.com>"
 authors: [
   "Charles Chamberlain <charlespipin@gmail.com>"
