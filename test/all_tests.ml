@@ -1,4 +1,4 @@
-open Util
+open Runner
 
 (*
  * Capture Avoidence
@@ -101,7 +101,8 @@ let%expect_test "invalid_splice_overlap" =
     Invalid_segmentation (Bad_separation (seg1, seg2))
     File "test/cases/invalid_splice_overlap.re", line 2, characters 10-44:
     Error: This expression has type int but an expression was expected of type
-             unit |}]
+             unit
+           because it is in the left-hand side of a sequence |}]
 
 let%expect_test "most_basic_app" =
   compile_and_run ~name:"most_basic_app";

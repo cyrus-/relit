@@ -47,23 +47,19 @@ module Make_record = struct
     let signature = signature_of_path env path in
 
     List.iter (function
-    | Types.Sig_module ({ name = "Dependencies" ; _},
-                        { md_type = Mty_signature signature; _ }, _) ->
+    | Types.Sig_module (name, { md_type = Mty_signature signature; _ }, _)
+        when Ident.name name = "Dependencies" ->
       dependencies := Left (extract_dependencies env signature)
-    | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature _; _ }, _)
+    | Types.Sig_module (name, { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Nonterminal_" name ->
       nonterminal := Left (unescape_package (Utils.remove_prefix ~prefix:"Nonterminal_" name))
-    | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature _; _ }, _)
+    | Types.Sig_module (name, { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Lexer_" name ->
       lexer := Left (unescape_package (Utils.remove_prefix ~prefix:"Lexer_" name))
-    | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature _; _ }, _)
+    | Types.Sig_module (name, { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Parser_" name ->
       parser := Left (unescape_package (Utils.remove_prefix ~prefix:"Parser_" name))
-    | Types.Sig_module ({ name ; _},
-                        { md_type = Mty_signature _; _ }, _)
+    | Types.Sig_module (name, { md_type = Mty_signature _; _ }, _)
         when Utils.has_prefix ~prefix:"Package_" name ->
       package := Left (unescape_package (Utils.remove_prefix ~prefix:"Package_" name))
     | _ -> ()
@@ -95,8 +91,7 @@ module App_finder(A : sig
       | Texp_apply (
           (* match against the "raise" *)
           { exp_desc = Texp_ident
-                (Pdot (Pident { name = "Pervasives" ; _ },
-                       "raise", _), _, _) ; _ },
+                (Pdot (Pident first_ident, "raise", _), _, _) ; _ },
           [(_label,
             Some (
               {exp_attributes = ({txt = "relit"; _}, _) :: _;
@@ -112,8 +107,9 @@ module App_finder(A : sig
                      exp_desc = Texp_constant
                          Const_string (body, _other_part );
                      exp_env = env; _
-                   }::_ ); _ }))]) ->
-
+                   }::_ ); _ }))])
+      (* if we ever need to be compatible with 4.06 or earlier: *)
+      when (* Ident.name first_ident = "Pervasives" || *) Ident.name first_ident = "Stdlib" ->
         let app_record =
           Make_record.of_modtype ~loc:expr.exp_loc ~env ~longident ~path ~body
         in

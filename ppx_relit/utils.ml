@@ -26,11 +26,11 @@ let command name c =
   if success <> 0 then raise (Failure ("bug: " ^ name ^ " failed"))
 
 let has_prefix ~prefix str =
-  String.sub str 0 (String.length prefix) = prefix
+  String.sub (Ident.name str) 0 (String.length prefix) = prefix
 
 let remove_prefix ~prefix str =
   let plen = String.length prefix in
-  String.sub str plen (String.length str - plen)
+  String.sub (Ident.name str) plen (String.length (Ident.name str) - plen)
 
 let add_type_assertion expected_type parsetree =
   Ast_helper.Exp.constraint_ parsetree expected_type
