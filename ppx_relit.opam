@@ -23,7 +23,7 @@ depends: [
   "ppxlib" {= "0.3.0"}
   "base-unix"
   "ppx_expect" {with-test}
-  "ocaml" {>= "4.07.0" & < "4.07.0"}
+  "ocaml" {>= "4.07.0" & < "4.08.0"}
   "relit_helper"
 ]
 synopsis: "An implementation of Typed Literal Macros for Reason"
