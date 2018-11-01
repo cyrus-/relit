@@ -5,10 +5,11 @@
   (libraries compiler-libs.common
              ocaml-migrate-parsetree
              ppxlib
+             ppx_optcomp
              ppxlib.metaquot
              relit_helper
              relit-reason
              unix
              str
              base64)
-  (preprocess (pps ppxlib.metaquot)))
+  (preprocess (pps ppxlib.metaquot ppx_optcomp)))

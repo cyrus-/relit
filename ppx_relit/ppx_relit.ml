@@ -16,7 +16,7 @@ open App_record
 
 let fully_expanded structure =
   let exception HasRelitApp in
-  let open Parsetree in
+  let open Ppxlib in
   let open Longident in
   let expr_mapper mapper e = match e.pexp_desc with
     | Pexp_apply (
@@ -27,7 +27,7 @@ let fully_expanded structure =
                 {pexp_desc = Pexp_constant (Pconst_string _); _}]; _} ); _})]
       ) ->
         raise HasRelitApp
-    | _ -> Ast_mapper.default_mapper.expr mapper e
+    | _ -> Ocaml_common.Ast_mapper.default_mapper.expr mapper e
   in
   let mapper = { Ast_mapper.default_mapper with expr = expr_mapper } in
   match mapper.structure mapper structure with
@@ -44,7 +44,8 @@ let map_structure f app_records structure =
     try match f (Locmap.find expr.pexp_loc app_records) with
     | a -> a
     | exception Location.Error loc_error ->
-        let extension = Location.Error.to_extension loc_error in
+        let extension = raise (Failure "test") in
+        (* let extension = Location.Error.to_extension loc_error in *)
         Ast_helper.Exp.extension ~loc:expr.pexp_loc extension
     with Not_found -> (* continue down that expression *)
         Ast_mapper.default_mapper.expr mapper expr
