@@ -148,32 +148,9 @@ There is also a [standlone repository that defines a TLM for lists](https://gith
 
 ## Installation
 
-First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.06.1** by running `opam switch`.
+First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.07.0** or later, by running `opam switch`.
 
-Next install the very latest version of dune (version 1.3.0 had a bug that we fixed, so the next release of Dune should be fine):
-
-```
-git clone https://github.com/ocaml/dune
-opam pin add ./dune
-```
-
-Then, install the rest of the dependencies:
-
-```
-opam install ppxlib.0.3.0 menhir extlib base64 ppx_expect
-```
-
-Next, you need to install our fork of the Reason parser:
-
-```
-opam remove reason
-git clone https://github.com/charlesetc/reason
-cd reason
-git checkout reason-d-etre
-make
-make install
-cd ..
-```
+Next run `opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies
 
 Finally, check out this repository and run the following:
 
