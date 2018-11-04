@@ -249,6 +249,5 @@ TLM writers to debug their parsers easily.
 
 ## Contributors
 
- * Charles Chamberlain
- * Cyrus Omar
-
+ * [Charles Chamberlain](http://www.charlesetc.com/)
+ * [Cyrus Omar](http://cyrus.hazel.org)
