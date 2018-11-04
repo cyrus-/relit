@@ -150,7 +150,7 @@ There is also a [standlone repository that defines a TLM for lists](https://gith
 
 First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.07.0** or later, by running `opam switch`.
 
-Next run `opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies
+Next run `opam update && opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies
 
 Finally, check out this repository and run the following:
 
