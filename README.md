@@ -161,6 +161,7 @@ An alternative way to install Relit is via `git`. This allows you to run the tes
 ```
 git clone https://github.com/cyrus-/relit
 cd relit
+make deps
 make install
 make test
 ```

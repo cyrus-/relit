@@ -7,6 +7,9 @@ test:
 build:
 	dune build
 
+deps:
+	opam install --deps-only ./ppx_relit.opam ./relit_helper.opam
+
 ## Some simple examples for your convienence!
 
 simple_example:
