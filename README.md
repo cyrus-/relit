@@ -147,12 +147,18 @@ Run `make` to run the full test suite. Those tests are pretty clear to read! Che
 There is also a [standlone repository that defines a TLM for lists](https://github.com/charlesetc/example-tlm) and can be used as a project template for TLM providers.
 
 ## Installation
+### Requirements
+Relit currently requires **OCaml 4.07.x**.
 
-First, make sure you have [opam](https://opam.ocaml.org/). Then make sure you have **OCaml 4.07.0** or later, by running `opam switch`.
+### via `opam`
 
-Next run `opam update && opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies
+First, make sure you have [opam](https://opam.ocaml.org/) and **OCaml 4.07.x** by running `opam switch`.
 
-Finally, check out this repository and run the following:
+Next run `opam update && opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies. The Relit-specific packages are `ppx_relit`, `relit_helper` and `reason-relit`.
+
+### via `git`
+
+An alternative way to install Relit is via `git`. This allows you to run the tests and examples in this repository.
 
 ```
 git clone https://github.com/cyrus-/relit
@@ -161,12 +167,11 @@ make install
 make test
 ```
 
+## Usage
+
 To use Relit in your own project, you just have to include the Relit ppx, `ppx_relit`, in your build process.
 With dune (which we strongly recommend), use `(preprocess (staged_pps ppx_relit))` as you can see in `simple_tests/dune`. Note that you need
 to use the `staged_pps` option.
-
-Note that while Relit should in theory work on Windows, we have not tested
-this. If you get it to work, let us know!
 
 ## How It Works
 
