@@ -148,13 +148,11 @@ There is also a [standlone repository that defines a TLM for lists](https://gith
 
 ## Installation
 ### Requirements
-Relit currently requires **OCaml 4.07.x**.
+Make sure you have [opam](https://opam.ocaml.org/) and **OCaml 4.07.x** by running `opam switch`.
 
 ### via `opam`
 
-First, make sure you have [opam](https://opam.ocaml.org/) and **OCaml 4.07.x** by running `opam switch`.
-
-Next run `opam update && opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies. The Relit-specific packages are `ppx_relit`, `relit_helper` and `reason-relit`.
+Run `opam update && opam install ppx_relit`. This will pull Relit from opam, which will also install Relit's opam dependencies.
 
 ### via `git`
 
