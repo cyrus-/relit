@@ -172,6 +172,10 @@ To use Relit in your own project, you just have to include the Relit ppx, `ppx_r
 With dune (which we strongly recommend), use `(preprocess (staged_pps ppx_relit))` as you can see in `simple_tests/dune`. Note that you need
 to use the `staged_pps` option.
 
+## What about OCaml??
+
+Relit does not support OCaml at the moment. There's nothing particularly Reason-specific, aside from the fact that we have only forked the Reason parser and not the OCaml one. It's quite possible we'll add OCaml support in the future. :smile:
+
 ## How It Works
 
 The ppx execution starts in `ppx_relit/ppx_relit.ml` at the very last line
